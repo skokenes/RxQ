@@ -1,0 +1,40 @@
+<html>
+    <head>
+        <script src="../build/rxqap-engine.js"></script>
+    </head>
+    <body>
+        hi
+        <script>
+            var appId = "f2cb441f-1a6e-4e54-bc33-da917625f1c0";
+            
+            var objId = "drbukW";
+            
+            var config = {
+                //host: "ws://qs-sk/app/%3Ftransient%3D"
+                host: "ws://sense.axisgroup.com/app/" + appId
+            };
+
+
+            var mySesh = RxQ.connectEngine(config); // auto hot
+            
+            var pV = mySesh
+                .mergeMap(m=>m.Global.ProductVersion());
+
+            var hotPV = pV.publishLast().refCount();
+
+            var myApp = mySesh
+                .mergeMap(m=>m.Global.OpenDoc(appId))
+                .map(m=>m.result.qReturn.qHandle);
+            
+            var hotApp = myApp.publishLast().refCount();
+
+            var myObj = mySesh
+                .combineLatest(myApp)
+                .mergeMap(([sesh,appHandle]) => sesh.Doc.GetObject(appHandle,objId));
+            
+            var hotObj = myObj.publishLast().refCount();
+
+
+        </script>
+    </body>
+</html>
