@@ -9,7 +9,7 @@
         <br><br>
         <button onclick="subscribe(pV)">Subscribe to pV (get product version)</button>
         <br><br>
-        <button onclick="subscribe(pV)">Subscribe to hotPV</button>
+        <button onclick="subscribe(hotPV)">Subscribe to hotPV</button>
         <br><br>
         <button onclick="subscribe(myApp)">Subscribe to myApp</button>
         <br><br>
@@ -29,7 +29,7 @@
                 host: "ws://sense.axisgroup.com/app/" + appId
             };
 
-
+            // connect to an engine with specific session and return global for that session
             var myGlobal = RxQ.connectEngine(config); // auto hot
             
             // Cold Product Version -> every subscriber will initiate new call
