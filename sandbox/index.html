@@ -3,36 +3,65 @@
         <script src="../build/rxqap-engine.js"></script>
     </head>
     <body>
-        hi
+        Add some subscribers with these buttons and watch your WS traffic in DevTools to see results, also check console for subscribe values
+        <br><br>
+        <button onclick="subscribe(myGlobal)">Subscribe to myGlobal</button>
+        <br><br>
+        <button onclick="subscribe(pV)">Subscribe to pV (get product version)</button>
+        <br><br>
+        <button onclick="subscribe(pV)">Subscribe to hotPV</button>
+        <br><br>
+        <button onclick="subscribe(myApp)">Subscribe to myApp</button>
+        <br><br>
+        <button onclick="subscribe(hotApp)">Subscribe to hotApp</button>
+        <br><br>
+        <button onclick="subscribe(myObj)">Subscribe to myObj</button>
+        <br><br>
+        <button onclick="subscribe(hotObj)">Subscribe to hotObj</button>
+        <br><br>
+        <button onclick="subscribe(manualProductVersion)">Subscribe to manualProductVersion</button>
         <script>
             var appId = "f2cb441f-1a6e-4e54-bc33-da917625f1c0";
             
             var objId = "drbukW";
             
             var config = {
-                //host: "ws://qs-sk/app/%3Ftransient%3D"
                 host: "ws://sense.axisgroup.com/app/" + appId
             };
 
 
-            var mySesh = RxQ.connectEngine(config); // auto hot
+            var myGlobal = RxQ.connectEngine(config); // auto hot
             
-            var pV = mySesh
-                .mergeMap(m=>m.Global.ProductVersion());
+            // Cold Product Version -> every subscriber will initiate new call
+            var pV = myGlobal
+                .mergeMap(m=>m.ProductVersion());
 
+            // Hot Product Version -> will only execute once, and pass off same response to subs
             var hotPV = pV.publishLast().refCount();
 
-            var myApp = mySesh
-                .mergeMap(m=>m.Global.OpenDoc(appId))
-                .map(m=>m.result.qReturn.qHandle);
-            
+            // Cold App -> every subscriber will initiate openDoc call
+            var myApp = myGlobal
+                .mergeMap(m=>m.OpenDoc(appId));
+
+           // Hot App -> subscribers share single openDoc call 
             var hotApp = myApp.publishLast().refCount();
 
-            var myObj = mySesh
-                .combineLatest(myApp)
-                .mergeMap(([sesh,appHandle]) => sesh.Doc.GetObject(appHandle,objId));
+            // Cold Object -> every subscriber will initiate get object call
+            var myObj = myApp
+                .mergeMap(a=>a.GetObject(objId));
             
+            // Hot Object -> subscribers share single getObject call
             var hotObj = myObj.publishLast().refCount();
+
+            // Manually call API via backend engine-wrapper
+            var manualProductVersion = myGlobal
+                .mergeMap(g=>RxQ.$$.engine.Global.ProductVersion(g.session,-1,2));
+                // -> subscribe to this to get the product version, will always use id: 2
+            
+            function subscribe(obs) {
+                return obs.subscribe(s=>console.log(s));
+            }
+
 
 
         </script>

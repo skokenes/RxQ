@@ -1,14 +1,15 @@
 import EngineSession from "./src/engine-session";
-import Connection from "./src/connection";
-import * as Rx from "rxjs"; 
+import engineWrapper from "./src/engine-wrapper";
 
 const RxQ = {
     version: "0.0.1",
-    connectEngine: function(config) {
-        return new EngineSession(config)
+    $$: {
+        engine: engineWrapper
     },
-    connectWs: function(config) {
-        return new Connection(config)
+    connectEngine: function(config) {
+        // Establish a session, then return a Qix Class type Global from it
+        return new EngineSession(config)
+            .map(m=>m.getGlobal());
     }
 };
 

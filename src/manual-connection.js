@@ -1,7 +1,5 @@
 import * as Rx from "rxjs";
 
-window.Rx = Rx;
-
 export default class ManualConnection {
     constructor(config) {
         
