@@ -4,21 +4,19 @@ console.log(qixSpecs);
 
 export default class EngineSession {
     constructor(config) {
-        this.prop = "my property";
         this.Global = {};
         const handle = -1;
         const url = config.host;
         const seqGen = seqId();
-
-        window.testCalls = this.Global;
         
+        // Map global api calls
         Object.keys(qixSpecs.default.structs.Global).forEach(e=> {
             const curSpec = qixSpecs.default.structs.Global[e];
             const args = curSpec.In.map(m=>m.Name);
             this.Global[e] = (...args) => {
-                //console.log(args);
-                return wsOpen
-                .mergeMap(ws=>{
+                return wsPassed
+                .withLatestFrom(wsOpen,(pass,ws)=>ws)
+                .mergeMap((ws)=>{
                     const id = seqGen.next().value;
                     const msg = {
                         "method": e,
@@ -36,18 +34,21 @@ export default class EngineSession {
         });
         
 
-        const seedMsg = {
-            "method": "ProductVersion",
-            "handle": handle,
-            "params": [],
-            "id": seqGen.next().value,
-            "jsonrpc": "2.0"
-        };
          // Open the websocket - keep it hot because we only want to open it once
         const wsOpen = Rx.Observable.create((observer) => {
             const ws = new WebSocket(url);
             ws.addEventListener("open",function() {
+                // Shoot off a seed message to get initial response from server
+                const seedMsg = {
+                    "method": "ProductVersion",
+                    "handle": handle,
+                    "params": [],
+                    "id": seqGen.next().value,
+                    "jsonrpc": "2.0"
+                };
                 ws.send(JSON.stringify(seedMsg));
+
+                // Pass on the websocket and complete
                 observer.next(ws);
                 observer.complete();
             })
@@ -55,6 +56,7 @@ export default class EngineSession {
         .publishLast()
         .refCount();
 
+        // Log websocket traffic
         const wsTrafficIn = wsOpen
             .mergeMap(ws => Rx.Observable.create((observer)=>{
                 ws.addEventListener("message",function(e) {
@@ -63,34 +65,21 @@ export default class EngineSession {
             }))
             .map(m => JSON.parse(m.data));
         
+        // Pass on the session object and keep that boy hot too
         const wsPassed = wsTrafficIn
-            .do(d=>console.log("wsPassed"))
             .filter(f => f.method === "OnAuthenticationInformation" && !f.params.mustAuthenticate)
-            .mapTo(true)
-            .take(1);
+            .mapTo(this)
+            .take(1)
+            .publishLast()
+            .refCount();
         
-        return wsPassed.mapTo(this);
+        return wsPassed;
         
-
-
-        //return wsPassed;
-        
-        //return 
         
     }
 };
 
-/*
-{
-    "method": "ProductVersion",
-    "handle": -1,
-    "params": [],
-    "id": ++self.seqid,
-    "jsonrpc": "2.0"
-}
-*/
-
 function* seqId() {
-    var index = 0;
+    var index = 1;
     while(true) yield index++;
 }

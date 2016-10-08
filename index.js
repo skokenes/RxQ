@@ -4,11 +4,7 @@ import * as Rx from "rxjs";
 const RxQ = {
     version: "0.0.1",
     connectEngine: function(config) {
-        
-        const sesh = new EngineSession(config)
-        return sesh;
-
-       
+        return new EngineSession(config)
     }
 };
 
