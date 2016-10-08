@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://skokenes@bitbucket.org/skokenes/rxqap-engine.git"
+    "url": "git+https://skokenes@bitbucket.org/axisgroup-vap/rxqap-engine.git"
   },
   "keywords": [
     "qap",
@@ -20,7 +20,7 @@
   ],
   "author": "Axis Group",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/skokenes/rxqap-engine#readme",
+  "homepage": "https://bitbucket.org/axisgroup-vap/rxqap-engine#readme",
   "devDependencies": {
     "babel-core": "^6.17.0",
     "babel-loader": "^6.2.5",
