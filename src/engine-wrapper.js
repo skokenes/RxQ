@@ -27,6 +27,7 @@ const engine = classNames.reduce((acc,curr) => {
                     ws.send(JSON.stringify(msg));
                     return wsTrafficIn
                         .filter(f => f.id === id)
+                        .map(m=>m.result)
                         .take(1);
                 });
         }

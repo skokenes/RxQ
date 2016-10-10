@@ -17,8 +17,8 @@ export default class QixClass {
                 const id = session.seqGen.next().value;
                 return method(session,handle,id,...args)
                     .map(d=>
-                        d.result.hasOwnProperty("qReturn") && d.result.qReturn.hasOwnProperty("qType")
-                        ? new QixClass(d.result.qReturn.qType,session,d.result.qReturn.qHandle)
+                        d.hasOwnProperty("qReturn") && d.qReturn.hasOwnProperty("qType")
+                        ? new QixClass(d.qReturn.qType,session,d.result.qReturn.qHandle)
                         : d
                     );
             };

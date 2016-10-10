@@ -1,0 +1,54 @@
+<html>
+    <head>
+        <script src="../build/rxqap-engine.js"></script>
+        <script src="https://unpkg.com/@reactivex/rxjs/dist/global/Rx.js"></script>
+    </head>
+    <body>
+        <input id="filter" type="text" placeholder="filter docs"></input>
+        <table id="doclist"></table>
+        <script>
+            
+            // Describe a server
+            var config = {
+                host: "ws://sense.axisgroup.com/app/engineData"
+            };
+
+            // Connect to global
+            var global = RxQ.connectEngine(config);
+
+            // Get the doc list
+            var docList = global
+                .mergeMap(function(g) { return g.GetDocList(); })
+                .map(function(m) { return m.qDocList; });
+            
+            // Get the inputted text
+            var input = document.querySelector("#filter");
+            
+            var filterInput = Rx.Observable.fromEvent(input, 'keyup')
+                .map(function (e) {
+                    return e.target.value.toLowerCase();
+                })
+                .startWith("");
+            
+            // Filter the doc list based on input text
+            var filterList = filterInput
+                .combineLatest(docList,function(t,dl) {
+                    return dl.filter(function(d) {
+                        return d.qDocName.toLowerCase().indexOf(t)>=0
+                    });
+                });
+            
+            // Render results to table
+            filterList.subscribe(function(dl) {
+                var list = dl
+                    .map(function(m) { return "<tr><td>" + m.qDocName  + "</td></tr>"})
+                    .join("");
+
+                var docTable = document.querySelector("#doclist");
+                docTable.innerHTML = list;
+            
+            });
+
+        </script>
+    </body>
+</html>
