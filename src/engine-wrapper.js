@@ -1,4 +1,5 @@
 import * as qixSpecs from "./specs/3.1/jsonspec";
+import * as Rx from "rxjs";
 
 const classes = qixSpecs.default.structs;
 const classNames = Object.keys(classes);
@@ -9,28 +10,31 @@ const engine = classNames.reduce((acc,curr) => {
     
     acc[curr] = methodNames.reduce((iAcc,iCurr) => {
         const method = methods[iCurr];
-        iAcc[iCurr] = (session,handle,id,...args) => {
-            const wsOpen = session.obs.wsOpen;
-            const wsPassed = session.obs.wsPassed;
-            const wsTrafficIn = session.obs.wsTrafficIn;
+        iAcc[iCurr] = (ws,handle,id,...args) => {
+            return Rx.Observable.create((observer) => {
+                const msgFn = (evt) => {
+                    observer.next(evt);
+                }
+                // Add listener
+                ws.addEventListener("message",msgFn);
 
-            return wsPassed   
-                .withLatestFrom(wsOpen,(pass,ws)=>ws)
-                .mergeMap((ws)=>{
-                    const msg = {
-                        "method": iCurr,
-                        "handle": handle,
-                        "params": args,
-                        "id": id,
-                        "jsonrpc": "2.0"
-                    };
-                    ws.send(JSON.stringify(msg));
-                    return wsTrafficIn
-                        .filter(f => f.id === id)
-                        .map(m=>m.result)
-                        .take(1);
-                });
-        }
+                // Send message
+                const msg = {
+                    "method": iCurr,
+                    "handle": handle,
+                    "params": args,
+                    "id": id,
+                    "jsonrpc": "2.0"
+                };
+                ws.send(JSON.stringify(msg));
+
+                return () => ws.removeEventListener("message",msgFn);
+            })
+            .map(m => JSON.parse(m.data))
+            .filter(f => f.id === id)
+            .map(m => m.result)
+            .take(1);
+        };
         return iAcc;
     },{});
 

@@ -1,8 +1,9 @@
 import EngineSession from "./src/engine-session";
 import engineWrapper from "./src/engine-wrapper";
+import * as Rx from "rxjs";
 
 const RxQ = {
-    version: "0.0.1",
+    version: "0.0.2",
     $$: {
         engine: engineWrapper
     },

@@ -10,7 +10,8 @@
             
             // Describe a server
             var config = {
-                host: "ws://sense.axisgroup.com/app/engineData"
+                host: "qs-sk",
+                isSecure: false
             };
 
             // Connect to global
@@ -20,6 +21,9 @@
             var docList = global
                 .mergeMap(function(g) { return g.GetDocList(); })
                 .map(function(m) { return m.qDocList; });
+            
+            var pV = global
+                .mergeMap(function(g) {return g.ProductVersion();});
             
             // Get the inputted text
             var input = document.querySelector("#filter");

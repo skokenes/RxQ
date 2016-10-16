@@ -12,22 +12,15 @@ module.exports = {
         umdNamedDefine: true
     },
     externals: [{
-        //ws: true
+        ws: true
     }],
     module: {
         loaders: [
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                loader: "babel",
+                loader: "babel"
             }
-            /*,
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: "eslint-loader"
-            }
-            */
         ]
     },
     resolve: {
