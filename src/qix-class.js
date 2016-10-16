@@ -10,15 +10,24 @@ export default class QixClass {
         this.session = session;
         this.type = type;
 
+        const wsOpen = session.obs.wsOpen;
+        const wsPassed = session.obs.wsPassed;
+        const seqGen = session.seqGen;
+
         methodNames.forEach(e => {
             const method = methods[e];
 
             this[e] = (...args) => {
-                const id = session.seqGen.next().value;
-                return method(session,handle,id,...args)
+                const id$ = seqGen.take(1);
+                return wsPassed   
+                    .withLatestFrom(wsOpen,(pass,ws)=>ws)
+                    .combineLatest(id$)
+                    .mergeMap(([ws,id])=>{
+                        return method(ws,handle,id,...args)
+                    })
                     .map(d=>
-                        d.result.hasOwnProperty("qReturn") && d.result.qReturn.hasOwnProperty("qType")
-                        ? new QixClass(d.result.qReturn.qType,session,d.result.qReturn.qHandle)
+                        d.hasOwnProperty("qReturn") && d.qReturn.hasOwnProperty("qType")
+                        ? new QixClass(d.qReturn.qType,session,d.result.qReturn.qHandle)
                         : d
                     );
             };

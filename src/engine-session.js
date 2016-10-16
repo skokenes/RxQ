@@ -1,6 +1,5 @@
 import * as Rx from "rxjs";
-//import Connection from "./connection";
-import ManualConnection from "./manual-connection";
+import Connection from "./connection";
 import QixClass from "./qix-class";
 
 export default class EngineSession {
@@ -8,16 +7,15 @@ export default class EngineSession {
         
         // Internals
         const handle = -1;
-        const seqGen = seqId();
+        const seqGen = Rx.Observable.from(seqId());
 
         //const wsTraffic = new Connection(config);
-        const wsObs = new ManualConnection(config); 
-        // -> named ManualConnection for now to distinguish from Connection where I tried to use OOB RxJS WebSocket functions but failed
+        const wsObs = new Connection(config); 
         // -> should return an object with 3 observables that are useful for making API calls
 
         // Public
         this.obs = wsObs;
-        this.seqGen = seqGen;    
+        this.seqGen = seqGen;
         
         // Once passed authentication, return the engine session
         return wsObs.wsPassed
