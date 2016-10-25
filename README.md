@@ -49,6 +49,8 @@ productVersion$.subscribe(function(pv) {
 });
 ```
 
+**RxQAP produces Cold Observables for all API calls EXCEPT for connectEngine, which returns a Hot Observable.**
+
 ### Configuring an engine connection
 The `config` object for a server can be defined with the following properties:
 * `host` - (String) Hostname of server
@@ -68,7 +70,7 @@ The `config` object for a server can be defined with the following properties:
 * `disconnect` - (Function) Called if socket is closed
 
 ## Builds
-The latest build can be found [here]().
+The latest build can be found in the releases [here](https://github.com/axisgroup/RxQAP/releases/tag/v0.1.0).
 
 To create your own builds, you can use the following commands to create a build and a minimized build in a `/build` subdirectory:
 ```
