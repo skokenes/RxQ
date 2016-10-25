@@ -2,7 +2,7 @@ var path = require("path");
 var webpack = require("webpack");
 var library = "RxQ";
 var minimize = process.argv.indexOf('--minimize') !== -1;
-var filename = "rxqap-engine" + (minimize ? ".min" : "");
+var filename = "rxqap" + (minimize ? ".min" : "");
 var plugins = (minimize ? [new webpack.optimize.UglifyJsPlugin({minimize: true})] : []);
 
 module.exports = {
