@@ -1,6 +1,9 @@
 var path = require("path");
+var webpack = require("webpack");
 var library = "RxQ";
-var filename = "rxqap-engine";
+var minimize = process.argv.indexOf('--minimize') !== -1;
+var filename = "rxqap-engine" + (minimize ? ".min" : "");
+var plugins = (minimize ? [new webpack.optimize.UglifyJsPlugin({minimize: true})] : []);
 
 module.exports = {
     entry: ["babel-polyfill","./index.js"],
@@ -26,5 +29,6 @@ module.exports = {
     resolve: {
         root: "./",
         extensions: ["",".js"]
-    }
+    },
+    plugins: plugins
 };

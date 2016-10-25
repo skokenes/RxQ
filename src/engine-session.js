@@ -1,13 +1,13 @@
-import * as Rx from "rxjs";
 import Connection from "./connection";
 import QixClass from "./qix-class";
+import { Observable } from "rxjs";
 
 export default class EngineSession {
     constructor(config) {
         
         // Internals
         const handle = -1;
-        const seqGen = Rx.Observable.from(seqId());
+        const seqGen = Observable.from(seqId());
 
         //const wsTraffic = new Connection(config);
         const wsObs = new Connection(config); 
@@ -16,6 +16,7 @@ export default class EngineSession {
         // Public
         this.obs = wsObs;
         this.seqGen = seqGen;
+        this.config = config;
         
         // Once passed authentication, return the engine session
         return wsObs.wsPassed

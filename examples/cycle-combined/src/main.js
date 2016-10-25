@@ -17,8 +17,9 @@ const main = (sources) => {
     });
 
     const engineQlik$ = RxQ.connectEngine({
-        host: 'sense-demo.qlik.com',
-        isSecure: true
+        host: 'playground.qlik.com',
+        isSecure: true,
+        prefix: "anon"
     });
 
     const listAxis$ = engineAxis$
@@ -28,6 +29,10 @@ const main = (sources) => {
     const listQlik$ = engineQlik$
         .mergeMap(m => m.GetDocList())
         .map(m => m.qDocList);
+    
+    const streamListQlik$ = engineQlik$
+        .mergeMap(m => m.GetStreamList())
+        .map(m => m.qStreamList);
 
     const appList$ = Observable.combineLatest(filter$, listAxis$, listQlik$, 
         (search, list1, list2) => 
@@ -41,6 +46,8 @@ const main = (sources) => {
         );
 
     appList$.subscribe(s => console.log(s));
+
+    streamListQlik$.subscribe(s=>console.log("streams",s));
 
     const vdom$ = appList$.map(m => div('.container', [
         input('.input', { attr: { 'placeholder': 'Filter' } }),

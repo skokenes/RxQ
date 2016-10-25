@@ -1,6 +1,6 @@
 import EngineSession from "./src/engine-session";
 import engineWrapper from "./src/engine-wrapper";
-import * as Rx from "rxjs";
+import { Observable } from "rxjs";
 
 const RxQ = {
     version: "0.0.2",
