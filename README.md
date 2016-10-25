@@ -69,6 +69,9 @@ The `config` object for a server can be defined with the following properties:
 * `debug` - (Boolean || Function) Will pipe socket messages to console.log or pipe to supplied function  
 * `disconnect` - (Function) Called if socket is closed
 
+### Engine API Methods
+The Engine API methods can be found in the [Qlik Sense Developers Help documentation](http://help.qlik.com/en-US/sense-developer/3.1/Subsystems/EngineAPI/Content/Classes/classes.htm).
+
 ## Builds
 The latest build can be found in the releases [here](https://github.com/axisgroup/RxQAP/releases/tag/v0.1.0).
 
