@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <title>Combined Hub</title>
+        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,600,700" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="src/style.css"/>
+        <script src="rxqap.js"></script>
+        <script src="https://unpkg.com/@reactivex/rxjs/dist/global/Rx.js"></script>
+    </head>
+    <body>
+        <div id="sidebar">
+            <img src="resources/axis_logo.svg"/> 
+            <ul id="server-list">
+                <li class="server-item active" alias="">
+                    <div class="dot" style="background-color: rgba(0,0,0,0)"></div>
+                    <span>All Servers</span>
+                    <div class="app-ct"></div>
+                </li>
+                <li class="server-item" alias="Axis Demo">
+                    <div class="dot" style="background-color: rgb(158,96,213)"></div>
+                    <span>Axis Demo</span>
+                    <div class="app-ct"></div>
+                </li>
+                <li class="server-item" alias="Qlik Demo">
+                    <div class="dot" style="background-color: rgb(80,227,194)"></div>
+                    <span>Qlik Demo</span>
+                    <div class="app-ct"></div>
+                </li>
+            </ul>
+            <div class="divider"></div>
+            <div id="sort-cont">
+                <div id="sort-dir">
+                    <img src="resources/sort-dir.svg"/>
+                </div>
+                <div id="select-sort">
+                    <label>
+                        <select>
+                            <option value="qDocName">Alphabetically</option>
+                            <option value="qMeta.publishTime">Publish Date</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div id="topbar">
+            <div id="server-title">All Servers</div>
+            <input id="app-search" type="text" placeholder="Search"/>
+        </div>
+        <div id="content">
+            <div id="streams"></div>
+        </div>
+        <script src="src/main.js"></script>
+    </body>
+</html>
