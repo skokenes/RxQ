@@ -1,5 +1,5 @@
 import * as qixSpecs from "./specs/3.1/jsonspec";
-import * as Rx from "rxjs";
+import { Observable } from "rxjs";
 
 const classes = qixSpecs.default.structs;
 const classNames = Object.keys(classes);
@@ -11,7 +11,7 @@ const engine = classNames.reduce((acc,curr) => {
     acc[curr] = methodNames.reduce((iAcc,iCurr) => {
         const method = methods[iCurr];
         iAcc[iCurr] = (ws,handle,id,...args) => {
-            return Rx.Observable.create((observer) => {
+            return Observable.create((observer) => {
                 const msgFn = (evt) => {
                     observer.next(evt);
                 }

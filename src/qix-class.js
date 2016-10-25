@@ -1,5 +1,4 @@
 import engineWrapper from "./engine-wrapper";
-import * as Rx from "rxjs"; 
 
 export default class QixClass {
     constructor(type,session,handle) {

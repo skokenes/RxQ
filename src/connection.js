@@ -1,6 +1,6 @@
-import * as Rx from "rxjs";
 import connectUrl from "./util/qix-connect-string";
 import connectOptions from "./util/qix-connect-options";
+import { Observable } from "rxjs";
 
 export default class Connection {
     constructor(config) {
@@ -20,7 +20,7 @@ export default class Connection {
         const options = connectOptions(config);
 
         // Open the websocket - keep it hot because we only want to open it once
-        const wsOpen = Rx.Observable.create((observer) => {
+        const wsOpen = Observable.create((observer) => {
             const ws = IS_NODE ? new WebSocket(url,null,options) : new WebSocket(url);
 
             // Patch node ws for remove event listener
@@ -51,7 +51,7 @@ export default class Connection {
         
         // Log websocket traffic
         const wsTrafficIn = wsOpen
-            .mergeMap(ws => Rx.Observable.create((observer)=>{
+            .mergeMap(ws => Observable.create((observer)=>{
                 ws.addEventListener("message",function(e) {
                     observer.next(e);
                 })

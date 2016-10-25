@@ -1,11 +1,11 @@
 {
-  "name": "rxqap-engine",
-  "version": "0.0.2",
-  "description": "A reactive wrapper for the QAP Engine API",
+  "name": "rxqap",
+  "version": "0.1.0",
+  "description": "A reactive wrapper for the Qlik Analytics Platform APIs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --progress --colors",
+    "build-min": "webpack --progress --colors --minimize",
     "watch": "webpack --progress --colors --watch"
   },
   "repository": {
@@ -30,7 +30,7 @@
     "webpack": "^1.13.2"
   },
   "dependencies": {
-    "rxjs": "^5.0.0-beta.12",
+    "rxjs": "^5.0.0-rc.1",
     "ws": "^1.1.1"
   }
 }
