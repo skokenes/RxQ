@@ -66,8 +66,6 @@ The `config` object for a server can be defined with the following properties:
 * `cert` - (String) Client certificate for QIX connections
 * `ca` - (Array of String) CA root certificates for QIX connections
 * `identity` - (String) Session identity  
-* `debug` - (Boolean || Function) Will pipe socket messages to console.log or pipe to supplied function  
-* `disconnect` - (Function) Called if socket is closed
 
 ### Engine API Methods
 The Engine API methods can be found in the [Qlik Sense Developers Help documentation](http://help.qlik.com/en-US/sense-developer/3.1/Subsystems/EngineAPI/Content/Classes/classes.htm).
