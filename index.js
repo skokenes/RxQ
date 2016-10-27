@@ -3,7 +3,7 @@ import engineWrapper from "./src/engine-wrapper";
 import { Observable } from "rxjs";
 
 const RxQ = {
-    version: "0.1.0",
+    version: "0.1.1",
     $$: {
         engine: engineWrapper
     },

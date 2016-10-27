@@ -5,7 +5,7 @@
   "main": "src/main.js",
   "scripts": {
     "browserify": "browserify src/main.js -t babelify --outfile dist/main.js",
-    "start": "npm install && mkdir -p dist && npm run browserify && cp ../../build/rxqap-engine.js dist && http-server -p 3000"
+    "start": "npm install && mkdir -p dist && npm run browserify && cp ../../build/rxqap.js dist && http-server -p 3000"
   },
   "author": "Justin Skaggs",
   "license": "ISC",
@@ -13,6 +13,7 @@
     "@cycle/dom": "^12.2.5",
     "@cycle/http": "^11.0.1",
     "@cycle/rxjs-run": "^3.0.3",
+    "bufferutil": "^1.2.1",
     "rxjs": "^5.0.0-beta.12",
     "xstream": "^6.5.0"
   },

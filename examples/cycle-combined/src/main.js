@@ -2,58 +2,58 @@ import {run} from '@cycle/rxjs-run';
 import {makeDOMDriver, div, input, ul, li} from '@cycle/dom';
 import {Observable} from 'rxjs';
 
-// This comes in from the index.html (to be corrected once npm module is published).
-//import * as RxQ from '../../../build/rxqap-engine';
-
 const main = (sources) => {
 
     const filter$ = sources.DOM.select('.input').events('input')
         .map(e => e.target.value.toLowerCase())
         .startWith('');
 
-    const engineAxis$ = RxQ.connectEngine({ 
+    const servers = [{
         host: 'sense.axisgroup.com',
-        isSecure: false 
-    });
-
-    const engineQlik$ = RxQ.connectEngine({
+        isSecure: false
+    }, {
         host: 'playground.qlik.com',
         isSecure: true,
         prefix: "anon"
-    });
+    }];
 
-    const listAxis$ = engineAxis$
-        .mergeMap(m => m.GetDocList())
-        .map(m => m.qDocList);
+    const engine$$ = Observable.from(servers)
+        .map(m => RxQ.connectEngine(m))
+        .combineAll()
+        .share();
 
-    const listQlik$ = engineQlik$
-        .mergeMap(m => m.GetDocList())
-        .map(m => m.qDocList);
-    
-    const streamListQlik$ = engineQlik$
-        .mergeMap(m => m.GetStreamList())
-        .map(m => m.qStreamList);
+    const list$$ = engine$$
+        .mergeMap(engines => {
+            return engines.map(e => e.GetDocList()) 
+        })
+        .combineAll()
+        .withLatestFrom(engine$$, (lists, engines) => {
+            return engines.reduce((acc, curr, i) => {
+                return acc.concat(lists[i].qDocList.map(m => {
+                    m.server = curr.session.config.host;
+                    return m;
+                }));
+            }, []);
+        })
+        .combineLatest(filter$, (lists, filter) => {
+            return {
+                list: lists.filter(f => f.qDocName.toLowerCase().indexOf(filter) >= 0)
+                    .sort((a, b) => {
+                        a = a.qDocName.toLowerCase();
+                        b = b.qDocName.toLowerCase();
+                        return a == b ? 0 : a < b ? -1 : 1;
+                    }),
+                filter
+            };
+        });
 
-    const appList$ = Observable.combineLatest(filter$, listAxis$, listQlik$, 
-        (search, list1, list2) => 
-            list1.concat(list2)
-                .filter(f => f.qDocName.toLowerCase().indexOf(search) >= 0)
-                .sort((a, b) => {
-                    a = a.qDocName.toLowerCase();
-                    b = b.qDocName.toLowerCase();
-                    return a == b ? 0 : a < b ? -1 : 1;
-                })
-        );
+    list$$.subscribe(s => console.log(`Search Term: \'${s.filter}\' | Filtered Doc List: `, s.list));
 
-    appList$.subscribe(s => console.log(s));
-
-    streamListQlik$.subscribe(s=>console.log("streams",s));
-
-    const vdom$ = appList$.map(m => div('.container', [
+    const vdom$ = list$$.map(m => div('.container', [
         input('.input', { attr: { 'placeholder': 'Filter' } }),
         ul('.application-list', { style: { 'list-style-type': 'none', 'padding': '0px' } },
-            m.map(n => li('.application-list-item', [
-                div(n.qDocName),
+            m.list.map(n => li('.application-list-item', [
+                div(n.qDocName + ` (${n.server})`)
             ])))
     ]));
 
