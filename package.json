@@ -6,6 +6,7 @@
   "scripts": {
     "build": "webpack --progress --colors",
     "build-min": "webpack --progress --colors --minimize",
+    "build-release": "npm run build && npm run build-min && cp -R build/ rxqap-build && zip rxqap-build.zip rxqap-build/* && rm -rf rxqap-build/",
     "watch": "webpack --progress --colors --watch"
   },
   "repository": {
