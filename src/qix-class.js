@@ -26,7 +26,7 @@ export default class QixClass {
                     })
                     .map(d=>
                         d.hasOwnProperty("qReturn") && d.qReturn.hasOwnProperty("qType")
-                        ? new QixClass(d.qReturn.qType,session,d.result.qReturn.qHandle)
+                        ? new QixClass(d.qReturn.qType,session,d.qReturn.qHandle)
                         : d
                     );
             };
