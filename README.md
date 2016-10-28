@@ -4,7 +4,7 @@ RxQAP is a reactive JS wrapper for the Qlik Analytics Platform APIs. It uses RxJ
 Functional reactive programming pairs well with the reactive nature of the QIX engine. Check out some of the examples included in this repository, such as the [Simple Hub](http://viz.axisgroup.com/simple-hub/) that implements a very basic Qlik Sense hub with a few reactive streams. Then move on to more complex examples, like our [Combined Hub](http://viz.axisgroup.com/combined-hub/) that combines multiple servers into a single hub.
 
 ##### Support
-As of v0.1.0, the following APIs are supported:
+As of v0.1.2, the following APIs are supported:
 - Engine API for QS 3.1
 
 Qlik Repository Service API and Qlik Proxy Service API wrappers are planned for future releases.
