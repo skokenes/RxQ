@@ -1,6 +1,6 @@
 {
   "name": "rxqap",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A reactive wrapper for the Qlik Analytics Platform APIs",
   "main": "index.js",
   "scripts": {

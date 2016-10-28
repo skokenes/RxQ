@@ -1,0 +1,20 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #F2F2F2;
+    font-family: Helvetica, sans-serif;
+}
+
+span {
+    display: inline-block;
+}
+
+span.run-animation {animation: spin-dat-cat .5s;}
+@keyframes spinning-logocat {50%{transform:rotateY(180deg);}}
+@keyframes spin-dat-cat {
+    50% {
+            transform:scale(1.1);
+        }
+}
