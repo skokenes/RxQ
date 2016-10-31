@@ -13,7 +13,7 @@ class GlobalObservable extends Observable {
 
     lift(operator) {
         const operatorName = operator.constructor.name;
-        const operatorCheck = operatorName.slice(0,1).toUpperCase() + operatorName.slice(1,operatorName.indexOf("Operator"));
+        const operatorCheck = operatorName.slice(0,1).toLowerCase() + operatorName.slice(1,operatorName.indexOf("Operator"));
 
         // If operator is on list, lift it. otherwise, return basic observable
         const observable = nonLiftedOperators.indexOf(operatorCheck) < 0 ? new GlobalObservable() : new Observable();
