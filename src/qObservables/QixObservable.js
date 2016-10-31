@@ -1,4 +1,5 @@
 import { Observable } from "rxjs";
+import nonLiftedOperators from "./nonLiftedOperators";
 
 class QixObservable extends Observable {
 
@@ -8,7 +9,11 @@ class QixObservable extends Observable {
     }
 
     lift(operator) {
-        const observable = new QixObservable(); //<-- important part here
+        const operatorName = operator.constructor.name;
+        const operatorCheck = operatorName.slice(0,1).toUpperCase() + operatorName.slice(1,operatorName.indexOf("Operator"));
+
+        // If operator is on list, lift it. otherwise, return basic observable
+        const observable = nonLiftedOperators.indexOf(operatorCheck) < 0 ? new QixObservable() : new Observable();
         observable.source = this;
         observable.operator = operator;
         return observable;

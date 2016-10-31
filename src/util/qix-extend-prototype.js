@@ -14,9 +14,9 @@ export default function(proto,type) {
             const responseObservable = this
                 .mergeMap(e=>e[methodName](...args));
             
-            // Cast to normal observable (is there a way to change this?)
-            return Observable.of('')
-                .mergeMap(()=>responseObservable);
+            const observable = new Rx.Observable();
+            observable.source = responseObservable;
+            return observable;
                     // .publishLast().refCount() if we want these hot   
         }
     });

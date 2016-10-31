@@ -1,4 +1,5 @@
 import { Observable } from "rxjs";
+import nonLiftedOperators from "./nonLiftedOperators";
 import QixObservable from "./QixObservable";
 import extendPrototype from "..//util/qix-extend-prototype";
 import outputTypes from "../util/qix-obs-types";
@@ -11,7 +12,11 @@ class GenericBookmarkObservable extends QixObservable {
     }
 
     lift(operator) {
-        const observable = new GenericBookmarkObservable(); //<-- important part here
+        const operatorName = operator.constructor.name;
+        const operatorCheck = operatorName.slice(0,1).toUpperCase() + operatorName.slice(1,operatorName.indexOf("Operator"));
+
+        // If operator is on list, lift it. otherwise, return basic observable
+        const observable = nonLiftedOperators.indexOf(operatorCheck) < 0 ? new GenericBookmarkObservable() : new Observable();
         observable.source = this;
         observable.operator = operator;
         return observable;
