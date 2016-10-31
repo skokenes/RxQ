@@ -2,9 +2,6 @@ import {run} from '@cycle/rxjs-run';
 import {makeDOMDriver, div, input, ul, li} from '@cycle/dom';
 import {Observable} from 'rxjs';
 
-// This comes in from the index.html (to be corrected once npm module is published).
-//import * as RxQ from '../../../build/rxqap-engine';
-
 const main = (sources) => {
 
     const filter$ = sources.DOM.select('.input').events('input')
@@ -17,11 +14,11 @@ const main = (sources) => {
     });
 
     const list$ = engine$
-        .mergeMap(m => m.GetDocList())
-        .map(m => m.qDocList);
+        .getDocList()
+        .map(m => m.response.qDocList);
 
     const appList$ = Observable.combineLatest(filter$, list$,
-        (search, list) => 
+        (search, list) =>
             list
                 .filter(f => f.qDocName.toLowerCase().indexOf(search) >= 0)
                 .sort((a, b) => {

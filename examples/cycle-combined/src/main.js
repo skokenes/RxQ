@@ -17,39 +17,36 @@ const main = (sources) => {
         prefix: "anon"
     }];
 
-    const engine$$ = Observable.from(servers)
+    const engine$ = Observable.from(servers)
         .map(m => RxQ.connectEngine(m))
-        .combineAll()
-        .share();
+        .publishReplay()
+        .refCount();
 
-    const list$$ = engine$$
-        .mergeMap(engines => {
-            return engines.map(e => e.GetDocList()) 
-        })
+    const list$ = engine$
+        .map(engine => engine.getDocList())
         .combineAll()
-        .withLatestFrom(engine$$, (lists, engines) => {
-            return engines.reduce((acc, curr, i) => {
-                return acc.concat(lists[i].qDocList.map(m => {
-                    m.server = curr.session.config.host;
+        .map(docs => 
+            docs.reduce((acc, curr) =>
+                acc.concat(curr.response.qDocList.map(m => {
+                    m.server = curr.source.session.config.host;
                     return m;
-                }));
-            }, []);
-        })
-        .combineLatest(filter$, (lists, filter) => {
-            return {
-                list: lists.filter(f => f.qDocName.toLowerCase().indexOf(filter) >= 0)
-                    .sort((a, b) => {
-                        a = a.qDocName.toLowerCase();
-                        b = b.qDocName.toLowerCase();
-                        return a == b ? 0 : a < b ? -1 : 1;
-                    }),
-                filter
-            };
-        });
+                }))
+            , [])
+        );
 
-    list$$.subscribe(s => console.log(`Search Term: \'${s.filter}\' | Filtered Doc List: `, s.list));
+    const appList$ = Observable.combineLatest(list$, filter$, (lists, filter) => ({
+        list: lists.filter(f => f.qDocName.toLowerCase().indexOf(filter) >= 0)
+            .sort((a, b) => {
+                a = a.qDocName.toLowerCase();
+                b = b.qDocName.toLowerCase();
+                return a == b ? 0 : a < b ? -1 : 1;
+            }),
+        filter
+    }));
 
-    const vdom$ = list$$.map(m => div('.container', [
+    appList$.subscribe(s => console.log(`Search Term: \'${s.filter}\' | Filtered Doc List: `, s.list));
+
+    const vdom$ = appList$.map(m => div('.container', [
         input('.input', { attr: { 'placeholder': 'Filter' } }),
         ul('.application-list', { style: { 'list-style-type': 'none', 'padding': '0px' } },
             m.list.map(n => li('.application-list-item', [
