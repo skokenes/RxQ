@@ -79,7 +79,9 @@ export default class QixClass {
                         d.hasOwnProperty("qReturn") && d.qReturn.hasOwnProperty("qType")
                         ? new QixClass(d.qReturn.qType,session,d.qReturn.qHandle)
                         : d
-                    );
+                    )
+                    .publishLast()
+                    .refCount();
             };
         });
     }
