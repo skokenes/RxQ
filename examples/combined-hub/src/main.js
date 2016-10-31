@@ -108,19 +108,14 @@ var configs = [
 ];
 
 // Connect to the engines
-var engine$ = Rx.Observable.from(configs)
+var engines$ = Rx.Observable.from(configs)
     .map(function(c) {
         return RxQ.connectEngine(c)
     })
     .publishReplay()
     .refCount();
 
-var engines$ = engine$
-    .combineAll()
-    .publishLast()
-    .refCount();
-
-var allDocs$ = engine$
+var allDocs$ = engines$
     .map(function(o) {
         return o.getDocList();
     })
@@ -137,7 +132,7 @@ var allDocs$ = engine$
     .publishLast()
     .refCount();
 
-var allStreams$ = engine$
+var allStreams$ = engines$
     .map(function(o) {
         return o.getStreamList();
     })
