@@ -6,12 +6,13 @@ var config = {
 };
 
 // Connect to global
-var engine$ = RxQ.connectEngine(config).share();
+var engine$ = RxQ.connectEngine(config);
+// -> returns GlobalObservable
 
 
 // Open an app and keep it hot
 var app$ = engine$
-    .openDoc(config.appname)
+    .openDoc(config.appname)  // -> returns AppObservable
     .publishLast()
     .refCount();
 
@@ -24,7 +25,7 @@ var kpi$ = app$
         myKPI: {
             "qStringExpression": "=money(sum(Expression1))"
         }
-    })
+    }) // -> returns GenericObjectObservable
     .publishLast()
     .refCount();
 
@@ -35,7 +36,7 @@ var kpi$ = app$
 // Get notified of KPI changes
 var kpiInvalidated$ = kpi$
     .invalidated();
-    // -> will fire the KPI object whenever it is invalidated
+    // -> returns GenericObjectObservable that delivers the KPI object whenever it invalidates
 
 var kpiLayoutLong$ = kpiInvalidated$
     .getLayout();
@@ -59,7 +60,7 @@ kpiLayout$.subscribe(function(layout) {
 
 // Select a random field value
 var field$ = app$
-    .getField("Dim1")
+    .getField("Dim1") // -> returns a FieldObservable
     .publishLast()
     .refCount();
 
