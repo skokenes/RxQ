@@ -108,31 +108,54 @@ var configs = [
 ];
 
 // Connect to the engines
-var engines$ = Rx.Observable.from(configs)
+var engine$ = Rx.Observable.from(configs)
     .map(function(c) {
-        return RxQ.connectEngine(c);
+        return RxQ.connectEngine(c)
     })
-    .combineAll()
-    .share();
+    .publishReplay()
+    .refCount();
 
-// Get the doc list for the servers
-var docList$ = engines$
-    .mergeMap(function(e) {
-        return e.map(function(eng) {
-            return eng.GetDocList();
-        });
+var engines$ = engine$
+    .combineAll()
+    .publishLast()
+    .refCount();
+
+var allDocs$ = engine$
+    .map(function(o) {
+        return o.getDocList();
     })
     .combineAll()
-    // assign server name and flatten list
-    .withLatestFrom(engines$,function(dls,engines) {
-        return engines.reduce(function(acc,curr,i) {
-            var docs = dls[i].qDocList.map(function(d) {
-                d.server = curr.session.config.alias;
-                return d;
-            });
-            return acc.concat(docs);
+    .map(function(dlList) {
+        return dlList.reduce(function(acc,curr) {
+            var server = curr.source.session.config.alias;
+            return acc.concat(curr.response.qDocList.map(function(doc) {
+                doc.server = server;
+                return doc;
+            }));
         },[]);
     })
+    .publishLast()
+    .refCount();
+
+var allStreams$ = engine$
+    .map(function(o) {
+        return o.getStreamList();
+    })
+    .combineAll()
+    .map(function(streamList) {
+        return streamList.reduce(function(acc,curr) {
+            var server = curr.source.session.config.alias;
+            return acc.concat(curr.response.qStreamList.map(function(stream) {
+                stream.server = server;
+                return stream;
+            }));
+        },[]);
+    })
+    .publishLast()
+    .refCount();
+
+// Get the doc list for the servers
+var docList$ = allDocs$
     // filter the list based on search terms
     .combineLatest(filterFn$,function(dl,filFn) {
         return filFn(dl);
@@ -143,23 +166,7 @@ var docList$ = engines$
     });
 
 // Get the stream list for the servers and add the docs
-var streamList$ = engines$
-    .mergeMap(function(e) {
-        return e.map(function(eng) {
-            return eng.GetStreamList();
-        });
-    })
-    .combineAll()
-    // assign server name and flatten
-    .withLatestFrom(engines$,function(sls,engines) {
-        return engines.reduce(function(acc,curr,i) {
-            var streams = sls[i].qStreamList.map(function(s) {
-                s.server = curr.session.config.alias;
-                return s;
-            });
-            return acc.concat(streams);
-        },[]);
-    })
+var streamList$ = allStreams$
     // map docs to the streams
     .combineLatest(docList$,function(sl,dl) {
         return sl.map(function(s) {

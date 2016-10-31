@@ -1,13 +1,15 @@
 import engineWrapper from "./engine-wrapper";
 
 export default class QixClass {
-    constructor(type,session,handle) {
-        const methods = engineWrapper[type];
-        const methodNames = Object.keys(methods);
-
+    constructor(type,session,handle,source,response) {
         this.handle = handle;
         this.session = session;
         this.type = type;
+        this.source = source;
+        this.response = response;
+
+        const methods = engineWrapper[this.type];
+        const methodNames = Object.keys(methods);
 
         const wsOpen = session.obs.wsOpen;
         const wsPassed = session.obs.wsPassed;
@@ -73,15 +75,13 @@ export default class QixClass {
                     .withLatestFrom(wsOpen,(pass,ws)=>ws)
                     .combineLatest(id$)
                     .mergeMap(([ws,id])=>{
-                        return method(ws,handle,id,...args)
+                        return method(ws,this.handle,id,...args)
                     })
                     .map(d=>
                         d.hasOwnProperty("qReturn") && d.qReturn.hasOwnProperty("qType")
-                        ? new QixClass(d.qReturn.qType,session,d.qReturn.qHandle)
-                        : d
-                    )
-                    .publishLast()
-                    .refCount();
+                        ? new QixClass(d.qReturn.qType,session,d.qReturn.qHandle,this,d)
+                        : { source: this, response: d }
+                    );
             };
         });
     }

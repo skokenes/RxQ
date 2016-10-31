@@ -9,9 +9,9 @@ var engine$ = RxQ.connectEngine(config);
 
 // Get the doc list
 var docList$ = engine$
-    .mergeMap(function(g) { return g.GetDocList(); })
+    .getDocList()
     .map(function(m) {
-        return m.qDocList
+        return m.response.qDocList
         .filter(function(f) { 
             return f.qMeta.stream.name==="Public"; // Filter apps to a specific stream
         });
