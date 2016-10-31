@@ -10,9 +10,11 @@ import GenericMeasureObservable from "./src/qObservables/GenericMeasureObservabl
 import GenericObjectObservable from "./src/qObservables/GenericObjectObservable.js";
 import GenericVariableObservable from "./src/qObservables/GenericVariableObservable.js";
 import VariableObservable from "./src/qObservables/VariableObservable.js";
+import pack from "raw!./package.json";
+
 
 const RxQ = {
-    version: "0.1.2",
+    version: JSON.parse(pack).version,
     qObservables: {
         GlobalObservable,
         AppObservable,
