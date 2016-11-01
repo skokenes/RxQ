@@ -6,30 +6,26 @@ var config = {
 };
 
 // Connect to global
-var engine$ = RxQ.connectEngine(config).share();
+var engine$ = RxQ.connectEngine(config);
+// -> returns GlobalObservable
 
 
 // Open an app and keep it hot
 var app$ = engine$
-    .mergeMap(function(glo) {
-        return glo.OpenDoc(config.appname)
-    })
+    .openDoc(config.appname)  // -> returns AppObservable
     .publishLast()
     .refCount();
 
-
 // Create a KPI object and keep it hot
 var kpi$ = app$
-    .mergeMap(function(app) {
-        return app.CreateSessionObject({
-            qInfo: {
-                qType: "kpi"
-            },
-            myKPI: {
-                "qStringExpression": "=money(sum(Expression1))"
-            }
-        })
-    })
+    .createSessionObject({
+        qInfo: {
+            qType: "kpi"
+        },
+        myKPI: {
+            "qStringExpression": "=money(sum(Expression1))"
+        }
+    }) // -> returns GenericObjectObservable
     .publishLast()
     .refCount();
 
@@ -39,15 +35,11 @@ var kpi$ = app$
 
 // Get notified of KPI changes
 var kpiInvalidated$ = kpi$
-    .mergeMap(function(obj) {
-        return obj.invalidated$;
-    });
-    // -> will fire the KPI object whenever it is invalidated
+    .invalidated();
+    // -> returns GenericObjectObservable that delivers the KPI object whenever it invalidates
 
 var kpiLayoutLong$ = kpiInvalidated$
-    .mergeMap(function(obj) {
-        return obj.GetLayout();
-    });
+    .getLayout();
     // -> subscribing to kpiLayoutLong$ will provide a layout whenever the object is invalidated
 
 ///////////////////////////////////////////////
@@ -56,10 +48,7 @@ var kpiLayoutLong$ = kpiInvalidated$
 
 // Get new layouts whenever the object is invalidated
 var kpiLayout$ = kpi$
-    .mergeMap(function(obj) {
-        return obj.layout$;
-    });
-
+    .layouts();
     // -> delivers the layout whenever the object is invalidated
 
 // Subscribe to shortcut KPI layouts $
@@ -71,27 +60,20 @@ kpiLayout$.subscribe(function(layout) {
 
 // Select a random field value
 var field$ = app$
-    .mergeMap(function(app) {
-        return app.GetField("Dim1");
-    })
+    .getField("Dim1") // -> returns a FieldObservable
     .publishLast()
     .refCount();
 
 var fieldCardinal$ = field$
-    .mergeMap(function(fld) {
-        return fld.GetCardinal();
-    })
+    .getCardinal()
     .map(function(m) {return m.qReturn;})
     .publishLast()
     .refCount();
 
-var fieldSelectRandom$ = field$
-    .combineLatest(fieldCardinal$)
-    .mergeMap(function(inp) {
-        var fld = inp[0];
-        var card = inp[1];
+var fieldSelectRandom$ = fieldCardinal$
+    .mergeMap(function(card) {
         var randInt = Math.floor(Math.random()*card);
-        return fld.LowLevelSelect([randInt],false);
+        return field$.lowLevelSelect([randInt],false)
     });
 
 var randomSelection = Rx.Observable.fromEvent(document.querySelector("button"),"click")
