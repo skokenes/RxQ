@@ -10,12 +10,22 @@ import GenericMeasureObservable from "./GenericMeasureObservable";
 import GenericObjectObservable from "./GenericObjectObservable";
 import GenericVariableObservable from "./GenericVariableObservable";
 import VariableObservable from "./VariableObservable";
+import QixApp from "../qix-classes/qix-app";
 
 class AppObservable extends QixObservable {
 
     constructor(source) {
         super();
-        this.source = source;
+        this.source = source
+            .mergeMap(m=>{
+                if(m instanceof QixApp) {
+                    return Rx.Observable.of(m);
+                }
+                else {
+                    return Rx.Observable.throw(new Error("Data type mismatch: Emitted value is not instance of QixApp"));
+                }
+            });
+
     }
 
     lift(operator) {
@@ -27,6 +37,11 @@ class AppObservable extends QixObservable {
         observable.source = this;
         observable.operator = operator;
         return observable;
+    }
+
+    layouts() {
+        return Observable.of('')
+            .mergeMap(()=>this.mergeMap(q=>q.layout$));
     }
     
 }

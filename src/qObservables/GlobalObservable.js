@@ -3,12 +3,21 @@ import nonLiftedOperators from "./nonLiftedOperators";
 import AppObservable from "./AppObservable";
 import extendPrototype from "../util/qix-extend-prototype";
 import outputTypes from "../util/qix-obs-types";
+import QixGlobal from "../qix-classes/qix-global";
 
 class GlobalObservable extends Observable {
 
     constructor(source) {
         super();
-        this.source = source;
+        this.source = source
+            .mergeMap(m=>{
+                if(m instanceof QixGlobal) {
+                    return Rx.Observable.of(m);
+                }
+                else {
+                    return Rx.Observable.throw(new Error("Data type mismatch: Emitted value is not instance of QixGlobal"));
+                }
+            });
     }
 
     lift(operator) {

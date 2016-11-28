@@ -3,12 +3,21 @@ import nonLiftedOperators from "./nonLiftedOperators";
 import QixObservable from "./QixObservable";
 import extendPrototype from "..//util/qix-extend-prototype";
 import outputTypes from "../util/qix-obs-types";
+import QixVariable from "../qix-classes/qix-variable";
 
 class VariableObservable extends QixObservable {
 
     constructor(source) {
         super();
-        this.source = source;
+        this.source = source
+            .mergeMap(m=>{
+                if(m instanceof QixVariable) {
+                    return Rx.Observable.of(m);
+                }
+                else {
+                    return Rx.Observable.throw(new Error("Data type mismatch: Emitted value is not instance of QixVariable"));
+                }
+            });
     }
 
     lift(operator) {
@@ -20,6 +29,11 @@ class VariableObservable extends QixObservable {
         observable.source = this;
         observable.operator = operator;
         return observable;
+    }
+
+    properties() {
+        return Observable.of('')
+            .mergeMap(()=>this.mergeMap(q=>q.properties$));
     }
 
 }

@@ -6,7 +6,7 @@ var filename = "rxqap" + (minimize ? ".min" : "");
 var plugins = (minimize ? [new webpack.optimize.UglifyJsPlugin({minimize: true})] : []);
 
 module.exports = {
-    entry: ["babel-polyfill","./index.js"],
+    entry: ["./index.js"],
     output: {
         path: __dirname + "/build/",
         filename: filename + ".js",

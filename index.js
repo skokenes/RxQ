@@ -1,3 +1,7 @@
+import "core-js/es6/symbol"; // polyfill symbol to enable iterators in IE
+import "core-js/fn/function/name"; // polyfill function to enable function constructor.name in IE
+import "regenerator-runtime/runtime";
+
 import EngineSession from "./src/engine-session";
 import engineWrapper from "./src/engine-wrapper";
 import { Observable } from "rxjs";
