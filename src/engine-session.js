@@ -1,6 +1,15 @@
 import Connection from "./connection";
-import QixClass from "./qix-class";
+import QixGlobal from "./qix-classes/qix-global";
 import { Observable } from "rxjs";
+
+
+// Generator for sequence ids
+const seqId = function* () {
+    var index = 1;
+    while(true) yield index++;
+}
+
+window.seqId = seqId;
 
 export default class EngineSession {
     constructor(config) {
@@ -25,12 +34,7 @@ export default class EngineSession {
     }
 
     getGlobal() {
-        return new QixClass("Global",this,-1);
+        return new QixGlobal(this,-1);
     }
 };
 
-// Generator for sequence ids
-function* seqId() {
-    var index = 1;
-    while(true) yield index++;
-}

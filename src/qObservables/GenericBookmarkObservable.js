@@ -3,12 +3,21 @@ import nonLiftedOperators from "./nonLiftedOperators";
 import QixObservable from "./QixObservable";
 import extendPrototype from "..//util/qix-extend-prototype";
 import outputTypes from "../util/qix-obs-types";
+import QixGenericBookmark from "../qix-classes/qix-generic-bookmark";
 
 class GenericBookmarkObservable extends QixObservable {
 
     constructor(source) {
         super();
-        this.source = source;
+        this.source = source
+            .mergeMap(m=>{
+                if(m instanceof QixGenericBookmark) {
+                    return Rx.Observable.of(m);
+                }
+                else {
+                    return Rx.Observable.throw(new Error("Data type mismatch: Emitted value is not instance of QixGenericBookmark"));
+                }
+            });
     }
 
     lift(operator) {
@@ -20,6 +29,11 @@ class GenericBookmarkObservable extends QixObservable {
         observable.source = this;
         observable.operator = operator;
         return observable;
+    }
+
+    layouts() {
+        return Observable.of('')
+            .mergeMap(()=>this.mergeMap(q=>q.layout$));
     }
 
 }
