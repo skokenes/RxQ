@@ -16,7 +16,6 @@ import GenericVariableObservable from "./src/qObservables/GenericVariableObserva
 import VariableObservable from "./src/qObservables/VariableObservable.js";
 import pack from "raw!./package.json";
 
-
 const RxQ = {
     version: JSON.parse(pack).version,
     qObservables: {
