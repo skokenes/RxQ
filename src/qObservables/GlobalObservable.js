@@ -12,10 +12,10 @@ class GlobalObservable extends Observable {
         this.source = source
             .mergeMap(m=>{
                 if(m instanceof QixGlobal) {
-                    return Rx.Observable.of(m);
+                    return Observable.of(m);
                 }
                 else {
-                    return Rx.Observable.throw(new Error("Data type mismatch: Emitted value is not instance of QixGlobal"));
+                    return Observable.throw(new Error("Data type mismatch: Emitted value is not instance of QixGlobal"));
                 }
             });
     }

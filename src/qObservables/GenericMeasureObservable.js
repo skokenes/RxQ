@@ -12,10 +12,10 @@ class GenericMeasureObservable extends QixObservable {
         this.source = source
             .mergeMap(m=>{
                 if(m instanceof QixGenericMeasure) {
-                    return Rx.Observable.of(m);
+                    return Observable.of(m);
                 }
                 else {
-                    return Rx.Observable.throw(new Error("Data type mismatch: Emitted value is not instance of QixGenericMeasure"));
+                    return Observable.throw(new Error("Data type mismatch: Emitted value is not instance of QixGenericMeasure"));
                 }
             });
     }
