@@ -12,10 +12,10 @@ class FieldObservable extends QixObservable {
         this.source = source
             .mergeMap(m=>{
                 if(m instanceof QixField) {
-                    return Rx.Observable.of(m);
+                    return Observable.of(m);
                 }
                 else {
-                    return Rx.Observable.throw(new Error("Data type mismatch: Emitted value is not instance of QixField"));
+                    return Observable.throw(new Error("Data type mismatch: Emitted value is not instance of QixField"));
                 }
             });
     }
