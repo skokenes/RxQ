@@ -9,15 +9,22 @@ class GlobalObservable extends Observable {
 
     constructor(source) {
         super();
-        this.source = source
-            .mergeMap(m=>{
-                if(m instanceof QixGlobal) {
-                    return Observable.of(m);
-                }
-                else {
-                    return Observable.throw(new Error("Data type mismatch: Emitted value is not instance of QixGlobal"));
-                }
+        
+        if(typeof source != "undefined") {
+            this.source = Observable.create(subscriber=>{
+                source.subscribe(s=>{
+                    if(s instanceof QixGlobal) {
+                        subscriber.next(s);
+                    }
+                    else {
+                        subscriber.error(new Error("Data type mismatch: Emitted value is not an instance of QixGlobal"));
+                    }
+                    
+                }, err=> {
+                    subscriber.error(err);
+                });
             });
+        }
     }
 
     lift(operator) {
@@ -43,8 +50,9 @@ const qObs = {
 };
 
 outputs.forEach(e=>{
-    const methodName = e.method;
-    const methodNameOrig = methodName.slice(0,1).toUpperCase() + methodName.slice(1);
+    const methodName = "q" + e.method;
+    const methodNameOrig = e.method;
+    //const methodNameOrig = methodName.slice(0,1).toUpperCase() + methodName.slice(1);
     const obsClass = qObs[e.obsType];
     GlobalObservable.prototype[methodName] = function(...args) {
         return this

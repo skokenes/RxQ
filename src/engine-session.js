@@ -13,7 +13,7 @@ export default class EngineSession {
         
         // Internals
         const handle = -1;
-        const seqGen = Observable.from(seqId());
+        const seqGen = seqId();
 
         //const wsTraffic = new Connection(config);
         const wsObs = new Connection(config); 

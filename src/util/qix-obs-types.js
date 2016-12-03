@@ -1,85 +1,85 @@
 const outputTypes = {
     "Global": [
         {
-            "method": "openDoc",
+            "method": "OpenDoc",
             "obsType": "AppObservable"
         },
         {
-            "method": "createDocEx",
+            "method": "CreateDocEx",
             "obsType": "AppObservable"
         },
         {
-            "method": "createSessionApp",
+            "method": "CreateSessionApp",
             "obsType": "AppObservable"
         },
         {
-            "method": "createSessionAppFromApp",
+            "method": "CreateSessionAppFromApp",
             "obsType": "AppObservable"
         },
         {
-            "method": "getActiveDoc",
+            "method": "GetActiveDoc",
             "obsType": "AppObservable"
         }
     ],
     "Doc": [
         {
-            "method": "createBookmark",
+            "method": "CreateBookmark",
             "obsType": "GenericBookmarkObservable"
         },
         {
-            "method": "createDimension",
+            "method": "CreateDimension",
             "obsType": "GenericDimensionObservable"
         },
         {
-            "method": "createMeasure",
+            "method": "CreateMeasure",
             "obsType": "GenericMeasureObservable"
         },
         {
-            "method": "createObject",
+            "method": "CreateObject",
             "obsType": "GenericObjectObservable"
         },
         {
-            "method": "createSessionObject",
+            "method": "CreateSessionObject",
             "obsType": "GenericObjectObservable"
         },
         {
-            "method": "createSessionVariable",
+            "method": "CreateSessionVariable",
             "obsType": "GenericVariableObservable"
         },
         {
-            "method": "createVariableEx",
+            "method": "CreateVariableEx",
             "obsType": "GenericVariableObservable"
         },
         {
-            "method": "getBookmark",
+            "method": "GetBookmark",
             "obsType": "GenericBookmarkObservable"
         },
         {
-            "method": "getDimension",
+            "method": "GetDimension",
             "obsType": "GenericDimensionObservable"
         },
         {
-            "method": "getField",
+            "method": "GetField",
             "obsType": "FieldObservable"
         },
         {
-            "method": "getMeasure",
+            "method": "GetMeasure",
             "obsType": "GenericMeasureObservable"
         },
         {
-            "method": "getObject",
+            "method": "GetObject",
             "obsType": "GenericObjectObservable"
         },
         {
-            "method": "getVariable",
+            "method": "GetVariable",
             "obsType": "VariableObservable"
         },
         {
-            "method": "getVariableById",
+            "method": "GetVariableById",
             "obsType": "GenericVariableObservable"
         },
         {
-            "method": "getVariableByName",
+            "method": "GetVariableByName",
             "obsType": "GenericVariableObservable"
         }
     ],
