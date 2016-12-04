@@ -1,12 +1,60 @@
 <html>
     <head>
         <script src="../../build/rxqap.js"></script>
-        <script src="../../node_modules/rxjs/bundles/Rx.js"></script>
+        <script src="https://unpkg.com/@reactivex/rxjs/dist/global/Rx.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.js"></script>
+        <style>
+            * {
+                box-sizing: border-box;
+                font-family: sans-serif;
+                font-size: 12px;
+            }
+
+            #lb-cont {
+                display: inline-block;
+                vertical-align: top;
+                margin-right: 30px;
+            }
+
+            ul {
+                list-style: none;
+                padding: 0px;
+                font-size: 12px;
+                margin-top: 5px;
+            }
+
+            li {
+                padding: 5px 10px;
+                border: 1px solid rgb(200,200,200);
+                margin-top: -1px;
+                cursor: pointer;
+            }
+
+            li.S {
+                background-color: rgba(75, 192, 192, .5);
+                
+            }
+
+            li.X {
+                background-color: rgb(230,230,230);
+            }
+
+            #chart-cont {
+                width: 900px;
+                display: inline-block;
+                vertical-align: top;
+            }
+        </style>
     </head>
     <body>
-        <div style="width: 400px; height: 400px">
-            <canvas id="myChart" width="400" height="400"></canvas>
+        <div id="lb-cont">
+            <strong>Product Group Filter</strong>
+            <ul id="myListbox">
+            </ul>
+        </div>
+        <div id="chart-cont">
+            <strong>Revenue by Region</strong>
+            <canvas id="myChart" ></canvas>
         </div>
         <script src="main.js"></script>
     </body>
