@@ -101,7 +101,7 @@ var myChart = new Chart(ctx, {
 });
 
 gO$
-    .layouts()
+    .qLayouts()
     .subscribe(l=>{
         var data = l.response.qLayout.qHyperCube.qDataPages[0].qMatrix;
         myChart.data.labels = data.map(d=>d[0].qText);

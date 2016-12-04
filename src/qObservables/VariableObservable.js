@@ -37,9 +37,13 @@ class VariableObservable extends QixObservable {
         return observable;
     }
 
-    properties() {
-        return Observable.of('')
-            .mergeMap(()=>this.mergeMap(q=>q.properties$));
+    qProperties() {
+        return this.mergeMap(q=>q.properties$);
+    }
+
+    qInvalidated() {
+        return this
+            .mergeMap(q=>q.invalidated$);
     }
 
 }

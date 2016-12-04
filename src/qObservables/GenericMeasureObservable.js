@@ -37,9 +37,13 @@ class GenericMeasureObservable extends QixObservable {
         return observable;
     }
 
-    layouts() {
-        return Observable.of('')
-            .mergeMap(()=>this.mergeMap(q=>q.layout$));
+    qLayouts() {
+        return this.mergeMap(q=>q.layout$);
+    }
+
+    qInvalidated() {
+        return this
+            .mergeMap(q=>q.invalidated$);
     }
 
 }
