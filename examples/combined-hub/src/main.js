@@ -117,7 +117,7 @@ var engines$ = Rx.Observable.from(configs)
 
 var allDocs$ = engines$
     .map(function(o) {
-        return o.getDocList();
+        return o.qGetDocList();
     })
     .combineAll()
     .map(function(dlList) {
@@ -129,12 +129,12 @@ var allDocs$ = engines$
             }));
         },[]);
     })
-    .publishLast()
+    .publishReplay()
     .refCount();
 
 var allStreams$ = engines$
     .map(function(o) {
-        return o.getStreamList();
+        return o.qGetStreamList();
     })
     .combineAll()
     .map(function(streamList) {
@@ -146,7 +146,7 @@ var allStreams$ = engines$
             }));
         },[]);
     })
-    .publishLast()
+    .publishReplay()
     .refCount();
 
 // Get the doc list for the servers

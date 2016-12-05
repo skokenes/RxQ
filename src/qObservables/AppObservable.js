@@ -52,7 +52,8 @@ class AppObservable extends Observable {
 
     qInvalidated() {
         return this
-            .mergeMap(q=>q.invalidated$);
+            .mergeMap(q=>q.invalidated$)
+            .let(o=>new AppObservable(o));
     }
     
 }

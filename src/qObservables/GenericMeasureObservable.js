@@ -43,7 +43,8 @@ class GenericMeasureObservable extends QixObservable {
 
     qInvalidated() {
         return this
-            .mergeMap(q=>q.invalidated$);
+            .mergeMap(q=>q.invalidated$)
+            .let(o=>new GenericMeasureObservable(o));
     }
 
 }
