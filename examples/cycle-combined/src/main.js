@@ -23,7 +23,7 @@ const main = (sources) => {
         .refCount();
 
     const list$ = engine$
-        .map(engine => engine.getDocList())
+        .map(engine => engine.qGetDocList())
         .combineAll()
         .map(docs => 
             docs.reduce((acc, curr) =>
