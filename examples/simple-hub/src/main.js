@@ -9,7 +9,7 @@ var engine$ = RxQ.connectEngine(config);
 
 // Get the doc list
 var docList$ = engine$
-    .getDocList()
+    .qGetDocList()
     .map(function(m) {
         return m.response.qDocList
         .filter(function(f) { 
