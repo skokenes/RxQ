@@ -12,13 +12,13 @@ var engine$ = RxQ.connectEngine(config);
 
 // Open an app and keep it hot
 var app$ = engine$
-    .openDoc(config.appname)  // -> returns AppObservable
-    .publishLast()
+    .qOpenDoc(config.appname)  // -> returns AppObservable
+    .publishReplay(1)
     .refCount();
 
 // Create a KPI object and keep it hot
 var kpi$ = app$
-    .createSessionObject({
+    .qCreateSessionObject({
         qInfo: {
             qType: "kpi"
         },
@@ -26,7 +26,7 @@ var kpi$ = app$
             "qStringExpression": "=money(sum(Expression1))"
         }
     }) // -> returns GenericObjectObservable
-    .publishLast()
+    .publishReplay(1)
     .refCount();
 
 ////////////////////////////////////////////
@@ -35,11 +35,11 @@ var kpi$ = app$
 
 // Get notified of KPI changes
 var kpiInvalidated$ = kpi$
-    .invalidated();
+    .qInvalidated();
     // -> returns GenericObjectObservable that delivers the KPI object whenever it invalidates
 
 var kpiLayoutLong$ = kpiInvalidated$
-    .getLayout();
+    .qGetLayout();
     // -> subscribing to kpiLayoutLong$ will provide a layout whenever the object is invalidated
 
 ///////////////////////////////////////////////
@@ -48,32 +48,32 @@ var kpiLayoutLong$ = kpiInvalidated$
 
 // Get new layouts whenever the object is invalidated
 var kpiLayout$ = kpi$
-    .layouts();
+    .qLayouts();
     // -> delivers the layout whenever the object is invalidated
 
 // Subscribe to shortcut KPI layouts $
 kpiLayout$.subscribe(function(layout) {
-    var qLayout = layout.qLayout;
+    var qLayout = layout.response.qLayout;
     document.querySelector("span").innerHTML = qLayout.myKPI;
 });
 
 
 // Select a random field value
 var field$ = app$
-    .getField("Dim1") // -> returns a FieldObservable
-    .publishLast()
+    .qGetField("Dim1") // -> returns a FieldObservable
+    .publishReplay(1)
     .refCount();
 
 var fieldCardinal$ = field$
-    .getCardinal()
-    .map(function(m) {return m.qReturn;})
-    .publishLast()
+    .qGetCardinal()
+    .map(function(m) {return m.response.qReturn;})
+    .publishReplay(1)
     .refCount();
 
 var fieldSelectRandom$ = fieldCardinal$
     .mergeMap(function(card) {
         var randInt = Math.floor(Math.random()*card);
-        return field$.lowLevelSelect([randInt],false)
+        return field$.qLowLevelSelect([randInt],false)
     });
 
 var randomSelection = Rx.Observable.fromEvent(document.querySelector("button"),"click")

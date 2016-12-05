@@ -25,11 +25,10 @@ export default class QixClass {
             const method = methods[e];
 
             this[e] = (...args) => {
-                const id$ = seqGen.take(1);
+                const id = seqGen.next().value;
                 return wsPassed   
                     .withLatestFrom(wsOpen,(pass,ws)=>ws)
-                    .combineLatest(id$)
-                    .mergeMap(([ws,id])=>{
+                    .mergeMap((ws)=>{
                         return method(ws,this.handle,id,...args)
                     })
                     .map(d=>{

@@ -9,7 +9,6 @@ class QixObservable extends Observable {
     }
 
     lift(operator) {
-        console.log(operator);
         const operatorName = operator.constructor.name;
         const operatorCheck = operatorName.slice(0,1).toLowerCase() + operatorName.slice(1,operatorName.indexOf("Operator"));
 
@@ -18,11 +17,6 @@ class QixObservable extends Observable {
         observable.source = this;
         observable.operator = operator;
         return observable;
-    }
-
-    invalidated() {
-        return this
-            .mergeMap(q=>q.invalidated$);
     }
     
 }

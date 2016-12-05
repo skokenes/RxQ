@@ -9,15 +9,21 @@ class GenericVariableObservable extends QixObservable {
 
     constructor(source) {
         super();
-        this.source = source
-            .mergeMap(m=>{
-                if(m instanceof QixGenericVariable) {
-                    return Observable.of(m);
-                }
-                else {
-                    return Observable.throw(new Error("Data type mismatch: Emitted value is not instance of QixGenericVariable"));
-                }
+        if(typeof source != "undefined") {
+            this.source = Observable.create(subscriber=>{
+                source.subscribe(s=>{
+                    if(s instanceof QixGenericVariable) {
+                        subscriber.next(s);
+                    }
+                    else {
+                        subscriber.error(new Error("Data type mismatch: Emitted value is not an instance of QixGenericVariable"));
+                    }
+                    
+                }, err=> {
+                    subscriber.error(err);
+                });
             });
+        }
     }
 
     lift(operator) {
@@ -31,9 +37,14 @@ class GenericVariableObservable extends QixObservable {
         return observable;
     }
 
-    layouts() {
-        return Observable.of('')
-            .mergeMap(()=>this.mergeMap(q=>q.layout$));
+    qLayouts() {
+        return this.mergeMap(q=>q.layout$);
+    }
+
+    qInvalidated() {
+        return this
+            .mergeMap(q=>q.invalidated$)
+            .let(o=>new GenericVariableObservable(o));
     }
 
 }
@@ -47,8 +58,8 @@ const qObs = {
 };
 
 outputs.forEach(e=>{
-    const methodName = e.method;
-    const methodNameOrig = methodName.slice(0,1).toUpperCase() + methodName.slice(1);
+    const methodName = "q" + e.method;
+    const methodNameOrig = e.method;
     const obsClass = qObs[e.obsType];
     GenericVariableObservable.prototype[methodName] = function(...args) {
         return this

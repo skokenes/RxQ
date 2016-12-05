@@ -8,9 +8,10 @@ export default function(proto,type) {
 
     methodNames.forEach(methodName => {
         const method = methods[methodName];
-        const methodCamel = methodName.slice(0,1).toLowerCase() + methodName.slice(1);
+       // const methodCamel = methodName.slice(0,1).toLowerCase() + methodName.slice(1);
+        const operatorName = "q" + methodName;
         
-        proto.prototype[methodCamel] = function(...args) {
+        proto.prototype[operatorName] = function(...args) {
             const responseObservable = this
                 .mergeMap(e=>e[methodName](...args));
             
