@@ -22,7 +22,7 @@ In the browser, load in a script tag:
 
 The most recent version of RxQAP builds, plus archived and minified builds, are hosted at https://opensrc.axisgroup.com/rxqap/.
 
-You can play with RxQAP right away in [this JSFiddle!](https://jsfiddle.net/8p4f8f69/)
+You can play with RxQAP right away in [this JSFiddle!](https://jsfiddle.net/tx13oozL/)
 
 ### Connect to an engine
 Define a server with a `config` object. This can then be used to produce an Observable that will connect to the engine and return the global class:
