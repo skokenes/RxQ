@@ -24,6 +24,10 @@ The most recent version of RxQAP builds, plus archived and minified builds, are 
 
 You can play with RxQAP right away in [this JSFiddle!](https://jsfiddle.net/tx13oozL/)
 
+An in-depth tutorial for RxQAP is available at http://blog.axc.net/tutorial-build-an-interactive-chart-on-qix-with-rxqap/.
+
+For a quick start, keep reading:
+
 ### Connect to an engine
 Define a server with a `config` object. This can then be used to produce an Observable that will connect to the engine and return the global class:
 ```javascript
