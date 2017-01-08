@@ -5,13 +5,13 @@ var config = {
 };
 
 // Connect to global
-var engine$ = RxQ.connectEngine(config);
+var engine$ = RxQ.connectEngine(config, "warm");
 
 // Get the doc list
 var docList$ = engine$
     .qGetDocList()
-    .map(function(m) {
-        return m.response.qDocList
+    .map(function(dl) {
+        return dl
         .filter(function(f) { 
             return f.qMeta.stream.name==="Public"; // Filter apps to a specific stream
         });

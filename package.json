@@ -1,13 +1,14 @@
 {
   "name": "rxqap",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "A reactive wrapper for the Qlik Analytics Platform APIs",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --progress --colors",
-    "build-min": "webpack --progress --colors --minimize",
+    "build-qix-schemas": "node scripts/build-qix-schemas.js",
+    "build": "webpack --progress --colors -v=3.1",
+    "build-min": "webpack --progress --colors --minimize -v=3.1",
     "build-release": "npm run build && npm run build-min && cp -R build/ rxqap-build && zip rxqap-build.zip rxqap-build/* && rm -rf rxqap-build/",
-    "watch": "webpack --progress --colors --watch"
+    "watch": "webpack --progress --colors --watch -v=3.1"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,8 @@
     "babel-polyfill": "^6.16.0",
     "babel-preset-es2015": "^6.16.0",
     "babel-regenerator-runtime": "^6.5.0",
+    "enigma.js": "^1.0.1",
+    "http-browserify": "^1.7.0",
     "raw-loader": "^0.5.1",
     "webpack": "^1.13.2"
   },

@@ -109,21 +109,26 @@ var configs = [
 
 // Connect to the engines
 var engines$ = Rx.Observable.from(configs)
-    .map(function(c) {
+    .mergeMap(function(c) {
         return RxQ.connectEngine(c)
     })
+    .take(configs.length)
     .publishReplay()
     .refCount();
 
 var allDocs$ = engines$
     .map(function(o) {
-        return o.qGetDocList();
+        return o.getDocList()
+            .map(dl=>({
+                source: o,
+                response: dl
+            }));
     })
     .combineAll()
     .map(function(dlList) {
         return dlList.reduce(function(acc,curr) {
             var server = curr.source.session.config.alias;
-            return acc.concat(curr.response.qDocList.map(function(doc) {
+            return acc.concat(curr.response.map(function(doc) {
                 doc.server = server;
                 return doc;
             }));
@@ -134,13 +139,17 @@ var allDocs$ = engines$
 
 var allStreams$ = engines$
     .map(function(o) {
-        return o.qGetStreamList();
+        return o.getStreamList()
+            .map(sl=>({
+                source: o,
+                response: sl
+            }));
     })
     .combineAll()
     .map(function(streamList) {
         return streamList.reduce(function(acc,curr) {
             var server = curr.source.session.config.alias;
-            return acc.concat(curr.response.qStreamList.map(function(stream) {
+            return acc.concat(curr.response.map(function(stream) {
                 stream.server = server;
                 return stream;
             }));
