@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 import Handle from "./handle";
 import addQixMethods from "../util/add-qix-methods";
+import setObsTemp from "../util/set-obs-temp";
 
 export default class App extends Handle {
     constructor(session, handle) {
@@ -10,6 +11,9 @@ export default class App extends Handle {
             const response = this.invalidated$
                 .mergeMap(a=>a.getAppLayout());
             
+            return setObsTemp(response, this.session.temp);
+
+            /*
             if(this.session.temp === "cold") {
                 return response;
             }
@@ -22,7 +26,8 @@ export default class App extends Handle {
                 const hotRequest = response.publishReplay(1);
                 hotRequest.connect();
                 return hotRequest;
-            }  
+            } 
+            */ 
         })();
     }
 

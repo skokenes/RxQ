@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 import outputTypes from "./qix-obs-types";
 import QixObservable from "../qix-observables/qix-observable";
+import setObsTemp from "./set-obs-temp";
 
 export default function(proto,type) {
     const rawMethods = require("raw!../schemas/qix/" + __qlikVersion__ + "/" + type + ".json");
@@ -15,6 +16,9 @@ export default function(proto,type) {
             const responseObservable = this
                 .mergeMap(e=>e[methodNameCamel](...args));
             
+            return setObsTemp(responseObservable, this.temp);
+            /*
+            
             if(this.temp === "cold") {
                 return responseObservable;
             }
@@ -28,6 +32,7 @@ export default function(proto,type) {
                 hotRequest.connect();
                 return hotRequest;
             }
+            */
             
             /* Not sure why I ever needed this? Keep until validated that it didnt break anything...
             const observable = new Observable();
@@ -56,6 +61,9 @@ export default function(proto,type) {
             const responseObservable = this
                 .mergeMap(e=>e[methodNameOrig](...args))
                 .let(o=>new obsClass(o, this.temp));
+            
+            return setObsTemp(responseObservable, this.temp);
+            /*
             if(this.temp === "cold") {
                 return responseObservable;
             }
@@ -69,6 +77,7 @@ export default function(proto,type) {
                 hotRequest.connect();
                 return hotRequest;
             }
+            */
         };
     });
 }

@@ -1,5 +1,6 @@
 import QixObservable from "./qix-observable";
 import addQixOperators from "../util/add-qix-operators";
+import setObsTemp from "../util/set-obs-temp";
 
 class GenericMeasureObservable extends QixObservable {
     constructor(source, temp) {
@@ -12,6 +13,10 @@ class GenericMeasureObservable extends QixObservable {
 
         const resp = this
             .mergeMap(q=>q.layout$);
+
+        return setObsTemp(resp, this.temp);
+
+        /*
         
         if(this.temp === "cold") {
             return resp;
@@ -26,6 +31,7 @@ class GenericMeasureObservable extends QixObservable {
             hotRequest.connect();
             return hotRequest;
         }
+        */
     }
 }
 

@@ -1,3 +1,5 @@
+import setObsTemp from "./set-obs-temp";
+
 export default function(proto,type) {
     const engineMethods = require("raw!../schemas/qix/" + __qlikVersion__ + "/" + type + ".json");
     // List of method names
@@ -7,6 +9,9 @@ export default function(proto,type) {
         var methodNameCamel = method.n[0].toLowerCase() + method.n.slice(1);
         proto.prototype[methodNameCamel] = function(...args) {
             const request = this.askCold(method,...args);
+
+            return setObsTemp(request, this.session.temp);
+            /*
             if(this.session.temp === "cold") {
                 return request;
             }
@@ -20,6 +25,7 @@ export default function(proto,type) {
                 hotRequest.connect();
                 return hotRequest;
             }
+            */
         }
     });
 }

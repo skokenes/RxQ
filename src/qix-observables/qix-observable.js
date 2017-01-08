@@ -1,5 +1,6 @@
 import { Observable } from "rxjs";
 import nonLiftedOperators from "./non-lifted-operators";
+import setObsTemp from "../util/set-obs-temp";
 
 class QixObservable extends Observable {
     constructor(source, type, temp) {
@@ -51,6 +52,10 @@ class QixObservable extends Observable {
             .mergeMap(q=>q.invalidated$)
             .let(o=>new curClass(o, this.temp));
         
+        return setObsTemp(resp, this.temp);
+
+        /*
+        
         if(this.temp === "cold") {
             return resp;
         }
@@ -64,6 +69,7 @@ class QixObservable extends Observable {
             hotRequest.connect();
             return hotRequest;
         }
+        */
     }
 }
 
