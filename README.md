@@ -31,6 +31,8 @@ An in-depth tutorial for RxQ is available at http://blog.axc.net/tutorial-build-
 
 For a quick start, keep reading:
 
+## Engine API Usage
+
 ### Connect to an engine
 Define a server with a `config` object. This can then be used to produce an Observable that will connect to the engine and return the global class:
 ```javascript
