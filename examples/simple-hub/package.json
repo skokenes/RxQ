@@ -1,10 +1,10 @@
 {
   "name": "simple-hub",
   "version": "0.0.1",
-  "description": "A simple hub built with RxQAP",
+  "description": "A simple hub built with RxQ",
   "main": "index.js",
   "scripts": {
-    "start": "cp ../../build/rxqap.js . && http-server -p 3000"
+    "start": "cp ../../build/rxq.js . && http-server -p 3000"
   },
   "author": "Speros Kokenes",
   "license": "ISC",

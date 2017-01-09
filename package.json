@@ -1,5 +1,5 @@
 {
-  "name": "rxqap",
+  "name": "rxq",
   "version": "0.5.0",
   "description": "A reactive wrapper for the Qlik Analytics Platform APIs",
   "main": "index.js",
@@ -7,12 +7,12 @@
     "build-qix-schemas": "node scripts/build-qix-schemas.js",
     "build": "webpack --progress --colors -v=3.1",
     "build-min": "webpack --progress --colors --minimize -v=3.1",
-    "build-release": "npm run build && npm run build-min && cp -R build/ rxqap-build && zip rxqap-build.zip rxqap-build/* && rm -rf rxqap-build/",
+    "build-release": "npm run build && npm run build-min && cp -R build/ rxq-build && zip rxq-build.zip rxq-build/* && rm -rf rxq-build/",
     "watch": "webpack --progress --colors --watch -v=3.1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/axisgroup/RxQAP.git"
+    "url": "git+https://github.com/axisgroup/RxQ.git"
   },
   "keywords": [
     "qap",
@@ -22,7 +22,7 @@
   ],
   "author": "Axis Group",
   "license": "ISC",
-  "homepage": "https://github.com/axisgroup/RxQAP#readme",
+  "homepage": "https://github.com/axisgroup/RxQ#readme",
   "devDependencies": {
     "babel-core": "^6.17.0",
     "babel-loader": "^6.2.5",

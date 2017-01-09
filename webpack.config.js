@@ -20,7 +20,7 @@ var plugins = [
 
 // Add minimize plugin if nessary
 var minimize = process.argv.indexOf('--minimize') !== -1;
-var filename = "rxqap" + (minimize ? ".min" : "");
+var filename = "rxq" + (minimize ? ".min" : "");
 if(minimize) plugins.push(new webpack.optimize.UglifyJsPlugin({minimize: true}));
 
 
