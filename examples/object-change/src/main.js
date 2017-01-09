@@ -6,17 +6,15 @@ var config = {
 };
 
 // Connect to global
-var engine$ = RxQ.connectEngine(config);
+var engine$ = RxQ.connectEngine(config, "warm");
 // -> returns GlobalObservable
 
 
-// Open an app and keep it hot
+// Open an app
 var app$ = engine$
-    .qOpenDoc(config.appname)  // -> returns AppObservable
-    .publishReplay(1)
-    .refCount();
+    .qOpenDoc(config.appname);  // -> returns AppObservable
 
-// Create a KPI object and keep it hot
+// Create a KPI object
 var kpi$ = app$
     .qCreateSessionObject({
         qInfo: {
@@ -25,9 +23,7 @@ var kpi$ = app$
         myKPI: {
             "qStringExpression": "=money(sum(Expression1))"
         }
-    }) // -> returns GenericObjectObservable
-    .publishReplay(1)
-    .refCount();
+    }); // -> returns GenericObjectObservable
 
 ////////////////////////////////////////////
 // Long form getting layout on change //////
@@ -52,23 +48,19 @@ var kpiLayout$ = kpi$
     // -> delivers the layout whenever the object is invalidated
 
 // Subscribe to shortcut KPI layouts $
-kpiLayout$.subscribe(function(layout) {
-    var qLayout = layout.response.qLayout;
+kpiLayout$.subscribe(function(qLayout) {
+    //var qLayout = layout.response.qLayout;
     document.querySelector("span").innerHTML = qLayout.myKPI;
 });
 
 
 // Select a random field value
 var field$ = app$
-    .qGetField("Dim1") // -> returns a FieldObservable
-    .publishReplay(1)
-    .refCount();
+    .qGetField("Dim1"); // -> returns a FieldObservable
 
 var fieldCardinal$ = field$
-    .qGetCardinal()
-    .map(function(m) {return m.response.qReturn;})
-    .publishReplay(1)
-    .refCount();
+    .qGetCardinal();
+    //.map(function(m) {return m;});
 
 var fieldSelectRandom$ = fieldCardinal$
     .mergeMap(function(card) {

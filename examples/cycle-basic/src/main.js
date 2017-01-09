@@ -14,8 +14,7 @@ const main = (sources) => {
     });
 
     const list$ = engine$
-        .qGetDocList()
-        .map(m => m.response.qDocList);
+        .qGetDocList();
 
     const appList$ = Observable.combineLatest(filter$, list$, (filter, list) => ({
         filter,

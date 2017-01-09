@@ -5,13 +5,11 @@ var config = {
 };
 
 // Observable that connects to the server and returns QixGlobal
-var eng$ = RxQ.connectEngine(config);
+var eng$ = RxQ.connectEngine(config, "warm");
 
 // Observable that opens the Executive Dashboard QixApp and shares it
 var app$ = eng$
-    .qOpenDoc("24703994-1515-4c2c-a785-d769a9226143")
-    .publishReplay(1)
-    .refCount();
+    .qOpenDoc("24703994-1515-4c2c-a785-d769a9226143");
 
 // GenericObject definition for the chart
 var genObjProp = {
@@ -81,7 +79,7 @@ var myChart = new Chart(ctx, {
 gO$
     .qLayouts()
     .subscribe(function(layout) {
-        var data = layout.response.qLayout.qHyperCube.qDataPages[0].qMatrix;
+        var data = layout.qHyperCube.qDataPages[0].qMatrix;
         myChart.data.labels = data.map(function(d) { return  d[0].qText; });
         myChart.data.datasets[0].data = data.map(function(d) { return d[1].qNum; });
         myChart.update();
@@ -118,7 +116,7 @@ var ul = document.getElementById("myListbox");
 var lbsub = lb$
     .qLayouts()
     .subscribe(function(layout) {
-        var data = layout.response.qLayout.qListObject.qDataPages[0].qMatrix;
+        var data = layout.qListObject.qDataPages[0].qMatrix;
         ul.innerHTML = data
             .map(function(m) { return "<li class='" +  m[0].qState + "' data-qelemno=" + m[0].qElemNumber + ">" + m[0].qText + "</li>"; })
             .join("");
@@ -131,7 +129,7 @@ var select$ = Rx.Observable.fromEvent(ul,"click")
         var evt = vals[0];
         var lbObj = vals[1];
         var elemNo = parseInt(evt.target.getAttribute("data-qelemno"));
-        return lbObj.SelectListObjectValues("/qListObjectDef",[elemNo],true)
+        return lbObj.selectListObjectValues("/qListObjectDef",[elemNo],true)
             .publish();
     });
 

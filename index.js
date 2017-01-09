@@ -1,24 +1,29 @@
+// Polyfills
 import "core-js/es6/symbol"; // polyfill symbol to enable iterators in IE
 import "core-js/fn/function/name"; // polyfill function to enable function constructor.name in IE
 import "regenerator-runtime/runtime";
 
-import EngineSession from "./src/engine-session";
-import engineWrapper from "./src/engine-wrapper";
+// Observables
 import { Observable } from "rxjs";
-import GlobalObservable from "./src/qObservables/GlobalObservable.js";
-import AppObservable from "./src/qObservables/AppObservable.js";
-import FieldObservable from "./src/qObservables/FieldObservable.js";
-import GenericBookmarkObservable from "./src/qObservables/GenericBookmarkObservable.js";
-import GenericDimensionObservable from "./src/qObservables/GenericDimensionObservable.js";
-import GenericMeasureObservable from "./src/qObservables/GenericMeasureObservable.js";
-import GenericObjectObservable from "./src/qObservables/GenericObjectObservable.js";
-import GenericVariableObservable from "./src/qObservables/GenericVariableObservable.js";
-import VariableObservable from "./src/qObservables/VariableObservable.js";
+import GlobalObservable from "./src/qix-observables/global-observable.js";
+import AppObservable from "./src/qix-observables/app-observable.js";
+import FieldObservable from "./src/qix-observables/field-observable.js";
+import GenericBookmarkObservable from "./src/qix-observables/generic-bookmark-observable.js";
+import GenericDimensionObservable from "./src/qix-observables/generic-dimension-observable.js";
+import GenericMeasureObservable from "./src/qix-observables/generic-measure-observable.js";
+import GenericObjectObservable from "./src/qix-observables/generic-object-observable.js";
+import GenericVariableObservable from "./src/qix-observables/generic-variable-observable.js";
+import VariableObservable from "./src/qix-observables/variable-observable.js";
+
+import Session from "./src/session";
 import pack from "raw!./package.json";
+
+import qrs from "./src/qrs";
 
 const RxQ = {
     version: JSON.parse(pack).version,
-    qObservables: {
+    qixVersion: __qlikVersion__,
+    qixObservables: {
         GlobalObservable,
         AppObservable,
         FieldObservable,
@@ -29,14 +34,14 @@ const RxQ = {
         GenericVariableObservable,
         VariableObservable
     },
-    connectEngine: function(config) {
-        // Establish a session, then return a Qix Class type Global from it
-        return new EngineSession(config)
-            .map(m=>m.getGlobal())
-            .let(o=>new GlobalObservable(o));
+    connectEngine: function(config, temp) {
+        return Observable.defer(()=> Observable.of(new Session(config, temp).global()))
+            .let(o=>new GlobalObservable(o, temp))
+            .publishReplay(1)
+            .refCount();
     },
-    $$: {
-        engine: engineWrapper
+    connectQRS: function(config, temp) {
+        return new qrs(config, temp);
     }
 };
 

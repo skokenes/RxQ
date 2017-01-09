@@ -1,9 +1,28 @@
 var path = require("path");
 var webpack = require("webpack");
 var library = "RxQ";
+
+// Read in Qix Version
+var versionParam = process.argv
+    .filter(arg=>{
+        console.log(arg);
+        return arg.indexOf("-v=")>-1;
+    })
+    .join()
+    .split("=")[1];
+
+// Add qlik version plugin
+var plugins = [
+    new webpack.DefinePlugin({
+        "__qlikVersion__": '"' + versionParam + '"'
+    })
+];
+
+// Add minimize plugin if nessary
 var minimize = process.argv.indexOf('--minimize') !== -1;
-var filename = "rxqap" + (minimize ? ".min" : "");
-var plugins = (minimize ? [new webpack.optimize.UglifyJsPlugin({minimize: true})] : []);
+var filename = "rxq" + (minimize ? ".min" : "");
+if(minimize) plugins.push(new webpack.optimize.UglifyJsPlugin({minimize: true}));
+
 
 module.exports = {
     entry: ["./index.js"],

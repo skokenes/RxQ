@@ -1,30 +1,33 @@
-# RxQAP
-RxQAP is a reactive JS wrapper for the Qlik Analytics Platform APIs. It uses RxJS to model the API calls used with QAP as Observables. This enables developers to build functional reactive applications with the Qlik platform. Both the browser and node are supported. 
+# RxQ
+RxQ is a reactive JS wrapper for the Qlik Analytics Platform APIs. It uses RxJS to model the API calls used with QAP as Observables. This enables developers to build functional reactive applications with the Qlik platform. Both the browser and node are supported. 
 
 Functional reactive programming pairs well with the reactive nature of the QIX engine. Check out some of the examples included in this repository, such as the [Simple Hub](http://viz.axisgroup.com/simple-hub/) that implements a very basic Qlik Sense hub with a few reactive streams. Then move on to more complex examples, like our [Combined Hub](http://viz.axisgroup.com/combined-hub/) that combines multiple servers into a single hub.
 
 ##### Support
-As of v0.4.0, the following APIs are supported:
+As of v0.5.0, the following APIs are supported:
 - Engine API for QS 3.1
+- QRS API for all QS versions
 
-Qlik Repository Service API and Qlik Proxy Service API wrappers are planned for future releases.
+Custom builds for other versions of the QS Engine can be generated using the included build scripts.
 
-## Installation and Usage
+A Qlik Proxy Service API wrapper is planned for future releases.
+
+## Installation
 Install in node via npm:
 ```
-$ npm install rxqap
+$ npm install rxq
 ```
 
 In the browser, load in a script tag:
 ```javascript
-<script src="https://opensrc.axisgroup.com/rxqap/rxqap.js"></script>
+<script src="https://opensrc.axisgroup.com/rxq/rxq.js"></script>
 ```
 
-The most recent version of RxQAP builds, plus archived and minified builds, are hosted at https://opensrc.axisgroup.com/rxqap/.
+The most recent version of RxQ builds, plus archived and minified builds, are hosted at https://opensrc.axisgroup.com/rxq/.
 
-You can play with RxQAP right away in [this JSFiddle!](https://jsfiddle.net/tx13oozL/)
+You can play with RxQ right away in [this JSFiddle!](https://jsfiddle.net/8kb7j7s1/)
 
-An in-depth tutorial for RxQAP is available at http://blog.axc.net/tutorial-build-an-interactive-chart-on-qix-with-rxqap/.
+An in-depth tutorial for RxQ is available at http://blog.axc.net/tutorial-build-an-interactive-chart-on-qix-with-rxqap/.
 
 For a quick start, keep reading:
 
@@ -55,7 +58,19 @@ productVersion$.subscribe(function(pv) {
 });
 ```
 
-**RxQAP produces Cold Observables for all API calls EXCEPT for connectEngine, which returns a Hot Observable.**
+**RxQ produces Cold Observables for all API calls by default.**
+
+### Configuring RxQ Engine Behavior
+While RxQ is cold by default, it can be configured for different behaviors with an optional second parameter on `RxQ.connectEngine()`. This parameter can be one of the following:
+
+* `"cold"` - (default) all Observables returned by the session are cold and execute for each subscriber
+* `"warm"` - all Observables returned by the session wait until first subscriber until execution, but multicast the results to future subscribers. The latest value is replayed for late subscribers
+* `"hot"` - all Observables returned by the session execute immediately, regardless of subscribers. All subscribers receive the same value, with the latest value being replayed for late subscribers
+
+For example, to create a QIX session that behaves "warm", you would write:
+```
+var engine$ = RxQ.connectEngine(config, "warm");
+```
 
 ### Configuring an engine connection
 The `config` object for a server can be defined with the following properties:
@@ -76,8 +91,48 @@ The `config` object for a server can be defined with the following properties:
 ### Engine API Methods
 The Engine API methods can be found in the [Qlik Sense Developers Help documentation](http://help.qlik.com/en-US/sense-developer/3.1/Subsystems/EngineAPI/Content/Classes/classes.htm).
 
+## QRS API Usage
+
+### Connect to the QRS and make a call 
+```
+var config = {
+    host: "my-server"
+};
+
+var qrs = RxQ.connectQRS(config);
+
+var apiDefault$ = qrs.get("/about/api/default");
+// -> Returns an Observable for the response to a GET request against this path
+```
+
+In real examples, you will need a more complicated `config` object to connect properly to a server.
+
+### Configuring a QRS connection
+The `config` object for the QRS can be defined with the following properties:
+* `host` - (String) Hostname of server
+* `port` - (Integer) Port of connection, defaults to 443/80
+* `prefix` - (String) Virtual Proxy
+* `headers` - (Object) HTTP headers
+* `isSecure` - (Boolean) If true, uses https. Otherwise uses http. Default is true
+* `key` - (String) Client certificate key
+* `cert` - (String) Client certificate
+* `ca` - (Array of String) CA root certificates
+* `addParams` - (Object) Any additional parameters that you want included with each HTTP request
+
+### Configuring RxQ QRS Behavior
+Just like with the Engine, RxQAP's QRS connection can be configured for different behaviors with an optional second parameter on `RxQ.connectQRS()`. This parameter can be one of the following:
+
+* `"cold"` - (default) all Observables returned are cold and execute for each subscriber
+* `"warm"` - all Observables returned wait until first subscriber until execution, but multicast the results to future subscribers. The latest value is replayed for late subscribers
+* `"hot"` - all Observables returned execute immediately, regardless of subscribers. All subscribers receive the same value, with the latest value being replayed for late subscribers
+
+For example, to create a QRS that behaves "warm", you would write:
+```
+var qrs = RxQ.connectQRS(config, "warm");
+```
+
 ## Builds
-The latest build can be found in the releases [here](https://github.com/axisgroup/RxQAP/releases/tag/v0.4.0). Builds are also hosted at https://opensrc.axisgroup.com/rxqap/.
+The latest build can be found in the releases [here](https://github.com/axisgroup/RxQ/releases/tag/v0.5.0). Builds are also hosted at https://opensrc.axisgroup.com/rxq/.
 
 To create your own builds, you can use the following commands to create a build and a minimized build in a `/build` subdirectory:
 ```

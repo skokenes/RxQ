@@ -18,16 +18,25 @@ const main = (sources) => {
     }];
 
     const engine$ = Observable.from(servers)
-        .map(m => RxQ.connectEngine(m))
+        .mergeMap(function(c) {
+            return RxQ.connectEngine(c)
+        })
+        .take(servers.length)
         .publishReplay()
         .refCount();
 
     const list$ = engine$
-        .map(engine => engine.qGetDocList())
+        .map(function(global) {
+            return global.getDocList()
+                .map(dl=>({
+                    source: global,
+                    response: dl
+                }));
+        })
         .combineAll()
         .map(docs => 
             docs.reduce((acc, curr) =>
-                acc.concat(curr.response.qDocList.map(m => {
+                acc.concat(curr.response.map(m => {
                     m.server = curr.source.session.config.host;
                     return m;
                 }))
