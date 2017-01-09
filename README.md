@@ -27,7 +27,9 @@ The most recent version of RxQ builds, plus archived and minified builds, are ho
 
 You can play with RxQ right away in [this JSFiddle!](https://jsfiddle.net/8kb7j7s1/)
 
-## Engine API Usage
+An in-depth tutorial for RxQ is available at http://blog.axc.net/tutorial-build-an-interactive-chart-on-qix-with-rxqap/.
+
+For a quick start, keep reading:
 
 ### Connect to an engine
 Define a server with a `config` object. This can then be used to produce an Observable that will connect to the engine and return the global class:
