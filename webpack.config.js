@@ -5,7 +5,6 @@ var library = "RxQ";
 // Read in Qix Version
 var versionParam = process.argv
     .filter(arg=>{
-        console.log(arg);
         return arg.indexOf("-v=")>-1;
     })
     .join()

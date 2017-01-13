@@ -32,10 +32,7 @@ qixVersions.forEach(function(qV) {
         const output = methods.map(key=>{
             var ret = {n: key};
             var outs = struct[key].Out;
-            if(outs.length === 0) {
-                ret.o = "qReturn";
-            }
-            else if(outs.length === 1) {
+            if(outs.length === 1) {
                 ret.o = outs[0].Name;
             }
             else {

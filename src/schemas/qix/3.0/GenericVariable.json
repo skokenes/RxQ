@@ -1,1 +1,1 @@
-[{"n":"GetLayout","o":"qLayout"},{"n":"ApplyPatches","o":"qReturn"},{"n":"SetProperties","o":"qReturn"},{"n":"GetProperties","o":"qProp"},{"n":"GetInfo","o":"qInfo"},{"n":"SetStringValue","o":"qReturn"},{"n":"SetNumValue","o":"qReturn"},{"n":"SetDualValue","o":"qReturn"}]
+[{"n":"GetLayout","o":"qLayout"},{"n":"ApplyPatches","o":""},{"n":"SetProperties","o":""},{"n":"GetProperties","o":"qProp"},{"n":"GetInfo","o":"qInfo"},{"n":"SetStringValue","o":""},{"n":"SetNumValue","o":""},{"n":"SetDualValue","o":""}]
