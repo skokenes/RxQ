@@ -1,1 +1,1 @@
-[{"n":"GetLayout","o":"qLayout"},{"n":"ApplyPatches","o":"qReturn"},{"n":"SetProperties","o":"qReturn"},{"n":"GetProperties","o":"qProp"},{"n":"GetInfo","o":"qInfo"},{"n":"GetMeasure","o":"qMeasure"},{"n":"GetLinkedObjects","o":"qItems"},{"n":"Publish","o":"qReturn"},{"n":"UnPublish","o":"qReturn"}]
+[{"n":"GetLayout","o":"qLayout"},{"n":"ApplyPatches","o":""},{"n":"SetProperties","o":""},{"n":"GetProperties","o":"qProp"},{"n":"GetInfo","o":"qInfo"},{"n":"GetMeasure","o":"qMeasure"},{"n":"GetLinkedObjects","o":"qItems"},{"n":"Publish","o":""},{"n":"UnPublish","o":""}]

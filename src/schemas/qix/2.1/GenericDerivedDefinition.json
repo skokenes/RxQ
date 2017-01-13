@@ -1,1 +1,1 @@
-[{"n":"SetProperties","o":"qReturn"},{"n":"GetProperties","o":"qProp"},{"n":"MatchTags","o":"qReturn"},{"n":"GetInfo","o":"qInfo"},{"n":"GetDerivedDefinitionData","o":"qData"},{"n":"GetExpression","o":"qReturn"}]
+[{"n":"SetProperties","o":""},{"n":"GetProperties","o":"qProp"},{"n":"MatchTags","o":""},{"n":"GetInfo","o":"qInfo"},{"n":"GetDerivedDefinitionData","o":"qData"},{"n":"GetExpression","o":""}]
