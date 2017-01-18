@@ -1,6 +1,6 @@
 {
   "name": "rxq",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "A reactive wrapper for the Qlik Analytics Platform APIs",
   "main": "index.js",
   "scripts": {
