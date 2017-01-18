@@ -27,6 +27,7 @@ Handle.prototype.askCold = function(method,...args) {
     .map(resp=>{
         const returnValue = method.o.length > 0 ? resp[method.o] : resp;
         if(!returnValue.hasOwnProperty("qReturn")) return returnValue;
+        else if(typeof returnValue.qReturn.qType === "undefined") return returnValue.qReturn;
         else {
             let qClass = undefined;
             switch(returnValue.qReturn.qType) {

@@ -4,7 +4,7 @@ RxQ is a reactive JS wrapper for the Qlik Analytics Platform APIs. It uses RxJS 
 Functional reactive programming pairs well with the reactive nature of the QIX engine. Check out some of the examples included in this repository, such as the [Simple Hub](http://viz.axisgroup.com/simple-hub/) that implements a very basic Qlik Sense hub with a few reactive streams. Then move on to more complex examples, like our [Combined Hub](http://viz.axisgroup.com/combined-hub/) that combines multiple servers into a single hub.
 
 ##### Support
-As of v0.5.1, the following APIs are supported:
+As of v0.5.2, the following APIs are supported:
 - Engine API for QS 3.1
 - QRS API for all QS versions
 
@@ -134,7 +134,7 @@ var qrs = RxQ.connectQRS(config, "warm");
 ```
 
 ## Builds
-The latest build can be found in the releases [here](https://github.com/axisgroup/RxQ/releases/tag/v0.5.1). Builds are also hosted at https://opensrc.axisgroup.com/rxq/.
+The latest build can be found in the releases [here](https://github.com/axisgroup/RxQ/releases/tag/v0.5.2). Builds are also hosted at https://opensrc.axisgroup.com/rxq/.
 
 To create your own builds, you can use the following commands to create a build and a minimized build in a `/build` subdirectory:
 ```
