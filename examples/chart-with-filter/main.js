@@ -75,6 +75,8 @@ var myChart = new Chart(ctx, {
     }
 });
 
+
+
 // Get an observable stream of generic object layouts when the data changes, and update the chart with latest data
 gO$
     .qLayouts()
@@ -107,6 +109,8 @@ var lbProp = {
     }
 };
 
+
+
 // Create the listbox generic object
 var lb$ = app$
     .qCreateSessionObject(lbProp);
@@ -121,6 +125,8 @@ var lbsub = lb$
             .map(function(m) { return "<li class='" +  m[0].qState + "' data-qelemno=" + m[0].qElemNumber + ">" + m[0].qText + "</li>"; })
             .join("");
     });
+
+
 
 // Create a stream of selection calls based on click events
 var select$ = Rx.Observable.fromEvent(ul,"click")

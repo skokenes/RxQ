@@ -14,6 +14,11 @@ var versionParam = process.argv
 var plugins = [
     new webpack.DefinePlugin({
         "__qlikVersion__": '"' + versionParam + '"'
+    }),
+    new webpack.NormalModuleReplacementPlugin(/superagent|q/, (result) => {
+        if (result.request === 'superagent') {
+            result.request = 'empty-module';
+        }
     })
 ];
 
@@ -33,7 +38,8 @@ module.exports = {
         umdNamedDefine: true
     },
     externals: [{
-        ws: true
+        ws: true,
+        http: true
     }],
     module: {
         loaders: [
