@@ -20,6 +20,7 @@ import pack from "raw!./package.json";
 
 import qrs from "./src/qrs";
 
+
 const RxQ = {
     version: JSON.parse(pack).version,
     qixVersion: __qlikVersion__,

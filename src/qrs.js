@@ -18,16 +18,15 @@ export default class QRS {
             addParams: cfg.addParams || {}
         };
 
-        this.http = getDefaultHTTPModule(config.unsecure);
-
+        this.http = getDefaultHTTPModule(config.isSecure);
 
         const baseRequest = Object.assign({
             host: config.host,
             port: config.port,
             scheme: (config.isSecure ? "http" : "https"),
-            //key: config.key,
-            //cert: config.cert,
-            //ca: config.ca,
+            key: config.key,
+            cert: config.cert,
+            ca: config.ca,
             headers: config.headers
         },config.addParams);
 
@@ -75,9 +74,6 @@ QRS.prototype.generateRequest = function(method, path) {
 
     const http = this.http;
 
-    // console.log(options);
-   
-
     const observable = Observable.create(function(observer) {
 
         var req = http.request(options, function (res) {
@@ -117,12 +113,19 @@ QRS.prototype.generateRequest = function(method, path) {
 }
 
 function getDefaultHTTPModule(unsecure) {
+    
   const IS_NODE = typeof process !== "undefined" && Object.prototype.toString.call(global.process) === "[object process]";
-  if (IS_NODE) {
-      console.log("is node!");
-    const lib = unsecure ? 'http' : 'https';
-    // avoid webpack grabbing this dependency and cause havoc:
-    return eval(`require('${lib}')`);
+
+  const lib = unsecure ? "http" : "https";
+
+  if(IS_NODE) {
+      return eval(`require("${lib}")`);
   }
-  return require('http-browserify');
+
+  if(unsecure) {
+      return require("stream-http");
+  }
+  else {
+      return require("https-browserify");
+  }
 }
