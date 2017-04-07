@@ -8,7 +8,7 @@ export default [
     "bufferWhen",
     // "catch",
     // "combineAll",
-    // "combineLatest",
+    "combineLatest",
     // "concat",
     // "concatAll",
     "concatMap",
