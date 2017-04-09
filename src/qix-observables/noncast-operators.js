@@ -51,7 +51,7 @@ export default [
     // "max",
     // "merge",
     // "mergeAll",
-    "mergeMap",
+    // "mergeMap",
     "mergeMapTo",
     "mergeScan",
     // "min",

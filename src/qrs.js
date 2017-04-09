@@ -47,12 +47,12 @@ export default class QRS {
         return this.generateRequest("GET", path);
     }
 
-    post(path) {
-        return this.generateRequest("POST", path);
+    post(path, body, type) {
+        return this.generateRequest("POST", path, body, type);
     }
 
-    put(path) {
-        return this.generateRequest("PUT", path);
+    put(path, body, type) {
+        return this.generateRequest("PUT", path, body, type);
     }
 
     delete(path) {
@@ -64,13 +64,16 @@ function generateXrfkey() {
     return (Math.random() * 1e32).toString(36).slice(0, 16);
 }
 
-QRS.prototype.generateRequest = function(method, path) {
+// Generate Request needs options for additional headers, body?
+QRS.prototype.generateRequest = function(method, path, body, type) {
     const completePath = this.basePath + path + (path.indexOf("?") > -1 ? "&" : "?") + "Xrfkey=" + this.xrfkey;
 
     const options = Object.assign({
         method: method,
         path: completePath
     },this.baseRequest);
+
+    if(typeof type != "undefined") options.headers["content-type"] = type;
 
     const http = this.http;
 
@@ -94,6 +97,8 @@ QRS.prototype.generateRequest = function(method, path) {
             });
         });
 
+
+        if(typeof body != "undefined") req.write(body);
         req.end();
     });
 

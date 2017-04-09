@@ -1,5 +1,5 @@
 import { Observable } from "rxjs";
-import nonLiftedOperators from "./non-lifted-operators";
+import noncastOperators from "./noncast-operators";
 import setObsTemp from "../util/set-obs-temp";
 
 class QixObservable extends Observable {
@@ -33,12 +33,10 @@ class QixObservable extends Observable {
 
     // Lift appropriate operators
     lift(operator) {
-        const curClass = this.constructor;
-        const operatorName = operator.constructor.name;
-        const operatorCheck = operatorName.slice(0,1).toLowerCase() + operatorName.slice(1,operatorName.indexOf("Operator"));
 
-        // If operator is on list, lift it. otherwise, return basic observable
-        const observable = nonLiftedOperators.indexOf(operatorCheck) < 0 ? new curClass(undefined, this.temp) : new Observable();
+        const curClass = this.constructor;
+
+        const observable = new curClass(undefined, this.temp);
         observable.source = this;
         observable.operator = operator;
         return observable;
@@ -53,24 +51,18 @@ class QixObservable extends Observable {
             .let(o=>new curClass(o, this.temp));
         
         return setObsTemp(resp, this.temp);
-
-        /*
-        
-        if(this.temp === "cold") {
-            return resp;
-        }
-        else if(this.temp === "warm") {
-            return resp
-                .publishReplay(1)
-                .refCount();
-        }
-        else if(this.temp === "hot") {
-            const hotRequest = resp.publishReplay(1);
-            hotRequest.connect();
-            return hotRequest;
-        }
-        */
     }
 }
+
+
+noncastOperators.forEach((operatorName) => {
+    QixObservable.prototype[operatorName] = function() {
+        var qObs = this;
+        var observable = Observable.create(function(observer) {
+            qObs.subscribe(s=>observer.next(s),e=>observer.error(e),()=>observer.complete());
+        });
+        return observable.combineLatest(...arguments);
+    }
+});
 
 export default QixObservable;
