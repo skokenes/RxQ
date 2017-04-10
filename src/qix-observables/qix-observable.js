@@ -61,7 +61,7 @@ noncastOperators.forEach((operatorName) => {
         var observable = Observable.create(function(observer) {
             qObs.subscribe(s=>observer.next(s),e=>observer.error(e),()=>observer.complete());
         });
-        return observable.combineLatest(...arguments);
+        return observable[operatorName](...arguments);
     }
 });
 
