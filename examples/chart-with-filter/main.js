@@ -130,16 +130,13 @@ var lbsub = lb$
 
 // Create a stream of selection calls based on click events
 var select$ = Rx.Observable.fromEvent(ul,"click")
-    .withLatestFrom(lb$)
-    .map(function(vals) {
-        var evt = vals[0];
-        var lbObj = vals[1];
+    .mergeMap(function(evt) {
+        // Get the element number clicked
         var elemNo = parseInt(evt.target.getAttribute("data-qelemno"));
-        return lbObj.selectListObjectValues("/qListObjectDef",[elemNo],true)
-            .publish();
+        // Return an observable of the selection API call
+        return lb$.qSelectListObjectValues("/qListObjectDef",[elemNo],true);
     });
 
-// When selection call is created, execute it
-select$.subscribe(function(sel) {
-    sel.connect();
+// Subscribe to that sequence to run it. You can do something with the result here if you'd like
+select$.subscribe(function(result) {
 });
