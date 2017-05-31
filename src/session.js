@@ -16,6 +16,7 @@ export default class Session {
         const wsOpened = Observable.create(function(observer) {
             const ws = connectWS(config);
 
+            console.log("adding ws open listener");
             ws.addEventListener("open", function(evt) {
                 observer.next(ws);
                 observer.complete();
@@ -48,7 +49,8 @@ export default class Session {
         
         // Stream of responses
         session.responses = wsOpened
-            .mergeMap(ws=>Observable.create(function(observer) {
+            .concatMap(ws=>Observable.create(function(observer) {
+                
                 ws.addEventListener("message", function(evt) {
                     const response = JSON.parse(evt.data);
                     observer.next(response);
@@ -63,7 +65,9 @@ export default class Session {
                 ws.addEventListener("close", function() {
                     observer.complete();
                 });
-            }));
+            }))
+            .publishReplay()
+            .refCount();
         
         // Changes
         session.changes = session.responses
