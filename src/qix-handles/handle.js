@@ -25,12 +25,13 @@ Handle.prototype.askCold = function(method,...args) {
         params: args
     }))
     .map(resp=>{
-        const returnValue = method.o.length > 0 ? resp[method.o] : resp;
-        if(!returnValue.hasOwnProperty("qReturn")) return returnValue;
-        else if(typeof returnValue.qReturn.qType === "undefined") return returnValue.qReturn;
-        else {
+       
+        var hasQReturn = resp.hasOwnProperty("qReturn");
+        var hasQType = hasQReturn ? (resp.qReturn.hasOwnProperty("qType")) : false; 
+
+        if(hasQType) {
             let qClass = undefined;
-            switch(returnValue.qReturn.qType) {
+            switch(resp.qReturn.qType) {
                 case "Global":
                     qClass = require("./global");
                     break;
@@ -59,7 +60,12 @@ Handle.prototype.askCold = function(method,...args) {
                     qClass = require("./variable");
                     break;
             }
-            return new qClass(this.session,returnValue.qReturn.qHandle);
+            return new qClass(this.session,resp.qReturn.qHandle);
         }
+        else if(method.o.length > 0) {
+            return resp[method.o];
+        }
+        else if(hasQReturn) return resp.qReturn;
+        else return resp;
     });
 }
