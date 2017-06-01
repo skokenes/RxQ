@@ -16,14 +16,12 @@ export default class Session {
         const wsOpened = Observable.create(function(observer) {
             const ws = connectWS(config);
 
-            console.log("adding ws open listener");
             ws.addEventListener("open", function(evt) {
                 observer.next(ws);
                 observer.complete();
             });
             // how to pass down error when opening fails?
             ws.addEventListener("error", function(err) {
-                console.log("caught an error",err);
             });
         })
         .publishLast()
