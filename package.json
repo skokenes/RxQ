@@ -1,6 +1,6 @@
 {
   "name": "rxq",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "description": "A reactive wrapper for the Qlik Analytics Platform APIs",
   "main": "build/rxq.js",
   "scripts": {
@@ -45,6 +45,9 @@
   },
   "bugs": {
     "url": "https://github.com/axisgroup/RxQ/issues"
+  },
+  "browser": {
+    "ws": false
   },
   "directories": {
     "example": "examples"
