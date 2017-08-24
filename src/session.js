@@ -8,8 +8,6 @@ export default class Session {
         const temp = opts.temp;
         const suspended$ = typeof opts.suspended$ != "undefined" ? Observable.from(opts.suspended$).startWith(false) : Observable.of(false); 
 
-        console.log(suspended$);
-
         session.temp = ["cold", "warm", "hot"].indexOf(temp) > -1 ? temp : "cold";
 
         session.config = config;
