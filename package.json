@@ -1,6 +1,6 @@
 {
   "name": "rxq",
-  "version": "0.6.8@suspend-alpha",
+  "version": "0.6.8",
   "description": "A reactive wrapper for the Qlik Analytics Platform APIs",
   "main": "build/rxq.js",
   "scripts": {
