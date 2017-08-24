@@ -35,9 +35,9 @@ const RxQ = {
         GenericVariableObservable,
         VariableObservable
     },
-    connectEngine: function(config, temp) {
-        return Observable.defer(()=> Observable.of(new Session(config, temp).global()))
-            .let(o=>new GlobalObservable(o, temp))
+    connectEngine: function(config, opts) {
+        return Observable.defer(()=> Observable.of(new Session(config, opts).global()))
+            .let(o=>new GlobalObservable(o, opts.temp))
             .publishReplay(1)
             .refCount();
     },

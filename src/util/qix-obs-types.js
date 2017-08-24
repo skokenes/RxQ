@@ -86,7 +86,12 @@ const outputTypes = {
     "Field": [],
     "GenericBookmark": [],
     "GenericDimension": [],
-    "GenericObject": [],
+    "GenericObject": [
+        {
+            "method": "CreateChild",
+            "obsType": "generic-object"
+        }
+    ],
     "GenericMeasure": [],
     "GenericVariable": [],
     "Variable": [],

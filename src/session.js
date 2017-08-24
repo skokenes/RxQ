@@ -3,8 +3,12 @@ import { Observable, Subject } from "rxjs";
 import Global from "./qix-handles/global";
 
 export default class Session {
-    constructor(config, temp) {
+    constructor(config, opts) {
         const session = this;
+        const temp = opts.temp;
+        const suspended$ = typeof opts.suspended$ != "undefined" ? Observable.from(opts.suspended$).startWith(false) : Observable.of(false); 
+
+        console.log(suspended$);
 
         session.temp = ["cold", "warm", "hot"].indexOf(temp) > -1 ? temp : "cold";
 
@@ -67,10 +71,30 @@ export default class Session {
             .publishReplay()
             .refCount();
         
+        
         // Changes
-        session.changes = session.responses
+        const changesIn$ = session.responses
             .filter(f=>f.hasOwnProperty("change"))
             .pluck("change");
+        
+        const bufferOpen$ = suspended$
+            .distinctUntilChanged()
+            .filter(f=>f);
+        
+        const bufferClose$ = suspended$
+            .distinctUntilChanged()
+            .filter(f=>!f)
+            .skip(1);
+        
+        const bufferedChanges$ = changesIn$
+            .bufferToggle(bufferOpen$, ()=>bufferClose$)
+            .map(arr=>arr.reduce((prev,cur)=>{
+                return prev.concat(cur);
+            },[]));
+        
+        session.changes = changesIn$
+            .withLatestFrom(suspended$,(changeList,suspendedState)=>suspendedState ? [] : changeList)
+            .merge(bufferedChanges$);
 
         // Hook up request pipeline to execute
         session.requests

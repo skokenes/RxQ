@@ -17,28 +17,6 @@ export default function(proto,type) {
                 .mergeMap(e=>e[methodNameCamel](...args));
             
             return setObsTemp(responseObservable, this.temp);
-            /*
-            
-            if(this.temp === "cold") {
-                return responseObservable;
-            }
-            else if(this.temp === "warm") {
-                return responseObservable
-                    .publishReplay(1)
-                    .refCount();
-            }
-            else if(this.temp === "hot") {
-                const hotRequest = responseObservable.publishReplay(1);
-                hotRequest.connect();
-                return hotRequest;
-            }
-            */
-            
-            /* Not sure why I ever needed this? Keep until validated that it didnt break anything...
-            const observable = new Observable();
-            observable.source = responseObservable;
-           return observable;
-            */
         }
     });
 
@@ -56,28 +34,16 @@ export default function(proto,type) {
     outputs.forEach(e=>{
         const methodName = "q" + e.method;
         const methodNameOrig = e.method[0].toLowerCase() + e.method.slice(1);
-        const obsClass = qObs[e.obsType];
+
+        // If the type to be cast to is the current type, use the current prototype. Otherwise, pull the imported prototype
+        const obsClass = (e.obsType.split("-").map(m=>m[0].toUpperCase() + m.slice(1)).join("") === type) ? proto : qObs[e.obsType];
+        
         proto.prototype[methodName] = function(...args) {
             const responseObservable = this
                 .mergeMap(e=>e[methodNameOrig](...args))
                 .let(o=>new obsClass(o, this.temp));
             
             return setObsTemp(responseObservable, this.temp);
-            /*
-            if(this.temp === "cold") {
-                return responseObservable;
-            }
-            else if(this.temp === "warm") {
-                return responseObservable
-                    .publishReplay(1)
-                    .refCount();
-            }
-            else if(this.temp === "hot") {
-                const hotRequest = responseObservable.publishReplay(1);
-                hotRequest.connect();
-                return hotRequest;
-            }
-            */
         };
     });
 }
