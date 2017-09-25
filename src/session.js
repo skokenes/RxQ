@@ -1,14 +1,11 @@
 import connectWS from "./connectWS";
 import { Observable, Subject } from "rxjs";
-import Global from "./qix-handles/global";
+import Handle from "./qix-handles/handle";
 
 export default class Session {
-    constructor(config, opts) {
+    constructor(config, opts = {}) {
         const session = this;
-        const temp = opts.temp;
         const suspended$ = typeof opts.suspended$ != "undefined" ? Observable.from(opts.suspended$).startWith(false) : Observable.of(false); 
-
-        session.temp = ["cold", "warm", "hot"].indexOf(temp) > -1 ? temp : "cold";
 
         session.config = config;
         
@@ -132,6 +129,6 @@ export default class Session {
     }
 
     global() {
-        return new Global(this);
+        return new Handle(this, -1, "Global");
     }
 }
