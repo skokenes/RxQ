@@ -1,41 +1,68 @@
 # RxQ
-RxQ is a reactive JS wrapper for the Qlik Analytics Platform APIs. It uses RxJS to model the API calls used with QAP as Observables. This enables developers to build functional reactive applications with the Qlik platform. Both the browser and node are supported. 
-
-Functional reactive programming pairs well with the reactive nature of the QIX engine. Check out some of the examples included in this repository, such as the [Simple Hub](http://viz.axisgroup.com/simple-hub/) that implements a very basic Qlik Sense hub with a few reactive streams. Then move on to more complex examples, like our [Combined Hub](http://viz.axisgroup.com/combined-hub/) that combines multiple servers into a single hub.
+RxQ is a reactive JS wrapper for the Qlik Analytics Platform APIs. It provides custom RxJS operators that execute Qlik API calls.
 
 ##### Support
-As of v0.6.7, the following APIs are supported:
-- Engine API for QS 3.2
-- QRS API for all QS versions
+As of v0.7.0-beta.5, the following APIs are supported:
+- Engine API for QS 12.20.0
 
-Custom builds for other versions of the QS Engine can be generated using the included build scripts.
-
-A Qlik Proxy Service API wrapper is planned for future releases.
+Custom builds for other versions of the QS Engine can be generated using the included build scripts. See the build section.
 
 ## Installation
 Install in node via npm:
 ```
-$ npm install rxq
+$ npm install rxq@beta
+```
+## API Structure
+RxQ has two types of functions: connectors and operators.
+
+
+### Connectors
+Connectors take in a configuration and return an Observable for a connection to a Qlik service. They are stored under the "rxq/connect" path. For example, to load the `connectEngine` function that will return an Observable for an Engine session, you can do one of the following:
+
+*CommonJS*
+```
+var connectEngine = require("rxq/connect/connectEngine");
 ```
 
-In the browser, load in a script tag:
-```javascript
-<script src="https://opensrc.axisgroup.com/rxq/rxq.js"></script>
+*ESM*
+```
+import connectEngine from "rxq/connect/connectEngine";
 ```
 
-The most recent version of RxQ builds, plus archived and minified builds, are hosted at https://opensrc.axisgroup.com/rxq/.
+*Browser - note the browser API is slightly different at this time*
+```
+var connectEngine = RxQ.connectEngine;
+```
 
-You can play with RxQ right away in [this JSFiddle!](https://jsfiddle.net/8kb7j7s1/)
+### Operators
+Operators are organized by QIX Engine class. They are stored in RxQ under the path "rxq/operators/<--qClass-->".
 
-An in-depth tutorial for RxQ is available at http://blog.axc.net/tutorial-build-an-interactive-chart-on-qix-with-rxqap/.
+For example, to get the engineVersion operator from the Global class, you could do one of the following:
 
-For a quick start, keep reading:
+*CommonJS*
+```
+var engineVersion = require("rxq/operators/global/engineVersion");
+```
+
+*ESM*
+```
+import { engineVersion } from "rxq/operators/global";
+```
+
+*Browser*
+```
+var engineVersion = RxQ.operators.Global.engineVersion;
+```
 
 ## Engine API Usage
+The following example illustrates usage of RxQ with ESM. The same format applies for CommonJS and Browser usage; the only difference is how you import the library. See above for details.
 
-### Connect to an engine
-Define a server with a `config` object. This can then be used to produce an Observable that will connect to the engine and return the global class:
+### Connect to an engine and get the engine version
+Define a server with a `config` object. This can then be used to produce an Observable that will connect to the engine and return the global class. Then, we can use the engineVersion operator to get the engineVersion.
 ```javascript
+import connectEngine from "rxq/connect/connectEngine";
+import { engineVersion } from "rxq/operators/global";
+
 // Describe a server
 var config = {
     host: "sense.axisgroup.com",
@@ -43,36 +70,22 @@ var config = {
 };
 
 // Connect to engine
-var engine$ = RxQ.connectEngine(config);
-// -> returns a hot GlobalObservable that will connect to server upon first subscription
-```
+var engine$ = connectEngine(config);
 
-### Get the product version
-```javascript
-// Create an Observable for the product version
-var productVersion$ = engine$
-    .qProductVersion();
-// -> Returns a Cold Observable that will get the product version of the server
+// Get the engineVersion
+var engineVersion$ = engine$.pipe(
+    engineVersion()
+);
 
-// Print the resulting product version to the console
-productVersion$.subscribe(function(pv) {
-    console.log("Product version is: " + pv.response.qReturn);
+// Print the engine version
+engineVersion$.subscribe(version => {
+    console.log("engine version: ", version);
 });
 ```
 
-**RxQ produces Cold Observables for all API calls by default.**
+**RxQ operators produce Hot Observables with replay and ref counting.**
 
-### Configuring RxQ Engine Behavior
-While RxQ is cold by default, it can be configured for different behaviors with an optional second parameter on `RxQ.connectEngine()`. This parameter can be one of the following:
-
-* `"cold"` - (default) all Observables returned by the session are cold and execute for each subscriber
-* `"warm"` - all Observables returned by the session wait until first subscriber until execution, but multicast the results to future subscribers. The latest value is replayed for late subscribers
-* `"hot"` - all Observables returned by the session execute immediately, regardless of subscribers. All subscribers receive the same value, with the latest value being replayed for late subscribers
-
-For example, to create a QIX session that behaves "warm", you would write:
-```
-var engine$ = RxQ.connectEngine(config, "warm");
-```
+Observables that are created from RxQ operators will replay their last value at all times. This means that late subscribers will always get the latest value from the Observable. These observables use ref counting, meaning that they do not connect until they go from 0 to 1 subscriber. Similarly, they disconnect when going from 1 to 0 subscribers. In summary, your observables from RxQ must have a subscriber to function by default. Alternatively, you can manually connect these Observables or defer them depending on your needs.
 
 ### Configuring an engine connection
 The `config` object for a server can be defined with the following properties:
@@ -93,51 +106,33 @@ The `config` object for a server can be defined with the following properties:
 ### Engine API Methods
 The Engine API methods can be found in the [Qlik Sense Developers Help documentation](http://help.qlik.com/en-US/sense-developer/3.1/Subsystems/EngineAPI/Content/Classes/classes.htm).
 
-## QRS API Usage
+## Building RxQ
+RxQ has several auto-generated components that build the source code and compile it into the distributed package for NPM. The steps are:
+1) Getting the correct QIX Engine schemas and generating operators for all API methods for the desired engine version
+2) Converting all source code into CommonJS, ESM, and browser modules and moving them to the distribution folder
+3) Creating the package.json files for the distribution folder
 
-### Connect to the QRS and make a call 
-```
-var config = {
-    host: "my-server"
-};
+Each of these steps can be triggered using npm scripts in the repository:
 
-var qrs = RxQ.connectQRS(config);
+### Step 1: Getting Engine schemas and generating operators
+`npm run build-qix-schemas` will pull and transform the QIX schemas from the `enigma.js` node module.
 
-var apiDefault$ = qrs.get("/about/api/default");
-// -> Returns an Observable for the response to a GET request against this path
-```
+`npm run build-operators` will use the QIX Schemas to generate the operator source code for each API call. It only does this for the QIX version specified in the `qix-version` property of `package.json`. By default, we keep this updated to the latest available version of QIX and distribute the NPM package based on this version. If you need to generate a build for a different version, you can update the `qix-version` property and re-run the build process from here forward.
 
-In real examples, you will need a more complicated `config` object to connect properly to a server.
+### Step 2: Converting all source code into distribution modules
+`npm run compile-cjs` compiles the CommonJS modules.
 
-### Configuring a QRS connection
-The `config` object for the QRS can be defined with the following properties:
-* `host` - (String) Hostname of server
-* `port` - (Integer) Port of connection, defaults to 443/80
-* `prefix` - (String) Virtual Proxy
-* `headers` - (Object) HTTP headers
-* `isSecure` - (Boolean) If true, uses https. Otherwise uses http. Default is true
-* `key` - (String) Client certificate key
-* `cert` - (String) Client certificate
-* `ca` - (Array of String) CA root certificates
-* `addParams` - (Object) Any additional parameters that you want included with each HTTP request
+`npm run compile-esm5` compiles the ESM modules.
 
-### Configuring RxQ QRS Behavior
-Just like with the Engine, RxQAP's QRS connection can be configured for different behaviors with an optional second parameter on `RxQ.connectQRS()`. This parameter can be one of the following:
+`npm run build` compiles the browser bundle.
 
-* `"cold"` - (default) all Observables returned are cold and execute for each subscriber
-* `"warm"` - all Observables returned wait until first subscriber until execution, but multicast the results to future subscribers. The latest value is replayed for late subscribers
-* `"hot"` - all Observables returned execute immediately, regardless of subscribers. All subscribers receive the same value, with the latest value being replayed for late subscribers
+`npm run build-min` compiles the minified browser bundle.
 
-For example, to create a QRS that behaves "warm", you would write:
-```
-var qrs = RxQ.connectQRS(config, "warm");
-```
+### Step 3: Creating the package.json files for distribution
+`npm run make-packages` creates and stores the package.json files.
 
-## Builds
-The latest build can be found in the releases [here](https://github.com/axisgroup/RxQ/releases/tag/v0.6.7). Builds are also hosted at https://opensrc.axisgroup.com/rxq/.
+### Rebuilding the Distribution Folder
+It is common to edit source code of RxQ and then execute steps 2 and 3 to rebuild the distribution folder. Those steps can be done in a single command with:
+`npm run build-dist-folder`.
 
-To create your own builds, you can use the following commands to create a build and a minimized build in a `/build` subdirectory:
-```
-$ npm run build
-$ npm run build-min
-```
+The final package for distribution is stored in a sub-directory called `dist`. The NPM package should be published from this directory, NOT from the parent level repository which contains the source code.
