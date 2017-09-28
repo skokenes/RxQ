@@ -1,3 +1,15 @@
 node_modules/
 build
 sandbox
+dist
+src/operators/Global
+src/operators/Doc
+src/operators/Field
+src/operators/GenericBookmark
+src/operators/GenericDerivedFields
+src/operators/GenericDimension
+src/operators/GenericMeasure
+src/operators/GenericObject
+src/operators/GenericVariable
+src/operators/Variable
+src/schemas

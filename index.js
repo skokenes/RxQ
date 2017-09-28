@@ -1,33 +1,24 @@
 // Polyfills
 import "core-js/es6/symbol"; // polyfill symbol to enable iterators in IE
-import "core-js/fn/function/name"; // polyfill function to enable function constructor.name in IE
+// import "core-js/fn/function/name"; // may be able to remove this with refactor
 import "regenerator-runtime/runtime";
 
 // Operators
 import * as handleOps from "./src/operators/handle/index.js";
 import * as coreOps from "./src/operators/index.js";
 
-// Observables
-import { Observable } from "rxjs";
-
-import Session from "./src/session";
-import pack from "raw!./package.json";
-
-import qrs from "./src/qrs";
-
+import connectEngine from "./src/connect/connectEngine";
+import connectQRS from "./src/connect/connectQRS";
+import pack from "raw-loader!./package.json";
 
 const RxQ = {
     version: JSON.parse(pack).version,
-    qixVersion: __qlikVersion__,
+    qixVersion: JSON.parse(pack)["qix-version"],
     operators: Object.assign({
         Handle: handleOps
     },coreOps),
-    connectEngine: function(config, opts) {
-        return Observable.of(new Session(config, opts).global());
-    },
-    connectQRS: function(config, temp) {
-        return new qrs(config, temp);
-    }
+    connectEngine: connectEngine,
+    connectQRS: connectQRS
 };
 
 export default RxQ;

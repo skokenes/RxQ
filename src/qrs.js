@@ -1,4 +1,4 @@
-import { Observable } from "rxjs";
+import { Observable } from "rxjs/Observable";
 
 export default class QRS {
     constructor(cfg, temp) {

@@ -1,9 +1,10 @@
 // with qix version, go through the schema and publish into operators
 var fs = require("fs");
 var path = require("path");
+var pack =  JSON.parse(fs.readFileSync("package.json", "utf8"));
 
 // qix version
-var version = "3.2";
+var version = pack["qix-version"];
 
 // Folder to look for schemas
 var schemaFolder = `src/schemas/qix/${version}`;
@@ -54,7 +55,7 @@ fs.readdir(schemaFolder, function(err, filenames) {
 
 function generateScript(methodName, methodOutput) {
     //console.log(methodName);
-    var script = `import { map, publishReplay, withLatestFrom } from "rxjs/operators";
+    var script = `import { map, publishReplay, withLatestFrom, refCount } from "rxjs/operators";
 import Handle from "../../qix-handles/handle.js";
 import ask from "../handle/ask.js";
 
@@ -77,10 +78,9 @@ export default function(...args) {
                 else if(hasQReturn) return resp.qReturn;
                 else return resp;
             }),
-            publishReplay(1)
+            publishReplay(1),
+            refCount()
         );
-
-        methodResp$.connect();
         
         return methodResp$;
     }

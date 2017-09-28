@@ -1,11 +1,19 @@
-import connectWS from "./connectWS";
-import { Observable, Subject } from "rxjs";
+import connectWS from "./connect/connectWS";
+import { Observable } from "rxjs/Observable";
+import "rxjs/add/observable/of";
+import "rxjs/add/observable/from";
+import "rxjs/add/observable/throw";
+
+import { Subject } from "rxjs/Subject";
 import Handle from "./qix-handles/handle";
+import { publishLast, refCount, bufferToggle, take,
+mergeMap, merge, concatMap, filter, pluck, distinctUntilChanged,
+skip, withLatestFrom, map, skipUntil, publishReplay, startWith, mapTo } from "rxjs/operators";
 
 export default class Session {
     constructor(config, opts = {}) {
         const session = this;
-        const suspended$ = typeof opts.suspended$ != "undefined" ? Observable.from(opts.suspended$).startWith(false) : Observable.of(false); 
+        const suspended$ = typeof opts.suspended$ != "undefined" ? Observable.from(opts.suspended$).pipe(startWith(false)) : Observable.of(false); 
 
         session.config = config;
         
@@ -22,12 +30,12 @@ export default class Session {
             // how to pass down error when opening fails?
             ws.addEventListener("error", function(err) {
             });
-        })
-        .publishLast()
-        .refCount();
+        }).pipe(
+            publishLast(),
+            refCount()
+        );
 
-        
-        
+        this.wsOpened = wsOpened;
 
         session.$$.seqGen = function* () {
             var index = 1;
@@ -38,16 +46,17 @@ export default class Session {
         session.requestsInput = new Subject();
 
         // Buffer requests until WS opens, then merge with subsequent requests
-        session.requests = session.requestsInput
-            .bufferToggle(Observable.of(true), ()=>wsOpened)
-            .take(1) // prevents it from continuing to buffer after wsOpen 
-            .mergeMap(m=>Observable.from(m))
-            .merge(session.requestsInput.skipUntil(wsOpened));
+        session.requests = session.requestsInput.pipe(
+            bufferToggle(Observable.of(true), ()=>wsOpened),
+            take(1), // prevents it from continuing to buffer after wsOpen 
+            mergeMap(m=>Observable.from(m)),
+            merge(session.requestsInput.pipe(skipUntil(wsOpened)))
+        );
+            
         
         // Stream of responses
-        session.responses = wsOpened
-            .concatMap(ws=>Observable.create(function(observer) {
-                
+        session.responses = wsOpened.pipe(
+            concatMap(ws=>Observable.create(function(observer) { 
                 ws.addEventListener("message", function(evt) {
                     const response = JSON.parse(evt.data);
                     observer.next(response);
@@ -62,42 +71,51 @@ export default class Session {
                 ws.addEventListener("close", function() {
                     observer.complete();
                 });
-            }))
-            .publishReplay()
-            .refCount();
+            })),
+            publishReplay(),
+            refCount()
+        );
+            
         
         
         // Changes
-        const changesIn$ = session.responses
-            .filter(f=>f.hasOwnProperty("change"))
-            .pluck("change");
+        const changesIn$ = session.responses.pipe(
+            filter(f=>f.hasOwnProperty("change")),
+            pluck("change")
+        );
         
-        const bufferOpen$ = suspended$
-            .distinctUntilChanged()
-            .filter(f=>f);
+        const bufferOpen$ = suspended$.pipe(
+            distinctUntilChanged(),
+            filter(f=>f)
+        );
         
-        const bufferClose$ = suspended$
-            .distinctUntilChanged()
-            .filter(f=>!f)
-            .skip(1);
+        const bufferClose$ = suspended$.pipe(
+            distinctUntilChanged(),
+            filter(f=>!f),
+            skip(1)
+        );
         
-        const bufferedChanges$ = changesIn$
-            .bufferToggle(bufferOpen$, ()=>bufferClose$)
-            .map(arr=>arr.reduce((prev,cur)=>{
+        const bufferedChanges$ = changesIn$.pipe(
+            bufferToggle(bufferOpen$, ()=>bufferClose$),
+            map(arr=>arr.reduce((prev,cur)=>{
                 return prev.concat(cur);
-            },[]));
+            },[]))
+        );
         
-        session.changes = changesIn$
-            .withLatestFrom(suspended$,(changeList,suspendedState)=>suspendedState ? [] : changeList)
-            .merge(bufferedChanges$);
+        session.changes = changesIn$.pipe(
+            withLatestFrom(suspended$,(changeList,suspendedState)=>suspendedState ? [] : changeList),
+            merge(bufferedChanges$)
+        );
 
         // Hook up request pipeline to execute
-        session.requests
-            .map(r=>JSON.stringify(r))
-            .withLatestFrom(wsOpened)
-            .subscribe(([req, ws])=>{
-                ws.send(req);
-            });
+        session.requests.pipe(
+            map(r=>JSON.stringify(r)),
+            withLatestFrom(wsOpened)
+        )
+        .subscribe(([req, ws])=>{
+            ws.send(req);
+        });
+            
     }
 
     ask(action) {
@@ -114,21 +132,26 @@ export default class Session {
 
         session.requestsInput.next(request);
 
-        return session.responses
-            .filter(f=>f.id === requestId)
-            .mergeMap(m=>{
+        return session.responses.pipe(
+            filter(f=>f.id === requestId),
+            mergeMap(m=>{
                 if(m.hasOwnProperty("error")) {
                     return Observable.throw(m.error);
                 }
                 else {
                     return Observable.of(m)
                 }
-            })
-            .map(m=>m.result)
-            .take(1);
+            }),
+            map(m=>m.result),
+            take(1)
+        );
+            
     }
 
     global() {
-        return new Handle(this, -1, "Global");
+        return this.wsOpened.pipe(
+            mapTo(new Handle(this, -1, "Global")),
+            take(1)
+        );
     }
 }

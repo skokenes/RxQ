@@ -1,5 +1,3 @@
-import { Observable } from "rxjs";
-
 export default class Handle {
     constructor(session, handle, qclass) {
 

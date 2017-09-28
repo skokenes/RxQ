@@ -1,4 +1,4 @@
-import { mergeMap, publishReplay, filter, mapTo, startWith, debounceTime } from "rxjs/operators";
+import { mergeMap, publishReplay, filter, mapTo, startWith, debounceTime, refCount } from "rxjs/operators";
 import Handle from "../../qix-handles/handle.js";
 
 const invalidated = function() {
@@ -20,10 +20,9 @@ const invalidated = function() {
                     debounceTime(0) 
                 );
             }),
-            publishReplay(1)
+            publishReplay(1),
+            refCount()
         );
-        
-        invalidated$.connect();
 
         return invalidated$;
         

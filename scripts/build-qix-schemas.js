@@ -2,27 +2,24 @@ var fs = require("fs");
 var path = require("path");
 
 // Folder to look for schemas
-var schemaFolder = "node_modules/enigma.js/schemas/qix";
+var schemaFolder = "node_modules/enigma.js/schemas";
 
 // Target Folder
 var targetFolder = "src/schemas/qix";
 
 // Get the list of subdirectories to get engine versions
-const qixVersions = fs.readdirSync(schemaFolder)
-    .filter(function(file) {
-        return fs.statSync(path.join(schemaFolder, file)).isDirectory();
-    });
+const qixVersions = fs.readdirSync(schemaFolder);
 
 // For each engine version
 qixVersions.forEach(function(qV) {
     
     // Load the schema
-    const contents = fs.readFileSync(path.join(schemaFolder, qV, "schema.json"));
+    const contents = fs.readFileSync(path.join(schemaFolder, qV));
     const spec = JSON.parse(contents);
     const structs = Object.keys(spec.structs);
 
     // Get/create the target folder
-    const currentTargetFolder = path.join(targetFolder,qV);
+    const currentTargetFolder = path.join(targetFolder,qV.split(".json").shift());
     if(!fs.existsSync(currentTargetFolder)) fs.mkdirSync(currentTargetFolder);
 
     // For each structure, make a separate file and output it

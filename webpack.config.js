@@ -11,42 +11,47 @@ var versionParam = process.argv
     .split("=")[1];
 
 // Add qlik version plugin
-var plugins = [
-    new webpack.DefinePlugin({
-        "__qlikVersion__": '"' + versionParam + '"'
-    })
-];
+var plugins = [];
 
-// Add minimize plugin if nessary
-var minimize = process.argv.indexOf('--minimize') !== -1;
-var filename = "rxq" + (minimize ? ".min" : "");
-if(minimize) plugins.push(new webpack.optimize.UglifyJsPlugin({minimize: true}));
+module.exports = function(env) {
+    // Add minimize plugin if nessary
+    var _env = env || {};
+    
+    var minimize = _env.minimize === "true";
+    var filename = "rxq" + (minimize ? ".min" : "");
+    if(minimize) plugins.push(new webpack.optimize.UglifyJsPlugin({minimize: true}));
 
-
-module.exports = {
-    entry: ["./index.js"],
-    output: {
-        path: __dirname + "/build/",
-        filename: filename + ".js",
-        libraryTarget: "umd",
-        library: library,
-        umdNamedDefine: true
-    },
-    externals: [{
-        ws: true
-    }],
-    module: {
-        loaders: [
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: "babel"
-            }
-        ]
-    },
-    resolve: {
-        root: "./",
-        extensions: ["",".js"]
-    },
-    plugins: plugins
-};
+    return {
+        entry: ["./index.js"],
+        output: {
+            path: __dirname + "/dist/build/",
+            filename: filename + ".js",
+            libraryTarget: "umd",
+            library: library,
+            umdNamedDefine: true
+        },
+        externals: [{
+            ws: true
+        }],
+        module: {
+            loaders: [
+                {
+                    test: /\.js$/,
+                    exclude: /node_modules/,
+                    loader: "babel-loader",
+                    options: {
+                        presets: [["es2015", {"modules": "commonjs"}]],
+                        plugins: [
+                            "transform-runtime",
+                            "babel-plugin-add-module-exports"
+                        ]
+                    }
+                }
+            ]
+        },
+        resolve: {
+            extensions: [".js"]
+        },
+        plugins: plugins
+    };
+}

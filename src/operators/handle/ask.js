@@ -1,5 +1,5 @@
 import { Observable } from "rxjs/Observable";
-import { mergeMap, publishReplay } from "rxjs/operators";
+import { mergeMap, publishReplay, refCount } from "rxjs/operators";
 import Handle from "../../qix-handles/handle.js";
 
 const ask = function(methodName,...args) {
@@ -16,10 +16,9 @@ const ask = function(methodName,...args) {
                 else return Observable.throw(new Error("Source value is not a Qix Handle"));
                 
             }),
-            publishReplay(1)
+            publishReplay(1),
+            refCount()
         );
-        
-        apiCall$.connect();
 
         return apiCall$;
         

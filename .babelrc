@@ -1,7 +1,6 @@
 {
-    "presets": ["es2015"],
+    "presets": [["es2015", {"modules": false}]],
     "plugins": [
-        "transform-runtime",
-        "babel-plugin-add-module-exports"
+        "transform-runtime"
     ]
 }
