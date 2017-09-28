@@ -1,3 +1,5 @@
+import { of } from "rxjs/observable/of";
+
 export default class Handle {
     constructor(session, handle, qclass) {
 
@@ -10,5 +12,9 @@ export default class Handle {
         // The qClass type
         this.qClass = qclass;
 
+    }
+
+    call(operator) {
+        return operator(of(this));
     }
 };
