@@ -2,6 +2,7 @@ node_modules/
 build
 sandbox
 dist
+src/qix
 src/operators/Global
 src/operators/Doc
 src/operators/Field
