@@ -28,9 +28,10 @@ fs.readdir(connectInputFolder, (err, files) => {
     });
 });
 
+
 // Package operators
-var operatorFolder = path.join(srcFolder, "operators");
-var operatorOutputFolder = path.join(distFolder, "operators");
+var operatorFolder = path.join(srcFolder,"qix");
+var operatorOutputFolder = path.join(distFolder);
 mkDir(operatorOutputFolder);
 
 fs.readdir(operatorFolder, (err, files) => {
@@ -40,17 +41,18 @@ fs.readdir(operatorFolder, (err, files) => {
             if(stats.isDirectory()) {
                 var outputFolder = path.join(operatorOutputFolder, file);
                 mkDir(outputFolder);
-                packageJsInFolder(path.join(operatorFolder, file), outputFolder, `operators/${file}`,3);
+                packageJsInFolder(path.join(operatorFolder,file), outputFolder, `qix/${file}`,2);
 
                 // Class index file
-                createPackage("index.js", `operators/${file}`, path.join(operatorOutputFolder,file), 2);
+                createPackage("index.js", `qix/${file}`, path.join(operatorOutputFolder,file), 1);
             }
         });
     });
 });
 
+
 // Operator index file
-createPackage("index.js","operators", operatorOutputFolder, 1);
+// createPackage("index.js","operators", operatorOutputFolder, 1);
 
 
 function packageJsInFolder(srcFolder, tgtFolder, folderPath, depth) {

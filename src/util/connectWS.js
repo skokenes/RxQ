@@ -1,5 +1,5 @@
-import connectUrl from "../util/qix-connect-string";
-import connectOptions from "../util/qix-connect-options";
+import connectUrl from "./qix-connect-string";
+import connectOptions from "./qix-connect-options";
 
 export default function connectWS(config) {
     const IS_NODE = typeof process !== "undefined" && Object.prototype.toString.call(global.process) === "[object process]";
