@@ -1,4 +1,4 @@
-import { defer } from "rxjs/observable/defer";
+import { defer } from "rxjs/Observable/defer";
 import { filter, mapTo, startWith, debounceTime, publishReplay, refCount } from "rxjs/operators";
 
 export default class Handle {

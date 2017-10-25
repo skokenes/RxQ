@@ -1,8 +1,8 @@
 import { Observable } from "rxjs/Observable";
 import { Subject } from "rxjs/Subject";
-import { of as $of } from "rxjs/observable/of";
-import { from as $from } from "rxjs/observable/from";
-import { throw as $throw } from "rxjs/observable/throw";
+import { of as $of } from "rxjs/Observable/of";
+import { from as $from } from "rxjs/Observable/from";
+import { throw as $throw } from "rxjs/Observable/throw";
 
 import { publishLast, refCount, map, withLatestFrom, publishReplay,
 filter, mergeMap, concatMap, take, mapTo, distinctUntilChanged,
