@@ -2,7 +2,7 @@ import { Observable } from "rxjs/Observable";
 import { Subject } from "rxjs/Subject";
 import { of as $of } from "rxjs/Observable/of";
 import { from as $from } from "rxjs/Observable/from";
-import { throw as $throw } from "rxjs/Observable/throw";
+import { _throw as $throw } from "rxjs/Observable/throw";
 
 import { publishLast, refCount, map, withLatestFrom, publishReplay,
 filter, mergeMap, concatMap, take, mapTo, distinctUntilChanged,
@@ -22,7 +22,8 @@ export default class Session {
         // Connect WS
         const ws$ = Observable.create((observer) => {
 
-            var ws = connectWS(config);
+            // If they supplied a WebSocket, use it. Otherwise, build one
+            var ws = config.ws || connectWS(config);
 
             ws.addEventListener("open", evt => {
                 observer.next(ws);
