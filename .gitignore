@@ -14,3 +14,4 @@ src/operators/GenericObject
 src/operators/GenericVariable
 src/operators/Variable
 src/schemas
+.tmp

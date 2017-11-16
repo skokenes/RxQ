@@ -2,8 +2,8 @@
 RxQ is a reactive JS wrapper for the Qlik Analytics Platform APIs. It provides custom RxJS operators that execute Qlik API calls.
 
 ##### Support
-As of v0.7.0-beta.5, the following APIs are supported:
-- Engine API for QS 12.20.0
+As of v1.0.0-beta.0, the following APIs are supported:
+- Engine API for QS 12.34.11
 
 Custom builds for other versions of the QS Engine can be generated using the included build scripts. See the build section.
 
@@ -35,33 +35,34 @@ var connectEngine = RxQ.connectEngine;
 ```
 
 ### Operators
-Operators are organized by QIX Engine class. They are stored in RxQ under the path "rxq/operators/<--qClass-->".
+Operators are organized by QIX Engine class. They are stored in RxQ under the path "rxq/<--qClass-->".
 
 For example, to get the engineVersion operator from the Global class, you could do one of the following:
 
 *CommonJS*
 ```
-var engineVersion = require("rxq/operators/global/engineVersion");
+var engineVersion = require("rxq/global/engineVersion");
 ```
 
 *ESM*
 ```
-import { engineVersion } from "rxq/operators/global";
+import { engineVersion } from "rxq/global";
 ```
 
 *Browser*
 ```
-var engineVersion = RxQ.operators.Global.engineVersion;
+var engineVersion = RxQ.Global.engineVersion;
 ```
 
 ## Engine API Usage
 The following example illustrates usage of RxQ with ESM. The same format applies for CommonJS and Browser usage; the only difference is how you import the library. See above for details.
 
 ### Connect to an engine and get the engine version
-Define a server with a `config` object. This can then be used to produce an Observable that will connect to the engine and return the global class. Then, we can use the engineVersion operator to get the engineVersion.
+Define a server with a `config` object. This can then be used to produce an Observable that will connect to the engine and return the global class. Then, we can use the engineVersion function with switchMap to get the engineVersion.
 ```javascript
+import { switchMap } from "rxjs/operators";
 import connectEngine from "rxq/connect/connectEngine";
-import { engineVersion } from "rxq/operators/global";
+import { engineVersion } from "rxq/global";
 
 // Describe a server
 var config = {
@@ -74,7 +75,7 @@ var engine$ = connectEngine(config);
 
 // Get the engineVersion
 var engineVersion$ = engine$.pipe(
-    engineVersion()
+    switchMap(engineHandle => engineVersion(engineHandle))
 );
 
 // Print the engine version
@@ -82,10 +83,6 @@ engineVersion$.subscribe(version => {
     console.log("engine version: ", version);
 });
 ```
-
-**RxQ operators produce Hot Observables with replay and ref counting.**
-
-Observables that are created from RxQ operators will replay their last value at all times. This means that late subscribers will always get the latest value from the Observable. These observables use ref counting, meaning that they do not connect until they go from 0 to 1 subscriber. Similarly, they disconnect when going from 1 to 0 subscribers. In summary, your observables from RxQ must have a subscriber to function by default. Alternatively, you can manually connect these Observables or defer them depending on your needs.
 
 ### Configuring an engine connection
 The `config` object for a server can be defined with the following properties:
@@ -115,9 +112,7 @@ RxQ has several auto-generated components that build the source code and compile
 Each of these steps can be triggered using npm scripts in the repository:
 
 ### Step 1: Getting Engine schemas and generating operators
-`npm run build-qix-schemas` will pull and transform the QIX schemas from the `enigma.js` node module.
-
-`npm run build-operators` will use the QIX Schemas to generate the operator source code for each API call. It only does this for the QIX version specified in the `qix-version` property of `package.json`. By default, we keep this updated to the latest available version of QIX and distribute the NPM package based on this version. If you need to generate a build for a different version, you can update the `qix-version` property and re-run the build process from here forward.
+`npm run build-qix-methods` will pull the QIX schema from the `enigma.js` node module and generate the appropriate operators for each class. The engine schema version to use is specified in `package.json` as the property `qix-version`.
 
 ### Step 2: Converting all source code into distribution modules
 `npm run compile-cjs` compiles the CommonJS modules.
@@ -133,6 +128,6 @@ Each of these steps can be triggered using npm scripts in the repository:
 
 ### Rebuilding the Distribution Folder
 It is common to edit source code of RxQ and then execute steps 2 and 3 to rebuild the distribution folder. Those steps can be done in a single command with:
-`npm run build-dist-folder`.
+`npm run build-dist`.
 
 The final package for distribution is stored in a sub-directory called `dist`. The NPM package should be published from this directory, NOT from the parent level repository which contains the source code.
