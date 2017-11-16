@@ -17,6 +17,7 @@
     "build-release": "npm run build-dist-folder && cp -R dist/build/ rxq-build && zip rxq-build.zip rxq-build/* && rm -rf rxq-build/",
     "watch": "webpack --progress --colors --watch",
     "test": "mocha test/unit/*.spec.js",
+    "test-e2e": "mocha test/e2e/*.spec.js",
     "test-compile": "mocha --compilers js:babel-core/register test/unit/*-spec.js"
   },
   "repository": {
