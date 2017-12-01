@@ -1,12 +1,23 @@
 var webpack = require("webpack");
 const path = require("path");
 var StringReplacePlugin = require("string-replace-webpack-plugin");
+var program = require("commander");
+
+program
+    .version('0.1.0')
+    .option('--min', 'minified')
+    .parse(process.argv);
+
+const plugins = [new StringReplacePlugin()];
+if(program.min) plugins.push(new webpack.optimize.UglifyJsPlugin({minimize: true}));
+
+const filename = program.min ? "rxq.bundle.min.js" : "rxq.bundle.js";
 
 webpack({
     entry: path.join(__dirname, "../index.js"),
     output: {
         path: path.resolve(__dirname, "../dist/bundle"),
-        filename: "rxq.bundle.js",
+        filename: filename,
         library: "RxQ",
         libraryTarget: "var"
     },
@@ -76,10 +87,7 @@ webpack({
             }
         ]
     },
-    plugins: [
-        // an instance of the plugin must be present
-        new StringReplacePlugin()
-    ]
+    plugins: plugins
 }, (err, stats) => {
     if (err || stats.hasErrors()) {
         console.log(err);

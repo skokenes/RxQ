@@ -3,6 +3,7 @@ var { Observable } = require("rxjs/Observable");
 var { publishReplay, refCount } = require("rxjs/operators");
 var path = require("path");
 
+var modelFolder = "/test/e2e/test-model";
 
 function createContainer(image, port) {
     // launch a new container
@@ -11,7 +12,7 @@ function createContainer(image, port) {
         
         docker.createContainer({
             Image: image,
-            Cmd: ['-S', 'DocumentDirectory=/.tmp'],
+            Cmd: ['-S', `DocumentDirectory=${modelFolder}`],
             ExposedPorts: {
                 "9076/tcp": {}
             },
@@ -19,7 +20,7 @@ function createContainer(image, port) {
                 RestartPolicy: {
                     Name: "always"
                 },
-                Binds: [`${path.join(process.cwd(),".tmp")}:/.tmp`],// ["./models:/models"],
+                Binds: [`${path.join(process.cwd(),modelFolder)}:${modelFolder}`],// ["./models:/models"],
                 PortBindings: {
                     "9076/tcp": [{
                         "HostPort": port

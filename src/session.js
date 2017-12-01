@@ -1,10 +1,10 @@
 import { Observable } from "rxjs/Observable";
 import { Subject } from "rxjs/Subject";
-import { of as $of } from "rxjs/Observable/of";
-import { from as $from } from "rxjs/Observable/from";
-import { _throw as $throw } from "rxjs/Observable/throw";
+import { of as $of } from "rxjs/observable/of";
+import { from as $from } from "rxjs/observable/from";
+import { _throw as $throw } from "rxjs/observable/throw";
 
-import { publishLast, refCount, map, withLatestFrom, publishReplay,
+import { publishLast, refCount, map, withLatestFrom, publish, publishReplay,
 filter, mergeMap, concatMap, take, mapTo, distinctUntilChanged,
 bufferToggle, pluck, startWith, skip, merge } from "rxjs/operators";
 
@@ -60,7 +60,8 @@ export default class Session {
                     observer.complete();
                 });
             })),
-            publishReplay(),
+            publish(),
+            //publishReplay(),
             refCount()
         );
 
@@ -129,6 +130,7 @@ export default class Session {
             }),
             map(m=>m.result),
             take(1)
+            // this may need publish replay? currently passing tests...
         );
     }
 
