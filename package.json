@@ -46,6 +46,7 @@
     "dockerode": "^2.5.3",
     "enigma.js": "^2.1.1",
     "fs-extra": "^4.0.2",
+    "gitbook-cli": "^2.3.2",
     "mocha": "^4.0.1",
     "mock-socket": "^7.0.0",
     "raw-loader": "^0.5.1",
