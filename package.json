@@ -13,8 +13,9 @@
     "build-min": "node scripts/build-browser --min",
     "build-dist": "npm run compile-cjs && npm run compile-esm5 && npm run make-packages && npm run build && npm run build-min",
     "build-release": "npm run build-dist && cp -R dist/build/ rxq-build && zip rxq-build.zip rxq-build/* && rm -rf rxq-build/",
-    "test": "mocha test/unit/*.spec.js",
+    "test-unit": "mocha test/unit/*.spec.js",
     "test-e2e": "mocha test/e2e/*.spec.js",
+    "test": "npm run test-unit && npm run test-e2e",
     "test-compile": "mocha --compilers js:babel-core/register test/unit/*-spec.js"
   },
   "repository": {

@@ -6,6 +6,8 @@ var testConnect = require("./connectEngine.test.js");
 var testGlobal = require("./global.test.js");
 const testDoc = require("./doc.test.js");
 const testGenericObject = require("./genericObject.test.js");
+const testField = require("./field.test.js");
+const testGenericBookmark = require("./genericBookmark.test.js");
 
 describe("Engine E2E test", function() {
 
@@ -13,5 +15,7 @@ describe("Engine E2E test", function() {
     testGlobal();
     testDoc();
     testGenericObject();
-    
+    testField();
+    testGenericBookmark();
+
 });

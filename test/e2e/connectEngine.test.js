@@ -9,8 +9,7 @@ var connectEngine = require("../../dist/connect/connectEngine");
 var Handle = require("../../dist/_cjs/handle");
 
 
-var port = "9079";
-var image = "qlikea/engine:12.90.0";
+var { port, image } = require("./config.json");
 
 // launch a new container
 var container$ = createContainer(image, port);

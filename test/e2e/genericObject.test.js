@@ -11,8 +11,7 @@ var Handle = require("../../dist/_cjs/handle");
 var { createSessionObject, getObject } = require("../../dist/doc");
 var { applyPatches, getLayout, getProperties, setProperties } = require("../../dist/genericObject");
 
-var port = "9079";
-var image = "qlikea/engine:12.90.0";
+var { port, image } = require("./config.json");
 
 // launch a new container
 var container$ = createContainer(image, port);

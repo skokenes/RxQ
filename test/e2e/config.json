@@ -1,0 +1,4 @@
+{
+    "port": "9079",
+    "image": "qlikea/engine:12.112.0"
+}
