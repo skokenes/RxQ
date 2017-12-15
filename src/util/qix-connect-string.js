@@ -22,7 +22,7 @@ function ConnectionString(config) {
     var port;
 
     // Configure port if port is undefined
-    if (config && config.host === undefined) {
+    if (config && config.port === undefined) {
         port = ':4848';
     } else {
         port = (config && config.port) ? ':' + config.port : '';

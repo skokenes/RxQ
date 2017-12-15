@@ -6,7 +6,7 @@ import { _throw as $throw } from "rxjs/observable/throw";
 
 import { publishLast, refCount, map, withLatestFrom, publish, publishReplay,
 filter, mergeMap, concatMap, take, mapTo, distinctUntilChanged,
-bufferToggle, pluck, startWith, skip, merge } from "rxjs/operators";
+bufferToggle, pluck, startWith, skip, merge, switchMap } from "rxjs/operators";
 
 import Handle from "./handle";
 import connectWS from "./util/connectWS";
@@ -24,12 +24,14 @@ export default class Session {
 
             // If they supplied a WebSocket, use it. Otherwise, build one
             var ws = config.ws || connectWS(config);
-
+            
             ws.addEventListener("open", evt => {
                 observer.next(ws);
                 observer.complete();
             });
 
+            return;
+           
         }).pipe(
             publishLast(),
             refCount()
@@ -41,7 +43,7 @@ export default class Session {
         // Hook in request pipeline
         requests$.pipe(
             map(req => JSON.stringify(req)),
-            withLatestFrom(ws$)
+            withLatestFrom(ws$),
         ).subscribe(([req, ws]) => ws.send(req));
 
         // Responses
@@ -135,10 +137,18 @@ export default class Session {
     }
 
     global() {
+
+        // ask for a sample call to test that we are authenticated properly, then either pass global or pass the error
         return this.ws$.pipe(
+            switchMap(() =>  this.ask({
+                handle: -1,
+                method: "GetUniqueID",
+                params: []
+            })),
             mapTo(new Handle(this, -1, "Global")),
             publishLast(),
             refCount()
         );
+
     }
 }
