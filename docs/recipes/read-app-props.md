@@ -1,10 +1,11 @@
 # Read app properties
 
 ```javascript
-// Import the connect engine function
-var connectEngine = require("../../dist/connect/connectEngine");
-var { openDoc } = require("../../dist/Global");
-var { shareReplay, switchMap } = require("rxjs/operators");
+// Imports
+import connectEngine from "rxq/connect/connectEngine";
+import { openDoc } from "rxq/Global";
+import { getAppProperties } from "rxq/Doc";
+import { shareReplay, switchMap } from "rxjs/operators";
 
 // Define the configuration for your engine connection
 const config = {
@@ -18,9 +19,17 @@ const eng$ = connectEngine(config).pipe(
     shareReplay(1)
 );
 
+// Open an app, get the handle and multicast it
 const app$ = eng$.pipe(
-    switchMap(h => openDoc(h, "random-data.qvf"))
+    switchMap(h => openDoc(h, "random-data.qvf")),
+    shareReplay(1)
 );
 
-app$.subscribe(console.info);
+// Get the app properties
+const appProps$ = app$.pipe(
+    switchMap(h => getAppProperties(h))
+);
+
+// Log the app properties
+appProps$.subscribe(console.log);
 ```

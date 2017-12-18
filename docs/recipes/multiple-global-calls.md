@@ -1,9 +1,9 @@
 # Multiple Global Calls
 ```javascript
-// Import the connect engine function
-var connectEngine = require("../../dist/connect/connectEngine");
-var { engineVersion, getDocList } = require("../../dist/Global");
-var { shareReplay, switchMap } = require("rxjs/operators");
+// Imports
+import connectEngine from "rxq/connect/connectEngine";
+import { engineVersion, getDocList } from "rxq/Global";
+import { shareReplay, switchMap } from "rxjs/operators";
 
 // Define the configuration for your engine connection
 const config = {
@@ -12,20 +12,22 @@ const config = {
     isSecure: false
 };
 
-// Call connectEngine with the config to produce an Observable for the Global handle
+// Call connectEngine with the config to produce an Observable for the Global handle. Share this connection with multiple subscribers
 const eng$ = connectEngine(config).pipe(
     shareReplay(1)
 );
 
+// Once you receive the Global Handle, get the engineVersion from it
 const engVer$ = eng$.pipe(
     switchMap(h => engineVersion(h))
 );
 
+// Once you receive the Global Handle, get the doc list from it
 const doclist$ = eng$.pipe(
     switchMap(h => getDocList(h))
 );
 
-// Console out the engine version
-engVer$.subscribe(console.info);
-doclist$.subscribe(console.info);
+// Log the engine version and doc list
+engVer$.subscribe(console.log);
+doclist$.subscribe(console.log);
 ```

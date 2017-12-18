@@ -1,7 +1,7 @@
 # Connect to an Engine
 ```javascript
-// Import the connect engine function
-var connectEngine = require("../../dist/connect/connectEngine");
+// Import the connectEngine function
+import connectEngine from "rxq/connect/connectEngine";
 
 // Define the configuration for your engine connection
 const config = {
@@ -14,5 +14,5 @@ const config = {
 const eng$ = connectEngine(config);
 
 // Console out the Global handle
-eng$.subscribe(console.info);
+eng$.subscribe(console.log);
 ```
