@@ -1,5 +1,6 @@
 import { Observable } from "rxjs/Observable";
 import { Subject } from "rxjs/Subject";
+import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { of as $of } from "rxjs/observable/of";
 import { from as $from } from "rxjs/observable/from";
 import { _throw as $throw } from "rxjs/observable/throw";
@@ -14,12 +15,12 @@ import Handle from "./handle";
 import connectWS from "./util/connectWS";
 
 export default class Session {
-    constructor(config, opts = {}) {
+    constructor(config) {
 
         var session = this;
 
         // Suspended changes state
-        const suspended$ = typeof opts.suspended$ != "undefined" ? $from(opts.suspended$).pipe(startWith(false)) : $of(false);
+        const suspended$ = new BehaviorSubject(false);
 
         // Connect WS
         const ws$ = Observable.create((observer) => {
@@ -110,10 +111,13 @@ export default class Session {
             while (true) yield index++;
         }();
 
-        this.ws$ = ws$;
-        this.requests$ = requests$;
-        this.responses$ = responses$;
-        this.changes$ = changes$;
+        Object.assign(this, {
+            ws$,
+            requests$,
+            responses$,
+            changes$,
+            suspended$
+        });
     }
 
     ask(action) {
