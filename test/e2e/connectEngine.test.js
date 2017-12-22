@@ -65,11 +65,12 @@ function testConnect() {
             })
         });
     
-        after(function() {
+        after(function(done) {
             container$
                 .subscribe(
                     container => container.kill((err, result) => {
                         container.remove();
+                        done();
                     })
                 );
         });
