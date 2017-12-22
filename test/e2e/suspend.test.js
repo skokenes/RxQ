@@ -3,11 +3,12 @@ chai.use(require("chai-generator"));
 const expect = chai.expect;
 
 var createContainer = require("../util/create-container");
-var { publish, publishReplay, refCount, shareReplay, switchMap, take, withLatestFrom } = require("rxjs/operators");
-var { BehaviorSubject } = require("rxjs/BehaviorSubject");
+var { publish, publishReplay, refCount, shareReplay, switchMap, take, takeUntil, withLatestFrom } = require("rxjs/operators");
+var { Subject } = require("rxjs/Subject");
 var connectEngine = require("../../dist/connect/connectEngine");
 var { openDoc } = require("../../dist/global");
 var Handle = require("../../dist/_cjs/handle");
+var { suspendUntilComplete } = require("../../dist/operators");
 
 var { getAppProperties, setAppProperties } = require("../../dist/doc");
 
@@ -15,7 +16,6 @@ var { port, image } = require("./config.json");
 
 // launch a new container
 var container$ = createContainer(image, port);
-var suspended$ = new BehaviorSubject(false);
 
 var eng$ = container$.pipe(
     switchMap(() => {
@@ -23,8 +23,6 @@ var eng$ = container$.pipe(
             host: "localhost",
             port: port,
             isSecure: false
-        }, {
-            suspended$: suspended$
         });
     }),
     publishReplay(1),
@@ -46,10 +44,13 @@ function testSuspend() {
 
         it("should withhold invalidations while suspended", function(done) {
             this.timeout(5000);
-            suspended$.next(true);
             
             // Trigger invalidation event by changing app events
             const setAppProps$ = app$.pipe(
+                withLatestFrom(eng$, (appH, engH) => {
+                    engH.session.suspended$.next(true);
+                    return appH;
+                }),
                 switchMap(handle => getAppProperties(handle)),
                 take(1),
                 withLatestFrom(app$),
@@ -64,13 +65,16 @@ function testSuspend() {
                 switchMap(h => h.invalidated$)
             );
 
-            invalid$.subscribe((h) => {
-                console.log("h", h);
-                console.log("hello world");
-                //done(new Error("Invalidation fired"));
+            var streamKill$ = new Subject();
+
+            invalid$.pipe(
+                takeUntil(streamKill$)
+            ).subscribe((h) => {
+                done(new Error("Invalidation fired"));
             });
 
             setTimeout(() => {
+                streamKill$.next(undefined);
                 done();
             }, 2000);
 
@@ -78,9 +82,19 @@ function testSuspend() {
 
         });
 
-        it("mock test", function(done) {
-            done();
-        });
+        it("should share buffered invalidations when unsuspended", function(done) {
+            const invalid$ = app$.pipe(
+                switchMap(h => h.invalidated$)
+            );
+
+            invalid$.subscribe(() => {
+                done();
+            });
+
+            eng$.subscribe(h => {
+                h.session.suspended$.next(false)
+            });
+        })
 
         after(function(done) {
             container$

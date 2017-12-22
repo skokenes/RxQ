@@ -50,6 +50,24 @@ fs.readdir(operatorFolder, (err, files) => {
     });
 });
 
+// Package util operators
+var utilOperatorFolder = path.join(srcFolder,"operators");
+var utilOperatorOutputFolder = path.join(distFolder, "operators");
+mkDir(utilOperatorOutputFolder);
+
+fs.readdir(utilOperatorFolder, (err, files) => {
+    if(err) return console.log(err);
+    files.forEach(file=>{
+        fs.lstat(path.join(utilOperatorFolder, file), (err, stats) => {
+            if(stats.isFile() && file.slice(-3) === ".js") {
+                var folderPath = "operators";
+                var outputFolder = path.join(utilOperatorOutputFolder, file.split(".js").shift());
+                if(file !== "index.js") createPackage(file, folderPath, outputFolder,2);
+                else createPackage(file, folderPath, utilOperatorOutputFolder, 1);
+            }
+        });
+    });
+});
 
 // Operator index file
 // createPackage("index.js","operators", operatorOutputFolder, 1);

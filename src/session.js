@@ -94,13 +94,6 @@ export default class Session {
             }, []))
         );
 
-        /*
-        const changes$ = changesIn$.pipe(
-            withLatestFrom(suspended$, (changeList, suspendedState) => suspendedState ? [] : changeList),
-            merge(bufferedChanges$)
-        );
-        */
-
         var changes$ = changesIn$.pipe(
             bufferInvalids(suspended$)
         );

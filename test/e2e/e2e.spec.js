@@ -18,5 +18,5 @@ describe("Engine E2E test", function() {
     testGenericObject();
     testField();
     testGenericBookmark();
-    //testSuspend();
+    testSuspend();
 });
