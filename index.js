@@ -11,6 +11,7 @@ import * as operators from "./src/operators";
 
 // Connect
 import connectEngine from "./src/connect/connectEngine";
+import connectSession from "./src/connect/connectSession";
 
 import pack from "raw-loader!./package.json";
 
@@ -18,6 +19,7 @@ const baseObj = {
     version: JSON.parse(pack).version,
     qixVersion: JSON.parse(pack)["qix-version"],
     connectEngine,
+    connectSession,
     operators
 };
 

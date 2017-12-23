@@ -1,5 +1,6 @@
-import Session from "../session";
+import connectSession from "./connectSession";
 
 export default function connectEngine(config, opts) {
-    return new Session(config, opts).global();
+    console.warn("DEPRECATION WARNING: connectEngine is deprecated and will be removed in a future version of RxQ. Use connectSession instead.");
+    return connectSession(config, opts);
 }

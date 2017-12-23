@@ -5,7 +5,7 @@ const expect = chai.expect;
 var createContainer = require("../util/create-container");
 var { publish, publishReplay, refCount, shareReplay, switchMap, take, takeUntil, withLatestFrom } = require("rxjs/operators");
 var { Subject } = require("rxjs/Subject");
-var connectEngine = require("../../dist/connect/connectEngine");
+var connectSession = require("../../dist/connect/connectSession");
 var { openDoc } = require("../../dist/global");
 var Handle = require("../../dist/_cjs/handle");
 var { suspendUntilComplete } = require("../../dist/operators");
@@ -19,7 +19,7 @@ var container$ = createContainer(image, port);
 
 var eng$ = container$.pipe(
     switchMap(() => {
-        return connectEngine({
+        return connectSession({
             host: "localhost",
             port: port,
             isSecure: false

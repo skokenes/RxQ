@@ -8,7 +8,7 @@ var { pluck, take } = require("rxjs/operators");
 const mockEngine = require("../util/mock-qix-engine.js");
 
 // RxQ
-var connectEngine = require("../../dist/connect/connectEngine");
+var connectSession = require("../../dist/connect/connectSession");
 var Handle = require("../../dist/_cjs/handle");
 var Session = require("../../dist/_cjs/session");
 
@@ -19,7 +19,7 @@ describe("Handle", function() {
     var config = {
         ws
     };
-    var eng$ = connectEngine(config);
+    var eng$ = connectSession(config);
     
     it("should have a handle number property", function(done) {
         eng$.subscribe(

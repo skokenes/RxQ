@@ -5,7 +5,7 @@ var { Observable } = require("rxjs/Observable");
 const mockEngine = require("../util/mock-qix-engine.js");
 
 // RxQ
-var connectEngine = require("../../dist/connect/connectEngine");
+var connectSession = require("../../dist/connect/connectSession");
 var global = require("../../dist/global");
 var doc = require("../../dist/doc");
 var field = require("../../dist/field");
@@ -25,7 +25,7 @@ describe("Observable from Qix Calls", function() {
     var config = {
         ws
     };
-    var eng$ = connectEngine(config);
+    var eng$ = connectSession(config);
 
     describe("Global", function() {
         it("should have an engineVersion method", function() {
