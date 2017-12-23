@@ -6,7 +6,7 @@ var createContainer = require("../util/create-container");
 var { publishReplay, refCount, switchMap } = require("rxjs/operators");
 var connectSession = require("../../dist/connect/connectSession");
 var { engineVersion, openDoc } = require("../../dist/global");
-var Handle = require("../../dist/_cjs/handle");
+var Handle = require("../../dist/handle");
 
 var { port, image } = require("./config.json");
 

@@ -6,7 +6,7 @@ var createContainer = require("../util/create-container");
 var { concat, publish, publishReplay, refCount, shareReplay, switchMap, take, tap, withLatestFrom } = require("rxjs/operators");
 var connectSession = require("../../dist/connect/connectSession");
 var { openDoc } = require("../../dist/global");
-var Handle = require("../../dist/_cjs/handle");
+var Handle = require("../../dist/handle");
 
 var { createBookmark } = require("../../dist/doc");
 var { getProperties, setProperties } = require("../../dist/genericBookmark");

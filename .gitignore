@@ -1,5 +1,14 @@
 node_modules/
 dist
-src/qix
+src/global
+src/doc
+src/genericbookmark
+src/field
+src/genericderivedfields
+src/genericdimension
+src/genericmeasure
+src/genericobject
+src/genericvariable
+src/variable
 _book
 .tmp

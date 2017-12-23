@@ -16,7 +16,7 @@ var classExports = [];
 qClasses.forEach(qClass => {
     var methods = srcSchema.structs[qClass];
 
-    var classDir = `../src/qix/${qClass}`;
+    var classDir = `../src/${qClass}`;
     var absClassDir= path.join(__dirname,classDir);
     fs.emptydirSync(absClassDir);
 
@@ -43,8 +43,9 @@ qClasses.forEach(qClass => {
     classExports.push(`export { ${qClass} }`);
 });
 
-var indexCode = classImports.join("\n").concat("\n").concat(classExports.join("\n"));
-fs.writeFile(path.join(path.join(__dirname,"../src/qix"),`index.js`), indexCode);
+
+// var indexCode = classImports.join("\n").concat("\n").concat(classExports.join("\n"));
+// fs.writeFile(path.join(path.join(__dirname,"../src"),`index.js`), indexCode);
 
 
 function generateScript(methodName, output) {
@@ -56,7 +57,7 @@ function generateScript(methodName, output) {
         map = `else { return r["${output[0].Name}"]; }`;
     }
 
-    return `import Handle from "../../handle.js";
+    return `import Handle from "../handle.js";
 import { map } from "rxjs/operators";
 
 export default function(handle, ...args) {

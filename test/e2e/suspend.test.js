@@ -7,7 +7,7 @@ var { publish, publishReplay, refCount, shareReplay, switchMap, take, takeUntil,
 var { Subject } = require("rxjs/Subject");
 var connectSession = require("../../dist/connect/connectSession");
 var { openDoc } = require("../../dist/global");
-var Handle = require("../../dist/_cjs/handle");
+var Handle = require("../../dist/handle");
 var { suspendUntilComplete } = require("../../dist/operators");
 
 var { getAppProperties, setAppProperties } = require("../../dist/doc");

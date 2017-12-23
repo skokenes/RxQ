@@ -7,6 +7,8 @@ fs.writeFile(path.join(__dirname,"../dist/package.json"), JSON.stringify(pkg, nu
     if(err) console.log(err);
 });
 
+/*
+
 var srcFolder = path.join(__dirname,"../src");
 var distFolder = path.join(__dirname,"../dist");
 
@@ -110,3 +112,4 @@ function mkDir(dir) {
         fs.mkdirSync(dir);
     }
 }
+*/

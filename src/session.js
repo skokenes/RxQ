@@ -26,12 +26,19 @@ export default class Session {
         const ws$ = Observable.create((observer) => {
 
             // If they supplied a WebSocket, use it. Otherwise, build one
-            var ws = config.ws || connectWS(config);
-
-            ws.addEventListener("open", evt => {
-                observer.next(ws);
+            if(typeof config.ws !== "undefined") {
+                observer.next(config.ws);
                 observer.complete();
-            });
+            }
+            else {
+                var ws = connectWS(config);
+
+                ws.addEventListener("open", evt => {
+                    observer.next(ws);
+                    observer.complete();
+                });
+            }
+            
 
             return;
 

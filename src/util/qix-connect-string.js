@@ -23,7 +23,7 @@ function ConnectionString(config) {
 
     // Configure port if port is undefined
     if (config && config.port === undefined) {
-        port = ':4848';
+        port = '';
     } else {
         port = (config && config.port) ? ':' + config.port : '';
     };
@@ -41,7 +41,7 @@ function ConnectionString(config) {
         prefix = prefix + '/';
     };
 
-    var suffix = config.appname ? 'app/' + config.appname : 'app/%3Ftransient%3D';
+    var suffix = config.appname ? 'app/' + config.appname : 'app/';
     var identity = (config && config.identity) ? '/identity/' + config.identity : '';
     var ticket = config.ticket ? '?qlikTicket=' + config.ticket : '';
 

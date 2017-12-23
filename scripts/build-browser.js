@@ -64,7 +64,8 @@ webpack({
                                     dec += ";";
                                     return dec;
                                 })
-                                .join("\n");
+                                .join("\n")
+                                .replace(/observable/g,"Observable");
 
                                 return globalImports;
                             }

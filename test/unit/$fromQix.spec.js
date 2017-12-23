@@ -2,6 +2,7 @@ const chai = require("chai");
 const expect = chai.expect;
 
 var { Observable } = require("rxjs/Observable");
+var { shareReplay } = require("rxjs/operators");
 const mockEngine = require("../util/mock-qix-engine.js");
 
 // RxQ
@@ -25,7 +26,9 @@ describe("Observable from Qix Calls", function() {
     var config = {
         ws
     };
-    var eng$ = connectSession(config);
+    var eng$ = connectSession(config).pipe(
+        shareReplay(1)
+    );
 
     describe("Global", function() {
         it("should have an engineVersion method", function() {

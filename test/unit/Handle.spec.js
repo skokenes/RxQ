@@ -9,8 +9,8 @@ const mockEngine = require("../util/mock-qix-engine.js");
 
 // RxQ
 var connectSession = require("../../dist/connect/connectSession");
-var Handle = require("../../dist/_cjs/handle");
-var Session = require("../../dist/_cjs/session");
+var Handle = require("../../dist/handle");
+var Session = require("../../dist/session");
 
 describe("Handle", function() {
 
