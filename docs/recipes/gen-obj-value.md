@@ -1,50 +1,52 @@
 # Calculate a value with a Generic Object
+[Code Sandbox](https://codesandbox.io/embed/zx08zownrl)
 ```javascript
-// RxQ imports
-import connectEngine from "rxq/connect/connectEngine";
+import { connectSession } from "rxq/connect";
 import { openDoc } from "rxq/Global";
 import { createSessionObject } from "rxq/Doc";
 import { getLayout } from "rxq/GenericObject";
-
-// RxJS imports
 import { shareReplay, switchMap } from "rxjs/operators";
 
-// Define the configuration for your engine connection
+const appname = "aae16724-dfd9-478b-b401-0d8038793adf"
+
+// Define the configuration for your session
 const config = {
-    host: "localhost",
-    port: 9076,
-    isSecure: false
+  host: "sense.axisgroup.com",
+  isSecure: true,
+  appname
 };
 
-// Call connectEngine with the config to produce an Observable for the Global handle
-const eng$ = connectEngine(config).pipe(
-    shareReplay(1)
+// Connect the session and share the Global handle
+const sesh$ = connectSession(config).pipe(
+  shareReplay(1)
 );
 
-// Open an app, get the handle and multicast it
-const app$ = eng$.pipe(
-    switchMap(h => openDoc(h, "random-data.qvf")),
-    shareReplay(1)
+// Open an app and share the app handle
+const app$ = sesh$.pipe(
+  switchMap(h => openDoc(h, appname)),
+  shareReplay(1)
 );
 
 // Create a Generic Object with a formula
 const obj$ = app$.pipe(
-    switchMap(h => createSessionObject(h, {
-        "qInfo": {
-            "qType": "my-object"
-        },
-        "myValue": {
-            "qValueExpression": "=sum(Expression1)"
-        }
-    })),
-    shareReplay(1)
+  switchMap(h => createSessionObject(h, {
+    "qInfo": {
+      "qType": "my-object"
+    },
+    "myValue": {
+      "qValueExpression": "=avg(petal_length)"
+    }
+  })),
+  shareReplay(1)
 );
 
 // Get the layout of the Generic Object to calculate the value
 const value$ = obj$.pipe(
-    switchMap(h => getLayout(h))
+  switchMap(h => getLayout(h))
 );
 
-// Log the value from the calculated layout
-value$.subscribe(layout => console.log(layout.myValue));
+// Write the value to the DOM
+value$.subscribe(layout => {
+  document.querySelector("#val").innerHTML = layout.myValue;
+});
 ```

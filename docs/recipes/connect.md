@@ -1,18 +1,20 @@
 # Connect to an Engine
-```javascript
-// Import the connectEngine function
-import connectEngine from "rxq/connect/connectEngine";
+[Code Sandbox](https://codesandbox.io/embed/3v1883n5v1)
 
-// Define the configuration for your engine connection
+```javascript
+// Import the connectSession function
+import { connectSession } from "rxq/connect";
+
+// Define the configuration for your session
 const config = {
-    host: "localhost",
-    port: 9076,
-    isSecure: false
+  host: "sense.axisgroup.com",
+  isSecure: true
 };
 
-// Call connectEngine with the config to produce an Observable for the Global handle
-const eng$ = connectEngine(config);
+// Call connectSession with the config to produce an Observable that
+// will establish the session and return the Global handle
+const sesh$ = connectSession(config);
 
 // Console out the Global handle
-eng$.subscribe(console.log);
+sesh$.subscribe(console.log);
 ```

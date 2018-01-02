@@ -1,45 +1,45 @@
 # Make Selections on App Open
+[Code Sandbox](https://codesandbox.io/embed/n9rzl7zo0l)
 ```javascript
-// RxQ imports
-import connectEngine from "rxq/connect/connectEngine";
+import { connectSession } from "rxq/connect";
 import { openDoc } from "rxq/Global";
 import { getField } from "rxq/Doc";
 import { select } from "rxq/Field";
-
-// RxJS imports
-import { forkJoin } from "rxjs/Observable/forkJoin";
+import { forkJoin } from "rxjs/observable/forkJoin";
 import { mapTo, shareReplay, switchMap } from "rxjs/operators";
 
-// Define the configuration for your engine connection
+const appname = "aae16724-dfd9-478b-b401-0d8038793adf"
+
+// Define the configuration for your session
 const config = {
-    host: "localhost",
-    port: 9076,
-    isSecure: false
+  host: "sense.axisgroup.com",
+  isSecure: true,
+  appname
 };
 
-// Call connectEngine with the config to produce an Observable for the Global handle
-const eng$ = connectEngine(config).pipe(
-    shareReplay(1)
+// Connect the session and share the Global handle
+const sesh$ = connectSession(config).pipe(
+  shareReplay(1)
 );
 
 // Open an app, get the handle, make a few selections, and then multicast it
-const app$ = eng$.pipe(
-    switchMap(h => openDoc(h, "random-data.qvf")),
-    switchMap(h => {
-        const defaultSelection1$ = getField(h, "Dim1").pipe(
-            switchMap(fldH => select(fldH, "A"))
-        );
+const app$ = sesh$.pipe(
+  switchMap(h => openDoc(h, appname)),
+  switchMap(h => {
+    const defaultSelection1$ = getField(h, "species").pipe(
+      switchMap(fldH => select(fldH, "setosa"))
+    );
 
-        const defaultSelection2$ = getField(h, "Dim2").pipe(
-            switchMap(fldH => select(fldH, "b"))
-        );
+    const defaultSelection2$ = getField(h, "petal_length").pipe(
+      switchMap(fldH => select(fldH, ">2"))
+    );
 
-        return forkJoin(defaultSelection1$, defaultSelection2$).pipe(
-            mapTo(h)
-        );
+    return forkJoin(defaultSelection1$, defaultSelection2$).pipe(
+      mapTo(h)
+    );
 
-    }),
-    shareReplay(1)
+  }),
+  shareReplay(1)
 );
 
 app$.subscribe(console.log);

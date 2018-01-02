@@ -10,7 +10,6 @@ export default (eng$) => (src$) => Observable.create((observer) => {
             tap(h => {
                 _suspended$ = h.session.suspended$;
                 _suspended$.next(true);
-                console.log("suspended!");
             })
         ))
     ).subscribe({
@@ -18,7 +17,6 @@ export default (eng$) => (src$) => Observable.create((observer) => {
         error: err => observer.error(err),
         complete: () => {
             _suspended$.next(false);
-            console.log("unsuspended!");
             observer.complete();
         }
     });

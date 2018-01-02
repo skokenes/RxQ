@@ -1,66 +1,80 @@
 # Make a Selection
+[Code Sandbox](https://codesandbox.io/embed/wkwqv77y4l)
 ```javascript
-// RxQ imports
-import connectEngine from "rxq/connect/connectEngine";
+import { connectSession } from "rxq/connect";
 import { openDoc } from "rxq/Global";
 import { createSessionObject, getField } from "rxq/Doc";
 import { getLayout } from "rxq/GenericObject";
 import { getCardinal, select } from "rxq/Field";
+import { mapTo, merge, publish, shareReplay, startWith, switchMap, withLatestFrom } from "rxjs/operators";
+import { fromEvent } from "rxjs/observable/fromEvent";
 
-// RxJS imports
-import { delay, publish, shareReplay, startWith, switchMap } from "rxjs/operators";
+const appname = "aae16724-dfd9-478b-b401-0d8038793adf"
 
-// Define the configuration for your engine connection
+// Define the configuration for your session
 const config = {
-    host: "localhost",
-    port: 9076,
-    isSecure: false
+  host: "sense.axisgroup.com",
+  isSecure: true,
+  appname
 };
 
-// Call connectEngine with the config to produce an Observable for the Global handle
-const eng$ = connectEngine(config).pipe(
-    shareReplay(1)
+// Connect the session and share the Global handle
+const sesh$ = connectSession(config).pipe(
+  shareReplay(1)
 );
 
-// Open an app, get the handle and multicast it
-const app$ = eng$.pipe(
-    switchMap(h => openDoc(h, "random-data.qvf")),
-    shareReplay(1)
+// Open an app and share the app handle
+const app$ = sesh$.pipe(
+  switchMap(h => openDoc(h, appname)),
+  shareReplay(1)
 );
 
-// Create a Generic Object with a selection def
+// Create a Generic Object with the current selections
 const obj$ = app$.pipe(
-    switchMap(h => createSessionObject(h, {
-        "qInfo": {
-            "qType": "my-selections"
-        },
-        "qSelectionObjectDef": {}
-    })),
-    shareReplay(1)
+  switchMap(h => createSessionObject(h, {
+    "qInfo": {
+      "qType": "my-object"
+    },
+    "qSelectionObjectDef": {}
+  })),
+  shareReplay(1)
 );
 
-// Get the selections every time they change, as well as on initialization
+// Get the latest selections whenever the model changes
 const selections$ = obj$.pipe(
-    switchMap(h => h.invalidated$.pipe(startWith(h))),
-    switchMap(h => getLayout(h))
+  switchMap(h => h.invalidated$.pipe(startWith(h))),
+  switchMap(h => getLayout(h))
 );
 
-// Log the selections
-selections$.subscribe(console.log);
+// Print the selections to the DOM
+selections$.subscribe(layout => {
+  document.querySelector("#content").innerHTML = layout.qSelectionObject.qSelections.map(sel => `<strong>${sel.qField}:</strong>   ${sel.qSelected}`).join("")
+});
 
-// Get the field where selections will be made
+// Get a field
 const fld$ = app$.pipe(
-    switchMap(h => getField(h, "Dim1")),
-    shareReplay(1)
+  switchMap(h => getField(h, "species")),
+  shareReplay(1)
 );
 
-// Wait a couple of seconds, then select the value "A" in the field
-const selectValue$ = fld$.pipe(
-    delay(2000),
-    switchMap(h => select(h, "A")),
-    publish()
+// On click, emit the value "setosa"
+const selectSetosa$ = fromEvent(document.querySelector("#filter"), "click").pipe(
+  mapTo("setosa")
 );
 
-// Make the selection
+// On click, emit an empty string
+const clearSelect$ = fromEvent(document.querySelector("#unfilter"), "click").pipe(
+  mapTo("")
+);
+
+// Create a stream of select actions to the field from the button clicks
+const selectValue$ = selectSetosa$.pipe(
+  merge(clearSelect$),
+  withLatestFrom(fld$),
+  switchMap(([sel, h]) => select(h, sel)),
+  publish()
+);
+
+// Connect the selection stream
 selectValue$.connect();
 ```

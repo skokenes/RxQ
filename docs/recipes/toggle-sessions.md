@@ -1,94 +1,84 @@
 # Toggle Sessions
-```html
-<html>
-    <head>
-        <style>
-        </style>
-    </head>
-    <body>
-        <select>
-            <option value = "0" >Session 1</option>
-            <option value = "1" >Session 2</option>
-        </select>
-        <div id="metric"></div>
-        <script src="bundle.js"></script>
-    </body>
-</html>
-```
-
+[Code Sandbox](https://codesandbox.io/embed/6121o1l23)
 ```javascript
-// RxQ imports
-import connectEngine from "rxq/connect/connectEngine";
+import { connectSession } from "rxq/connect";
 import { getActiveDoc, openDoc } from "rxq/Global";
-import { clearAll, createSessionObject, getAllInfos, getField, getObject, getTablesAndKeys } from "rxq/Doc";
-import { getLayout } from "rxq/GenericObject";
-import { lowLevelSelect } from "rxq/Field";
-import { suspendUntilCompleted } from "rxq/operators";
+import { getAppProperties, getTablesAndKeys } from "rxq/Doc";
+import { fromEvent } from "rxjs/observable/fromEvent";
+import { forkJoin } from "rxjs/observable/forkJoin";
+import { combineLatest, map, pluck, shareReplay, startWith, switchMap, withLatestFrom } from "rxjs/operators";
 
-// RxJS imports
-import { fromEvent } from "rxjs/Observable/fromEvent";
-import { forkJoin } from "rxjs/Observable/forkJoin";
-import { combineLatest, map, publish, shareReplay, startWith, switchMap, take } from "rxjs/operators";
-
-// Define multiple configurations
+// Define the configuration for your session
 const configs = [
-    {
-        host: "localhost",
-        port: 9076,
-        isSecure: false
-    },
-    {
-        host: "localhost",
-        port: 9077,
-        isSecure: false
-    }
+  {
+    host: "sense.axisgroup.com",
+    isSecure: true,
+    appname: "aae16724-dfd9-478b-b401-0d8038793adf"
+  },
+  {
+    host: "sense.axisgroup.com",
+    isSecure: true,
+    appname: "3a64c6ff-94b4-43e3-b993-4040cf889c64"
+  },
 ];
-
-// Create an array of sessions
-const engines$ = forkJoin(configs.map(config => connectEngine(config).pipe(shareReplay(1))));
 
 // Create a stream for the current session being viewed
 const sessionNo$ = fromEvent(document.querySelector("select"), "change").pipe(
-    map( evt => parseInt(evt.target.value)),
-    startWith(0)
+  map(evt => parseInt(evt.target.value)),
+  startWith(0)
+);
+
+// Create an array of sessions
+const sessions$ = forkJoin(
+  configs
+    .map(config => connectSession(config)
+      .pipe(shareReplay(1))
+    )
 );
 
 // The current session
-const eng$ = engines$.pipe(
-    combineLatest(sessionNo$, (engines, no) => engines[no]),
-    shareReplay(1)
+const sesh$ = sessions$.pipe(
+  combineLatest(sessionNo$, (engines, no) => engines[no]),
+  shareReplay(1)
 );
 
 // When switching sessions, get the doc
-const app$ = eng$.pipe(
-    switchMap(h => openDoc(h, "iris.qvf")),
-    shareReplay(1)
+const app$ = sesh$.pipe(
+  withLatestFrom(sessionNo$),
+  switchMap(([h, no]) => openDoc(h, configs[no].appname)),
+  shareReplay(1)
 );
 
-// When switching sessions, check if the object exists. if not, create it
-const obj$ = app$.pipe(
-    switchMap(h => getObject(h, "my-calc").pipe(
-        switchMap(objH => objH.handle === null ? createSessionObject(h, {
-            "qInfo": {
-                "qType": "custom",
-                "qId": "my-calc"
-            },
-            "metric": {
-                "qValueExpression": "=avg(petal_length)"
-            }
-        }): [objH])
-    )),
-    shareReplay(1)
+// Get the current app title
+const appTitle$ = app$.pipe(
+  switchMap(h => getAppProperties(h)),
+  pluck("qTitle")
 );
 
-// Hook into the layout streams for the current app
-const layout$ = obj$.pipe(
-    switchMap(h => h.invalidated$.pipe(startWith(h))),
-    switchMap(h => getLayout(h)),
-    shareReplay(1)
+// Print the app title to the DOM
+appTitle$.subscribe(title => {
+  document.querySelector("#app-title").innerHTML = title;
+});
+
+// Get the fields in the current app
+const fieldList$ = app$.pipe(
+  switchMap(h => getTablesAndKeys(h, { "qcx": 1000, "qcy": 1000 }, { "qcx": 0, "qcy": 0 }, 30, true, false))
 );
 
-layout$.subscribe(layout => {
-    document.querySelector("#metric").innerHTML = layout.metric;
+// List the fields in the DOM
+fieldList$.subscribe(response => {
+  const tables = response.qtr;
+  const flds = tables.map(table => {
+    const tableflds = table.qFields;
+    return tableflds.map(fld => ({
+      table: table.qName,
+      field: fld.qName
+    }));
+  })
+    .reduce((acc, curr) => {
+      return acc.concat(curr);
+    }, []);
+
+  document.querySelector("tbody").innerHTML = flds.map(fld => `<tr><td>${fld.table}</td><td>${fld.field}</td></tr>`).join("");
 });
 ```

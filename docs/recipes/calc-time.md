@@ -1,33 +1,35 @@
 # Calculate the response time of the API
+[Code Sandbox](https://codesandbox.io/s/7z1r64r510)
 ```javascript
-// RxQ imports
-import connectEngine from "rxq/connect/connectEngine";
+import { connectSession } from "rxq/connect";
 import { openDoc } from "rxq/Global";
-
-// RxJS imports
 import { map, shareReplay, switchMap } from "rxjs/operators";
 
-// Define the configuration for your engine connection
+const appname = "aae16724-dfd9-478b-b401-0d8038793adf"
+
+// Define the configuration for your session
 const config = {
-    host: "localhost",
-    port: 9076,
-    isSecure: false
+  host: "sense.axisgroup.com",
+  isSecure: true,
+  appname
 };
 
-// Call connectEngine with the config to produce an Observable for the Global handle
-const eng$ = connectEngine(config).pipe(
-    shareReplay(1)
+// Connect the session and share the Global handle
+const sesh$ = connectSession(config).pipe(
+  shareReplay(1)
 );
 
-// Calculate the time it takes for the Engine to return the app handle
-const appOpenTime$ = eng$.pipe(
-    switchMap(h => {
-        const start = Date.now();
-        return openDoc(h, "random-data.qvf").pipe(
-            map(() => Date.now() - start)
-        );
-    })
+// Calculate the time it takes to open an app
+const appOpenTime$ = sesh$.pipe(
+  switchMap(h => {
+    const start = Date.now();
+    return openDoc(h, appname).pipe(
+      map(() => Date.now() - start)
+    );
+  })
 );
 
-appOpenTime$.subscribe(console.log);
+appOpenTime$.subscribe(time => {
+  document.querySelector("#time").innerHTML = time;
+});
 ```

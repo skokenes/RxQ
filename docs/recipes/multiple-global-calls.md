@@ -1,33 +1,38 @@
 # Multiple Global Calls
+[Code Sandbox](https://codesandbox.io/embed/25joqo38p)
 ```javascript
-// Imports
-import connectEngine from "rxq/connect/connectEngine";
+import { connectSession } from "rxq/connect";
 import { engineVersion, getDocList } from "rxq/Global";
 import { shareReplay, switchMap } from "rxjs/operators";
 
-// Define the configuration for your engine connection
+// Define the configuration for your session
 const config = {
-    host: "localhost",
-    port: 9076,
-    isSecure: false
+  host: "sense.axisgroup.com",
+  isSecure: true
 };
 
-// Call connectEngine with the config to produce an Observable for the Global handle. Share this connection with multiple subscribers
-const eng$ = connectEngine(config).pipe(
-    shareReplay(1)
+// Connect the session and share the Global handle
+const sesh$ = connectSession(config).pipe(
+  shareReplay(1)
 );
 
-// Once you receive the Global Handle, get the engineVersion from it
-const engVer$ = eng$.pipe(
-    switchMap(h => engineVersion(h))
+// Get the engineVersion
+const engVer$ = sesh$.pipe(
+  switchMap(h => engineVersion(h))
 );
 
-// Once you receive the Global Handle, get the doc list from it
-const doclist$ = eng$.pipe(
-    switchMap(h => getDocList(h))
+// Get the Doc List
+const doclist$ = sesh$.pipe(
+  switchMap(h => getDocList(h))
 );
 
-// Log the engine version and doc list
-engVer$.subscribe(console.log);
-doclist$.subscribe(console.log);
+// Write the engine version to the DOM
+engVer$.subscribe(response => {
+  document.querySelector("#ver").innerHTML = response.qComponentVersion;
+});
+
+// Write the doc list to the DOM
+doclist$.subscribe(dl => {
+  document.querySelector("#content").innerHTML += dl.map(doc => `<li>${doc.qDocName}</li>`).join("");
+});
 ```

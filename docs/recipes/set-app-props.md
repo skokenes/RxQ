@@ -1,52 +1,53 @@
 # Set App Properties and Listen for Changes
+[Code Sandbox](https://codesandbox.io/embed/54pv30m2vx)
 ```javascript
-// RxQ imports
-import connectEngine from "rxq/connect/connectEngine";
+import { connectSession } from "rxq/connect";
 import { openDoc } from "rxq/Global";
 import { getAppProperties, setAppProperties } from "rxq/Doc";
-
-// RxJS imports
-import { interval } from "rxjs/Observable/interval";
 import { publish, shareReplay, startWith, 
-    switchMap, take, withLatestFrom } from "rxjs/operators";
+  switchMap, withLatestFrom } from "rxjs/operators";
+import { fromEvent } from "rxjs/observable/fromEvent";
 
-// Define the configuration for your engine connection
+const appname = "aae16724-dfd9-478b-b401-0d8038793adf"
+
+// Define the configuration for your session
 const config = {
-    host: "localhost",
-    port: 9076,
-    isSecure: false
+  host: "sense.axisgroup.com",
+  isSecure: true,
+  appname
 };
 
-// Call connectEngine with the config to produce an Observable for the Global handle
-const eng$ = connectEngine(config).pipe(
-    shareReplay(1)
+// Connect the session and share the Global handle
+const sesh$ = connectSession(config).pipe(
+  shareReplay(1)
 );
 
-// Open an app, get the handle and multicast it
-const app$ = eng$.pipe(
-    switchMap(h => openDoc(h, "random-data.qvf")),
-    shareReplay(1)
+// Open an app and share the app handle
+const app$ = sesh$.pipe(
+  switchMap(h => openDoc(h, appname)),
+  shareReplay(1)
 );
 
 // Get the app properties any time the app invalidates
 const appProps$ = app$.pipe(
-    switchMap(h => h.invalidated$.pipe(startWith(h))),
-    switchMap(h => getAppProperties(h))
+  switchMap(h => h.invalidated$.pipe(startWith(h))),
+  switchMap(h => getAppProperties(h))
 );
 
-// Log the app properties whenever they change
-appProps$.subscribe(console.log);
+// Write the app title and modified date to the DOM
+appProps$.subscribe(props => {
+  document.querySelector("#content").innerHTML = `The app's prop "random" is ${props.random}`;
+});
 
-// Every second for 5 seconds, update the app props with a random prop
-const updateSeq$ = interval(1000).pipe(
-    take(5),
-    withLatestFrom(app$),
-    switchMap(([i, h]) => setAppProperties(h, {
-        "myProp": i
-    })),
-    publish()
+// Whenever a user clicks the button, update the app props with a random prop
+const updateAppProps$ = fromEvent(document.querySelector("#set-random"), "click").pipe(
+  withLatestFrom(app$),
+  switchMap(([evt, h]) => setAppProperties(h, {
+    "random": Math.random()
+  })),
+  publish()
 );
 
-// Initiate the update sequence by connecting it
-updateSeq$.connect();
+// Connect the app update mechanism
+updateAppProps$.connect();
 ```

@@ -1,25 +1,27 @@
 # Get the Engine Version
+[Code Sandbox](https://codesandbox.io/embed/24vyyow0jn)
 ```javascript
-// Import the connect engine function, the engine version function, and the switchMap operator
-import connectEngine from "rxq/connect/connectEngine";
+// Import the connectSession function, engineVersion function, and switchMap operator
+import { connectSession } from "rxq/connect";
 import { engineVersion } from "rxq/Global";
 import { switchMap } from "rxjs/operators";
 
-// Define the configuration for your engine connection
+// Define the configuration for your session
 const config = {
-    host: "localhost",
-    port: 9076,
-    isSecure: false
+  host: "sense.axisgroup.com",
+  isSecure: true
 };
 
-// Call connectEngine with the config to produce an Observable for the Global handle
-const eng$ = connectEngine(config);
+// Connect the session
+const sesh$ = connectSession(config);
 
-// Once you receive the Global Handle, get the engineVersion from it
-const engVer$ = eng$.pipe(
-    switchMap(h => engineVersion(h))
+// Get the engineVersion
+const engVer$ = sesh$.pipe(
+  switchMap(h => engineVersion(h))
 );
 
-// Console out the engine version
-engVer$.subscribe(console.log);
+// Write the engine version to the DOM
+engVer$.subscribe(response => {
+  document.querySelector("#ver").innerHTML = response.qComponentVersion;
+});
 ```
