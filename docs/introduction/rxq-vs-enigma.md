@@ -1,0 +1,8 @@
+# RxQ vs. enigma.js
+[enigma.js](https://github.com/qlik-oss/enigma.js) is a fantastic library by the Qlik R&D team that has a similar goal to RxQ: it provides a means for working with the Qlik Associative Engine (QAE) in a scalable way. RxQ was largely inspired by the work that was done on enigma.js. 
+
+enigma.js and RxQ take fundamentally different approaches to how they deal with the asynchronous nature of QAE. enigma.js is built around the Promise model. In JavaScript, Promises are objects that model an asynchronous operation that eventually completes with a single value, or fails. Promises have become a standard async method in JavaScript development. They work great for one time asynchronous events, can be chained, and are fairly easy to learn and put to work. Therefore, they are a solid choice for getting started with QAE.
+
+RxQ does not use Promises in its implementation. Since it is meant to enable reactive programming with QAE, it instead uses the [Observable](https://egghead.io/lessons/javascript-introducing-the-observable) pattern. Observables are the core component of RxJS and provide the benefits described in [Why Rx?](). However, Observables are a newer concept to the JavaScript world and have not been as widely adopted. Furthermore, the learning curve is much steeper than Promises.
+
+When comparing enigma.js to RxQ, our feeling is that enigma.js has a much lower learning curve and works exceptionally well for basic use cases. While RxQ has a higher learning curve due to the usage of Rx, we believe that those who use Rx via RxQ will find that it shines as you scale up to more advanced applications of QAE.
