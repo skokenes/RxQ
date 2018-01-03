@@ -1,5 +1,5 @@
 # Making API Calls
-As discussed in [Core Concepts](), RxQ provides functions that ingest a Qlik Handle and necessary parameters, and then return an Observable for the response.
+As discussed in [Core Concepts](../introduction/core-concepts.md), RxQ provides functions that ingest a Qlik Handle and necessary parameters, and then return an Observable for the response.
 
 These functions are organized in RxQ based on Qlik class. Let's use the `EngineVersion` method from Qlik's Global class as an example. We can import this from RxQ like so:
 ```javascript
@@ -27,7 +27,7 @@ RxQ automatically parses the results of Engine API calls and produces Handles fo
 ## Leveraging Higher Order Observables for API Calls
 Higher Order Observables are essentially Observables of Observables. They allow us to create asynchronous data streams based on other asynchronous data streams. This concept is pertitent to us when making API calls, since we are trying to produce an async API call from an asynchronously provided Handle.
 
-RxJS makes handling these higher order observables easy using operators like `mergeMap`, `concatMap`, and `switchMap` to flatten them into normal Observables. 
+RxJS makes handling these higher order observables easy using operators like [mergeMap](http://reactivex.io/rxjs/class/es6/Observable.js~Observable.html#instance-method-mergeMap), [concatMap](http://reactivex.io/rxjs/class/es6/Observable.js~Observable.html#instance-method-concatMap), and [switchMap](http://reactivex.io/rxjs/class/es6/Observable.js~Observable.html#instance-method-switchMap) to flatten them into normal Observables. 
 
 When using `connectSession`, the resulting Observable provides the Global Handle for the established session. By combining this Observable with the `switchMap` operator, we can get our engine version like so:
 

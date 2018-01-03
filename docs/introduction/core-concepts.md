@@ -34,4 +34,4 @@ const app$ = openDoc(myGlobalHandle, "Sales.qvf");
 
 **This is essentially the core of RxQ: run a function that creates an Observable for a Qlik Engine API call response.**
 
- You may be wondering how to get Handles from the Engine to feed into these functions. This process is detailed in the [Getting Handles]() section.
+ You may be wondering how to get Handles from the Engine to feed into these functions. This process is detailed in the [Making API Calls](../basics/making-api-calls.md) section.

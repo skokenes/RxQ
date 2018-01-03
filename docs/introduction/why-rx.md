@@ -25,6 +25,31 @@ In the reactive example, the variable `b` is declared as depending on `a`, so wh
 
 Because of this feature, reactive programming is useful in highly interactive interfaces, especially when complex relationships exist between various variables. It also lends itself to asynchronous operations, where time delays affect when and how variables in a program change. When used properly, Rx enables scalable and maintainable code for complex, dynamic applications.
 
+Let's take a simple example. [Say you want to create a component that can be dragged and dropped around the screen.](https://codesandbox.io/embed/9ol0rvokpo) The Rx code for this is concise, easy to read, and easy to modify:
+```javascript
+import { fromEvent } from "rxjs/observable/fromEvent";
+import { switchMap, takeUntil } from "rxjs/operators";
+
+const box = document.querySelector("#box");
+
+const mousedown$ = fromEvent(box, "mousedown");
+const mouseup$ = fromEvent(document, "mouseup");
+const mousemove$ = fromEvent(document, "mousemove");
+
+const move$ = mousedown$.pipe(
+  switchMap(() => mousemove$.pipe(
+    takeUntil(mouseup$)
+  ))
+);
+
+move$.subscribe(evt => {
+  const top = parseInt(box.style.top);
+  const left = parseInt(box.style.left);
+  box.style.top = `${top + evt.movementY}px`;
+  box.style.left = `${left + evt.movementX}px`;
+});
+```
+
 For more on Rx, we highly recommend this guide to get started: [The introduction to Reactive Programming you've been missing](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754), by [André Staltz](https://gist.github.com/staltz).
 
 Or if you're looking for a quicker summary, try this [shorter read](https://branch-blog.qlik.com/what-is-reactive-programming-a1e82cf28575).
