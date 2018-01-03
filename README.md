@@ -7,6 +7,9 @@ $ npm install rxq
 ## Usage and Documentation
 Documentation for RxQ is hosted on [http://opensrc.axisgroup.com/rxq/docs](http://opensrc.axisgroup.com/rxq/docs/). We highly recommend reviewing the list of Recipes for examples of usage.
 
+## Quick Start
+Want to play with it immediately? [Try forking this sandbox.](https://codesandbox.io/embed/o155xl98y)
+
 ## Qlik Support
 As of v1.0.0, the following APIs are supported:
 - Engine API for QS 12.34.11
