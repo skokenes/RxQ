@@ -1,112 +1,23 @@
 # RxQ
-RxQ is a reactive JS wrapper for the Qlik Analytics Platform APIs. It provides custom RxJS operators that execute Qlik API calls.
+**RxQ** is a JavaScript library that provides utilities to link [**RxJS**](https://github.com/ReactiveX/rxjs), a JavaScript implementation of Rx, with the Qlik Associative Engine (QAE). RxQ can be used to build complex, interactive solutions on top of QAE using the reactive programming paradigm. RxQ can be used in projects via npm like so:
+```
+$ npm install rxq
+```
 
-##### Support
-As of v1.0.0-beta.0, the following APIs are supported:
+## Usage and Documentation
+Documentation for RxQ is hosted on [http://opensrc.axisgroup.com/rxq/docs](http://opensrc.axisgroup.com/rxq/docs/). We highly recommend reviewing the list of Recipes for examples of usage.
+
+## Qlik Support
+As of v1.0.0, the following APIs are supported:
 - Engine API for QS 12.34.11
 
 Custom builds for other versions of the QS Engine can be generated using the included build scripts. See the build section.
 
-## Installation
-Install in node via npm:
-```
-$ npm install rxq@beta
-```
-## API Structure
-RxQ has two types of functions: connectors and operators.
-
-
-### Connectors
-Connectors take in a configuration and return an Observable for a connection to a Qlik service. They are stored under the "rxq/connect" path. For example, to load the `connectEngine` function that will return an Observable for an Engine session, you can do one of the following:
-
-*CommonJS*
-```
-var connectEngine = require("rxq/connect/connectEngine");
-```
-
-*ESM*
-```
-import connectEngine from "rxq/connect/connectEngine";
-```
-
-*Browser - note the browser API is slightly different at this time*
-```
-var connectEngine = RxQ.connectEngine;
-```
-
-### Operators
-Operators are organized by QIX Engine class. They are stored in RxQ under the path "rxq/<--qClass-->".
-
-For example, to get the engineVersion operator from the Global class, you could do one of the following:
-
-*CommonJS*
-```
-var engineVersion = require("rxq/global/engineVersion");
-```
-
-*ESM*
-```
-import { engineVersion } from "rxq/global";
-```
-
-*Browser*
-```
-var engineVersion = RxQ.Global.engineVersion;
-```
-
-## Engine API Usage
-The following example illustrates usage of RxQ with ESM. The same format applies for CommonJS and Browser usage; the only difference is how you import the library. See above for details.
-
-### Connect to an engine and get the engine version
-Define a server with a `config` object. This can then be used to produce an Observable that will connect to the engine and return the global class. Then, we can use the engineVersion function with switchMap to get the engineVersion.
-```javascript
-import { switchMap } from "rxjs/operators";
-import connectEngine from "rxq/connect/connectEngine";
-import { engineVersion } from "rxq/global";
-
-// Describe a server
-var config = {
-    host: "sense.axisgroup.com",
-    isSecure: false
-};
-
-// Connect to engine
-var engine$ = connectEngine(config);
-
-// Get the engineVersion
-var engineVersion$ = engine$.pipe(
-    switchMap(engineHandle => engineVersion(engineHandle))
-);
-
-// Print the engine version
-engineVersion$.subscribe(version => {
-    console.log("engine version: ", version);
-});
-```
-
-### Configuring an engine connection
-The `config` object for a server can be defined with the following properties:
-* `host` - (String) Hostname of server
-* `appname` - (String) Scoped connection to app.
-* `isSecure` - (Boolean) If true uses wss and port 443, otherwise ws and port 80
-* `port` - (Integer) Port of connection, defaults 443/80
-* `prefix` - (String) Virtual Proxy, defaults to '/'
-* `origin` - (String) Origin of requests, node only.
-* `rejectUnauthorized` - (Boolean) False will ignore unauthorized self-signed certs.
-* `headers` - (Object) HTTP headers
-* `ticket` - (String) Qlik Sense ticket, consumes ticket on Connect()
-* `key` - (String) Client Certificate key for QIX connections
-* `cert` - (String) Client certificate for QIX connections
-* `ca` - (Array of String) CA root certificates for QIX connections
-* `identity` - (String) Session identity  
-
-### Engine API Methods
-The Engine API methods can be found in the [Qlik Sense Developers Help documentation](http://help.qlik.com/en-US/sense-developer/3.1/Subsystems/EngineAPI/Content/Classes/classes.htm).
 
 ## Building RxQ
 RxQ has several auto-generated components that build the source code and compile it into the distributed package for NPM. The steps are:
 1) Getting the correct QIX Engine schemas and generating operators for all API methods for the desired engine version
-2) Converting all source code into CommonJS, ESM, and browser modules and moving them to the distribution folder
+2) Converting all source code into distribution modules and move them to the distribution folder
 3) Creating the package.json files for the distribution folder
 
 Each of these steps can be triggered using npm scripts in the repository:
@@ -116,8 +27,6 @@ Each of these steps can be triggered using npm scripts in the repository:
 
 ### Step 2: Converting all source code into distribution modules
 `npm run compile-cjs` compiles the CommonJS modules.
-
-`npm run compile-esm5` compiles the ESM modules.
 
 `npm run build` compiles the browser bundle.
 
