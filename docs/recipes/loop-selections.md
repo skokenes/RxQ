@@ -62,7 +62,7 @@ const fld$ = app$.pipe(
   shareReplay(1)
 );
 
-// Create a loop of selections by gretting the cardinality of the field,
+// Create a loop of selections by getting the cardinality of the field,
 // then running a repeating interval for that cardinality and passing to
 // a lowLevelSelect call on the field handle
 const selectionLoop$ = fld$.pipe(
