@@ -4,6 +4,11 @@
 $ npm install rxq
 ```
 
+*Note that **RxJS ^5.5.0** is a peer dependency of **RxQ**; It will not be automatically installed when you install RxQ. If you do not already have **RxJS ^5.5.0** installed to your project, be sure to include it by running:*
+```
+$ npm install rxjs@^5.5.0
+```
+
 ## Usage and Documentation
 Documentation for RxQ is hosted on [http://opensrc.axisgroup.com/rxq/docs](http://opensrc.axisgroup.com/rxq/docs/). We highly recommend reviewing the list of Recipes for examples of usage.
 
