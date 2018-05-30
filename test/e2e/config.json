@@ -1,4 +1,4 @@
 {
-    "port": "9079",
-    "image": "qlikea/engine:12.112.0"
+  "port": "9079",
+  "image": "qlikcore/engine:12.171.0"
 }

@@ -11,12 +11,11 @@ const testGenericBookmark = require("./genericBookmark.test.js");
 const testSuspend = require("./suspend.test.js");
 
 describe("Engine E2E test", function() {
-
-    testConnect();
-    testGlobal();
-    testDoc();
-    testGenericObject();
-    testField();
-    testGenericBookmark();
-    testSuspend();
+  testConnect();
+  testGlobal();
+  testDoc();
+  testGenericObject();
+  testField();
+  testGenericBookmark();
+  testSuspend();
 });

@@ -14,92 +14,81 @@ var { port, image } = require("./config.json");
 var container$ = createContainer(image, port);
 
 var eng$ = container$.pipe(
-    switchMap(()=>{
-        return connectSession({
-            host: "localhost",
-            port: port,
-            isSecure: false
-        });
-    }),
-    publishReplay(1),
-    refCount()
+  switchMap(() => {
+    return connectSession({
+      host: "localhost",
+      port: port,
+      isSecure: false
+    });
+  }),
+  publishReplay(1),
+  refCount()
 );
 
 function testGlobal() {
-
-    describe("Global Class", function () {
-
-        before(function(done) {
-            this.timeout(10000);
-            container$.subscribe(()=>done());
-        });
-
-        describe("engineVersion", function () {
-
-            const ev$ = eng$.pipe(
-                switchMap(handle => engineVersion(handle)),
-                publishReplay(1),
-                refCount()
-            );
-
-            it("should return an object with prop 'qComponentVersion'", function (done) {
-                ev$.subscribe(ev => {
-                    expect(ev).to.have.property("qComponentVersion");
-                    done();
-                });
-            });
-
-            describe("qComponentVersion", function () {
-                it("should be a string", function (done) {
-                    ev$.subscribe(ev => {
-                        expect(ev.qComponentVersion).to.be.a("string");
-                        done();
-                    });
-                });
-            });
-
-        });
-
-        describe("openDoc", function () {
-
-            const app$ = eng$.pipe(
-                switchMap(handle => openDoc(handle, "iris.qvf")),
-                publishReplay(1),
-                refCount()
-            );
-
-            it("should return a Handle", function (done) {
-                app$.subscribe(appH => {
-                    expect(appH).to.be.instanceof(Handle);
-                    done();
-                });
-            });
-
-            describe("Returned Handle", function() {
-                it("should have qClass property of 'Doc'", function(done) {
-                    app$.subscribe(
-                        h=> {
-                            expect(h.qClass).to.equal("Doc");
-                            done();
-                        }
-                    )
-                })
-            });
-        
-
-        });
-
-        after(function(done) {
-            container$
-                .subscribe(
-                    container => container.kill((err, result) => {
-                        container.remove();
-                        done();
-                    })
-                );
-        });
+  describe("Global Class", function() {
+    before(function(done) {
+      this.timeout(10000);
+      container$.subscribe(() => done());
     });
 
+    describe("engineVersion", function() {
+      const ev$ = eng$.pipe(
+        switchMap(handle => engineVersion(handle)),
+        publishReplay(1),
+        refCount()
+      );
+
+      it("should return an object with prop 'qComponentVersion'", function(done) {
+        ev$.subscribe(ev => {
+          expect(ev).to.have.property("qComponentVersion");
+          done();
+        });
+      });
+
+      describe("qComponentVersion", function() {
+        it("should be a string", function(done) {
+          ev$.subscribe(ev => {
+            expect(ev.qComponentVersion).to.be.a("string");
+            done();
+          });
+        });
+      });
+    });
+
+    describe("openDoc", function() {
+      const app$ = eng$.pipe(
+        switchMap(handle => openDoc(handle, "iris.qvf")),
+        publishReplay(1),
+        refCount()
+      );
+
+      it("should return a Handle", function(done) {
+        app$.subscribe(appH => {
+          expect(appH).to.be.instanceof(Handle);
+          done();
+        });
+      });
+
+      describe("Returned Handle", function() {
+        it("should have qClass property of 'Doc'", function(done) {
+          app$.subscribe(h => {
+            expect(h.qClass).to.equal("Doc");
+            done();
+          });
+        });
+      });
+    });
+
+    after(function(done) {
+      container$.subscribe(container =>
+        container.kill((err, result) => {
+          container.remove();
+          done();
+        })
+      );
+    });
+  });
 }
 
 module.exports = testGlobal;
