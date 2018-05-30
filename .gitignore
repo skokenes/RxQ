@@ -12,3 +12,4 @@ src/genericvariable
 src/variable
 _book
 .tmp
+.DS_Store
