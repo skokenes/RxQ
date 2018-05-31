@@ -3,9 +3,61 @@ var fs = require("fs");
 var path = require("path");
 
 // Copy package to dist folder
-fs.writeFile(path.join(__dirname,"../dist/package.json"), JSON.stringify(pkg, null, "\t"), function(err) {
-    if(err) console.log(err);
+const modPkg = {
+  ...pkg,
+  main: "_cjs/index.js",
+  module: "./_esm5/index.js",
+  es2015: "./_esm2015/index.js",
+  sideEffects: false
+};
+
+fs.writeFile(
+  path.join(__dirname, "../dist/package.json"),
+  JSON.stringify(modPkg, null, "\t"),
+  function(err) {
+    if (err) console.log(err);
+  }
+);
+
+// Package operators
+const classes = [
+  "Doc",
+  "Field",
+  "GenericBookmark",
+  "GenericDerivedFields",
+  "GenericDimension",
+  "GenericMeasure",
+  "GenericObject",
+  "GenericVariable",
+  "Global",
+  "Variable"
+];
+classes.forEach(qClass => {
+  var operatorFolder = path.join(__dirname, "../src", qClass);
+  var operatorOutputFolder = path.join(__dirname, "../dist", qClass);
+  mkDir(operatorOutputFolder);
+
+  fs.readdir(operatorFolder, (err, files) => {
+    if (err) return console.log(err);
+    createPackage("index.js", qClass, operatorOutputFolder);
+  });
 });
+
+// fs.readdir(operatorFolder, (err, files) => {
+//     if(err) return console.log(err);
+//     files.forEach(file=>{
+//         fs.lstat(path.join(operatorFolder, file), (err, stats) => {
+//             if(stats.isDirectory()) {
+//                 var outputFolder = path.join(operatorOutputFolder, file);
+//                 mkDir(outputFolder);
+//                 packageJsInFolder(path.join(operatorFolder,file), outputFolder, `qix/${file}`,2);
+
+//                 // Class index file
+//                 createPackage("index.js", `qix/${file}`, path.join(operatorOutputFolder,file), 1);
+//             }
+//         });
+//     });
+// });
 
 /*
 
@@ -89,27 +141,28 @@ function packageJsInFolder(srcFolder, tgtFolder, folderPath, depth) {
     });
 }
 
-
+*/
 function createPackage(filename, folderPath, outputFolder, depth) {
+  var trail = "../".repeat(depth);
 
-    var trail = "../".repeat(depth);
+  var pkg = {
+    main: `${trail}_cjs/${folderPath}/${filename}`,
+    module: `${trail}_esm5/${folderPath}/${filename}`
+  };
 
-    var pkg = {
-        main: `${trail}_cjs/${folderPath}/${filename}`,
-        module: `${trail}_esm5/${folderPath}/${filename}`
-    };
+  mkDir(outputFolder);
 
-    mkDir(outputFolder);
-
-    fs.writeFile(path.join(outputFolder,"package.json"), JSON.stringify(pkg, null, "\t"), function(err) {
-        if(err) console.log(err);
-    });
-
+  fs.writeFile(
+    path.join(outputFolder, "package.json"),
+    JSON.stringify(pkg, null, "\t"),
+    function(err) {
+      if (err) console.log(err);
+    }
+  );
 }
 
 function mkDir(dir) {
-    if (!fs.existsSync(dir)){
-        fs.mkdirSync(dir);
-    }
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
 }
-*/

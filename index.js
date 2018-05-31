@@ -6,11 +6,11 @@ import "regenerator-runtime/runtime";
 // Observable Factories
 import * as src from "./src/index";
 
-import pack from "raw-loader!./package.json";
+import pack from "./package.json"; //"raw-loader!./package.json";
 
 const baseObj = {
-    version: JSON.parse(pack).version,
-    qixVersion: JSON.parse(pack)["qix-version"],
+  version: JSON.parse(pack).version,
+  qixVersion: JSON.parse(pack)["qix-version"]
 };
 
 const RxQ = Object.assign(baseObj, src);
