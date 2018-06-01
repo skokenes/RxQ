@@ -2,62 +2,141 @@
 var fs = require("fs-extra");
 var path = require("path");
 var pack = JSON.parse(fs.readFileSync("package.json", "utf8"));
+var Docker = require("dockerode");
+var { Observable } = require("rxjs");
+var { publishReplay, refCount, switchMap } = require("rxjs/operators");
+const http = require("http");
 
 // qix version
 var version = pack["qix-version"];
 
-var srcSchema = require(`../node_modules/enigma.js/schemas/${version}.json`);
+// var srcSchema = require(`../node_modules/enigma.js/schemas/${version}.json`);
 
-var qClasses = Object.keys(srcSchema.structs);
+const image = `qlikcore/engine:${version}`;
+const port = "9079";
 
-var classImports = [];
-var classExports = [];
+const container$ = createContainer(image, port);
 
-qClasses.forEach(qClass => {
-  var methods = srcSchema.structs[qClass];
+const schema$ = container$.pipe(
+  switchMap(container =>
+    Observable.create(observer => {
+      http
+        .get(`http://localhost:${port}/jsonrpc-api`, resp => {
+          let data = "";
 
-  var classDir = `../src/${qClass}`;
-  var absClassDir = path.join(__dirname, classDir);
-  fs.emptydirSync(absClassDir);
+          resp.on("data", chunk => {
+            data += chunk;
+          });
 
-  var importCode = [];
-  var exportCode = [];
+          resp.on("end", () => {
+            container.kill((err, result) => {
+              container.remove();
+              observer.complete();
+            });
 
-  Object.keys(methods).forEach(method => {
-    var methodFileName = method
-      .slice(0, 1)
-      .toLowerCase()
-      .concat(method.slice(1));
+            observer.next(JSON.parse(data));
+          });
+        })
+        .on("error", err => {
+          observer.error(err);
+        });
+    })
+  )
+);
 
-    var output = methods[method].Out;
-    var script = generateScript(method, output);
+schema$.subscribe(schema => {
+  var qClasses = Object.keys(schema.services);
 
-    fs.writeFile(path.join(absClassDir, `${methodFileName}.js`), script);
+  var classImports = [];
+  var classExports = [];
 
-    importCode.push(`import ${methodFileName} from "./${methodFileName}.js";`);
-    exportCode.push(`export { ${methodFileName} };`);
+  qClasses.forEach(qClass => {
+    var methods = schema.services[qClass].methods;
+
+    var classDir = `../src/${qClass}`;
+    var absClassDir = path.join(__dirname, classDir);
+    fs.emptydirSync(absClassDir);
+
+    var importCode = [];
+    var exportCode = [];
+
+    Object.keys(methods).forEach(method => {
+      var methodFileName = method
+        .slice(0, 1)
+        .toLowerCase()
+        .concat(method.slice(1));
+
+      var output = methods[method].responses || [];
+      var script = generateScript(method, output);
+
+      fs.writeFile(path.join(absClassDir, `${methodFileName}.js`), script);
+
+      importCode.push(
+        `import ${methodFileName} from "./${methodFileName}.js";`
+      );
+      exportCode.push(`export { ${methodFileName} };`);
+    });
+
+    var indexCode = importCode
+      .join("\n")
+      .concat("\n")
+      .concat(exportCode.join("\n"));
+    fs.writeFile(path.join(absClassDir, `index.js`), indexCode);
+
+    classImports.push(`import * as ${qClass} from "./${qClass}";`);
+    classExports.push(`export { ${qClass} }`);
   });
 
-  var indexCode = importCode
-    .join("\n")
-    .concat("\n")
-    .concat(exportCode.join("\n"));
-  fs.writeFile(path.join(absClassDir, `index.js`), indexCode);
+  function generateScript(methodName, output) {
+    const returnParam = output.length === 1 ? `"${output[0].name}"` : "";
+    return `import mapQixReturn from "../util/map-qix-return.js";
 
-  classImports.push(`import * as ${qClass} from "./${qClass}";`);
-  classExports.push(`export { ${qClass} }`);
+  export default function(handle, ...args) {
+      return handle.ask("${methodName}", ...args).pipe(
+          mapQixReturn(handle, ${returnParam})
+      );
+  }`;
+  }
 });
 
-// var indexCode = classImports.join("\n").concat("\n").concat(classExports.join("\n"));
-// fs.writeFile(path.join(path.join(__dirname,"../src"),`index.js`), indexCode);
+function createContainer(image, port) {
+  // launch a new container
+  var container$ = Observable.create(observer => {
+    var docker = new Docker();
 
-function generateScript(methodName, output) {
-  const returnParam = output.length === 1 ? `"${output[0].Name}"` : "";
-  return `import mapQixReturn from "../util/map-qix-return.js";
+    docker.createContainer(
+      {
+        Image: image,
+        Cmd: ["-S", "AcceptEULA=yes"],
+        ExposedPorts: {
+          "9076/tcp": {}
+        },
+        HostConfig: {
+          RestartPolicy: {
+            Name: "always"
+          },
+          PortBindings: {
+            "9076/tcp": [
+              {
+                HostPort: port
+              }
+            ]
+          }
+        }
+      },
+      (err, container) => {
+        if (err) return observer.error(err);
 
-export default function(handle, ...args) {
-    return handle.ask("${methodName}", ...args).pipe(
-        mapQixReturn(handle, ${returnParam})
+        container.start((err, data) => {
+          if (err) return observer.error(err);
+          setTimeout(() => {
+            observer.next(container);
+            observer.complete();
+          }, 2000);
+        });
+      }
     );
-}`;
+  }).pipe(publishReplay(1), refCount());
+
+  return container$;
 }
