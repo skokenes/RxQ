@@ -9,8 +9,6 @@ program
   .parse(process.argv);
 
 const plugins = [new StringReplacePlugin()];
-if (program.min)
-  plugins.push(new webpack.optimize.UglifyJsPlugin({ minimize: true }));
 
 const filename = program.min ? "rxq.bundle.min.js" : "rxq.bundle.js";
 
@@ -22,9 +20,12 @@ webpack(
       path: path.resolve(__dirname, "../dist/bundle"),
       filename: filename,
       library: "RxQ",
-      libraryTarget: "var"
+      libraryTarget: "umd"
     },
     devtool: "source-map",
+    optimization: {
+      minimize: program.min || false
+    },
     module: {
       rules: [
         // configure replacements for file patterns
