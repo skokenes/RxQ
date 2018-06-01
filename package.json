@@ -8,6 +8,8 @@
   "scripts": {
     "build-qix-methods": "node scripts/build-qix-methods.js",
     "compile-cjs": "node scripts/compile_cjs.js",
+    "compile-esm5": "node scripts/compile_esm5.js",
+    "compile-esm2015": "node scripts/compile_esm2015.js",
     "make-packages": "node scripts/make-packages.js",
     "build": "node scripts/build-browser",
     "build-min": "node scripts/build-browser --min",
@@ -65,7 +67,7 @@
     "ws": "^1.1.1"
   },
   "peerDependencies": {
-    "rxjs": "^5.5.0"
+    "rxjs": "^6.2.0"
   },
   "bugs": {
     "url": "https://github.com/axisgroup/RxQ/issues"

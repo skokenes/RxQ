@@ -13,9 +13,10 @@ var {
   tap,
   withLatestFrom
 } = require("rxjs/operators");
-var connectSession = require("../../dist/connect/connectSession");
+
 var { openDoc } = require("../../dist/global");
-var Handle = require("../../dist/handle");
+var { connectSession } = require("../../dist");
+var Handle = require("../../dist/_cjs/handle");
 
 var { createBookmark } = require("../../dist/doc");
 var { getProperties, setProperties } = require("../../dist/genericBookmark");

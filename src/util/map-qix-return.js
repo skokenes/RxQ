@@ -1,7 +1,7 @@
 import Handle from "../handle.js";
 import { map } from "rxjs/operators";
 
-export default returnParam => src$ =>
+export default (handle, returnParam) => src$ =>
   src$.pipe(
     map(r => {
       var hasQReturn = r.hasOwnProperty("qReturn");

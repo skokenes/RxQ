@@ -14,10 +14,11 @@ var {
   withLatestFrom
 } = require("rxjs/operators");
 var { Subject } = require("rxjs");
-var connectSession = require("../../dist/connect/connectSession");
+
 var { openDoc } = require("../../dist/global");
-var Handle = require("../../dist/handle");
-var { suspendUntilComplete } = require("../../dist/operators");
+var { connectSession } = require("../../dist");
+var Handle = require("../../dist/_cjs/handle");
+var { suspendUntilComplete } = require("../../dist/_cjs/operators");
 
 var { getAppProperties, setAppProperties } = require("../../dist/doc");
 

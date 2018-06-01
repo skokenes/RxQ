@@ -6,13 +6,13 @@ var babel = require("babel-core");
 // Set up dist
 mkDir("dist");
 // Remove _esm5 if it exists
-rimraf.sync("dist/_esm5", {}, function() {});
-// Set up _esm5
-mkDir("dist/_esm5");
+rimraf.sync("dist/_esm2015", {}, function() {});
+// Set up _esm2015
+mkDir("dist/_esm2015");
 
 // Iterate through source code and copy over
 var srcFolder = "src";
-var tgtFolder = "dist/_esm5";
+var tgtFolder = "dist/_esm2015";
 
 compileFromDir(srcFolder, tgtFolder);
 
@@ -25,7 +25,7 @@ function compileFromDir(srcFolder, tgtFolder) {
           babel.transformFile(
             path.join(srcFolder, file),
             {
-              presets: [["es2015", { modules: false }]],
+              presets: [],
               plugins: []
             },
             function(err, result) {

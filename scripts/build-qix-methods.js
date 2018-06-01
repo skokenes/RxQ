@@ -57,7 +57,7 @@ function generateScript(methodName, output) {
 
 export default function(handle, ...args) {
     return handle.ask("${methodName}", ...args).pipe(
-        mapQixReturn(${returnParam})
+        mapQixReturn(handle, ${returnParam})
     );
 }`;
 }

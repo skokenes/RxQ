@@ -7,9 +7,10 @@ var { pluck, take } = require("rxjs/operators");
 const mockEngine = require("../util/mock-qix-engine.js");
 
 // RxQ
-var connectSession = require("../../dist/connect/connectSession");
-var Handle = require("../../dist/handle");
-var Session = require("../../dist/session");
+var { connectSession } = require("../../dist");
+var { connectSession: connectSessionLegacy } = require("../../dist/connect");
+var Handle = require("../../dist/_cjs/handle");
+var Session = require("../../dist/_cjs/session");
 
 describe("connectSession", function() {
   // Mock Engine for Testing
@@ -25,6 +26,10 @@ describe("connectSession", function() {
 
   it("should return an Observable", function() {
     expect(eng$).to.be.instanceof(Observable);
+  });
+
+  it("should be accessible from the legacy entry point", () => {
+    expect(connectSession).to.equal(connectSessionLegacy);
   });
 
   describe("connectSession response", function() {

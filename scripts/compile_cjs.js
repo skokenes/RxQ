@@ -22,7 +22,6 @@ function compileFromDir(srcFolder, tgtFolder) {
     files.forEach(function(file) {
       fs.lstat(path.join(srcFolder, file), function(err, stats) {
         if (stats.isFile() && file.slice(-3) === ".js") {
-          console.log("convert the file " + file);
           babel.transformFile(
             path.join(srcFolder, file),
             {

@@ -4,9 +4,10 @@ const expect = chai.expect;
 
 var createContainer = require("../util/create-container");
 var { publishReplay, refCount, switchMap } = require("rxjs/operators");
-var connectSession = require("../../dist/connect/connectSession");
+
 var { engineVersion, openDoc } = require("../../dist/global");
-var Handle = require("../../dist/handle");
+var { connectSession } = require("../../dist");
+var Handle = require("../../dist/_cjs/handle");
 
 var { port, image } = require("./config.json");
 

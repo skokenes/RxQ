@@ -9,17 +9,17 @@ import * as GenericDerivedFields from "./GenericDerivedFields";
 import * as Doc from "./Doc";
 import * as Global from "./Global";
 import * as operators from "./operators";
-import * as connect from "./connect";
+import connectSession from "./connect/connectSession";
 
-export { Field }
-export { Variable }
-export { GenericObject }
-export { GenericDimension }
-export { GenericBookmark }
-export { GenericVariable }
-export { GenericMeasure }
-export { GenericDerivedFields }
-export { Doc }
-export { Global }
-export { operators }
-export { connect }
+export { Field };
+export { Variable };
+export { GenericObject };
+export { GenericDimension };
+export { GenericBookmark };
+export { GenericVariable };
+export { GenericMeasure };
+export { GenericDerivedFields };
+export { Doc };
+export { Global };
+export { operators };
+export { connectSession };

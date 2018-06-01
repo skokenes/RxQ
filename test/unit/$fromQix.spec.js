@@ -6,7 +6,7 @@ var { shareReplay } = require("rxjs/operators");
 const mockEngine = require("../util/mock-qix-engine.js");
 
 // RxQ
-var connectSession = require("../../dist/connect/connectSession");
+var { connectSession } = require("../../dist");
 var global = require("../../dist/global");
 var doc = require("../../dist/doc");
 var field = require("../../dist/field");

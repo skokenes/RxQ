@@ -4,10 +4,8 @@ const expect = chai.expect;
 
 var createContainer = require("../util/create-container");
 var { publishReplay, refCount, switchMap } = require("rxjs/operators");
-var connectSession = require("../../dist/connect/connectSession");
-
-var Handle = require("../../dist/handle");
-
+var { connectSession } = require("../../dist");
+var Handle = require("../../dist/_cjs/handle");
 
 var { port, image } = require("./config.json");
 
@@ -15,66 +13,61 @@ var { port, image } = require("./config.json");
 var container$ = createContainer(image, port);
 
 var eng$ = container$.pipe(
-    switchMap(()=>{
-        return connectSession({
-            host: "localhost",
-            port: port,
-            isSecure: false
-        });
-    }),
-    publishReplay(1),
-    refCount()
+  switchMap(() => {
+    return connectSession({
+      host: "localhost",
+      port: port,
+      isSecure: false
+    });
+  }),
+  publishReplay(1),
+  refCount()
 );
 
 function testConnect() {
-    describe("Connect to an engine", function() {
-        before(function(done) {
-            this.timeout(10000);
-            container$.subscribe(()=>done());
-        });
-    
-        it("should return a Handle", function(done) {
-            var eng$ = container$.pipe(
-                switchMap(()=>{
-                    return connectSession({
-                        host: "localhost",
-                        port: port,
-                        isSecure: false
-                    });
-                }),
-                publishReplay(1),
-                refCount()
-            );
-            
-            eng$.subscribe(
-                h => {
-                    expect(h).to.be.instanceof(Handle);
-                    done();
-                }
-            );
-        });
+  describe("Connect to an engine", function() {
+    before(function(done) {
+      this.timeout(10000);
+      container$.subscribe(() => done());
+    });
 
-        describe("Returned Handle", function() {
-            it("should have qClass property of 'Global'", function(done) {
-                eng$.subscribe(
-                    h=> {
-                        expect(h.qClass).to.equal("Global");
-                        done();
-                    }
-                )
-            })
+    it("should return a Handle", function(done) {
+      var eng$ = container$.pipe(
+        switchMap(() => {
+          return connectSession({
+            host: "localhost",
+            port: port,
+            isSecure: false
+          });
+        }),
+        publishReplay(1),
+        refCount()
+      );
+
+      eng$.subscribe(h => {
+        expect(h).to.be.instanceof(Handle);
+        done();
+      });
+    });
+
+    describe("Returned Handle", function() {
+      it("should have qClass property of 'Global'", function(done) {
+        eng$.subscribe(h => {
+          expect(h.qClass).to.equal("Global");
+          done();
         });
-    
-        after(function(done) {
-            container$
-                .subscribe(
-                    container => container.kill((err, result) => {
-                        container.remove();
-                        done();
-                    })
-                );
-        });
-    })
+      });
+    });
+
+    after(function(done) {
+      container$.subscribe(container =>
+        container.kill((err, result) => {
+          container.remove();
+          done();
+        })
+      );
+    });
+  });
 }
 
 module.exports = testConnect;
