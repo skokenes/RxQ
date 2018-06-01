@@ -4,7 +4,7 @@ import {
   BehaviorSubject,
   of as $of,
   from as $from,
-  _throw as $throw,
+  throwError as $throw,
   merge,
   concat
 } from "rxjs";
