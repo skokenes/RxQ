@@ -54,6 +54,15 @@ describe("Handle", function() {
     });
   });
 
+  describe("Global Handle", function() {
+    it("should have a notification$ Observable", function(done) {
+      eng$.subscribe(h => {
+        expect(h.notification$).to.be.instanceof(Observable);
+        done();
+      });
+    });
+  });
+
   describe("ask method", function() {
     it("should return an Observable", function(done) {
       eng$.subscribe(h => {

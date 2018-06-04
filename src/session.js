@@ -57,14 +57,32 @@ export default class Session {
       }
 
       return;
-    }).pipe(publishLast(), refCount());
+    }).pipe(
+      publishLast(),
+      refCount()
+    );
+
+    // WebSocket close
+    const wsClose$ = ws$.pipe(
+      switchMap(ws =>
+        Observable.create(observer => {
+          ws.addEventListener("close", evt => {
+            observer.next(evt);
+            observer.complete();
+          });
+        })
+      )
+    );
 
     // Requests
     var requests$ = new Subject();
 
     // Hook in request pipeline
     requests$
-      .pipe(map(req => JSON.stringify(req)), withLatestFrom(ws$))
+      .pipe(
+        map(req => JSON.stringify(req)),
+        withLatestFrom(ws$)
+      )
       .subscribe(([req, ws]) => ws.send(req));
 
     // Responses
@@ -95,7 +113,10 @@ export default class Session {
       pluck("change")
     );
 
-    const bufferOpen$ = suspended$.pipe(distinctUntilChanged(), filter(f => f));
+    const bufferOpen$ = suspended$.pipe(
+      distinctUntilChanged(),
+      filter(f => f)
+    );
 
     const bufferClose$ = suspended$.pipe(
       distinctUntilChanged(),
@@ -112,7 +133,41 @@ export default class Session {
       )
     );
 
-    var changes$ = changesIn$.pipe(bufferInvalids(suspended$));
+    const changes$ = changesIn$.pipe(bufferInvalids(suspended$));
+
+    // Session Notifications
+    const notification$ = merge(
+      requests$.pipe(
+        map(req => ({
+          type: "traffic:sent",
+          data: req
+        }))
+      ),
+      responses$.pipe(
+        map(resp => ({
+          type: "traffic:received",
+          data: resp
+        }))
+      ),
+      changes$.pipe(
+        map(changes => ({
+          type: "traffic:change",
+          data: changes
+        }))
+      ),
+      suspended$.pipe(
+        map(suspend => ({
+          type: "traffic:suspend-status",
+          data: suspend
+        }))
+      ),
+      wsClose$.pipe(
+        map(evt => ({
+          type: "socket:close",
+          data: evt
+        }))
+      )
+    );
 
     // Sequence generator
     this.seqGen = (function*() {
@@ -125,7 +180,8 @@ export default class Session {
       requests$,
       responses$,
       changes$,
-      suspended$
+      suspended$,
+      notification$
     });
   }
 
@@ -157,6 +213,9 @@ export default class Session {
   }
 
   global() {
+    const globalHandle = new Handle(this, -1, "Global");
+    globalHandle.notification$ = this.notification$;
+
     // ask for a sample call to test that we are authenticated properly, then either pass global or pass the error
     return this.ws$.pipe(
       switchMap(() =>
@@ -166,7 +225,7 @@ export default class Session {
           params: []
         })
       ),
-      mapTo(new Handle(this, -1, "Global")),
+      mapTo(globalHandle),
       publishLast(),
       refCount()
     );
@@ -201,3 +260,20 @@ function bufferInvalids(status$) {
     return merge(directStream$, bufferStream$);
   };
 }
+
+/*
+
+session.notification$
+- socket
+  - open
+  - close
+- suspended (why would this be on socket? should be session level)
+- traffic
+  - sent
+  - received
+  - errors
+  - changes
+  - suspend status
+
+
+*/
