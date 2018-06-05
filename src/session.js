@@ -36,7 +36,10 @@ import connectWS from "./util/connectWS";
 
 export default class Session {
   constructor(config) {
-    var session = this;
+    const session = this;
+
+    // delta mode
+    const delta = config.delta || false;
 
     // Suspended changes state
     const suspended$ = new BehaviorSubject(false);
