@@ -14,16 +14,16 @@ var {
   withLatestFrom
 } = require("rxjs/operators");
 
-var { openDoc } = require("../../dist/global");
+var { OpenDoc } = require("../../dist/global");
 var { connectSession } = require("../../dist");
 var Handle = require("../../dist/_cjs/handle");
 
-var { createSessionObject, getObject } = require("../../dist/doc");
+var { CreateSessionObject, GetObject } = require("../../dist/doc");
 var {
-  applyPatches,
-  getLayout,
-  getProperties,
-  setProperties
+  ApplyPatches,
+  GetLayout,
+  GetProperties,
+  SetProperties
 } = require("../../dist/genericObject");
 
 var { port, image } = require("./config.json");
@@ -44,14 +44,14 @@ var eng$ = container$.pipe(
 );
 
 const app$ = eng$.pipe(
-  switchMap(handle => openDoc(handle, "iris.qvf")),
+  switchMap(handle => handle.ask(OpenDoc, "iris.qvf")),
   publishReplay(1),
   refCount()
 );
 
 const obj$ = app$.pipe(
   switchMap(handle =>
-    createSessionObject(handle, {
+    handle.ask(CreateSessionObject, {
       qInfo: {
         qType: "test-e2e"
       },
@@ -71,9 +71,9 @@ function testGenericObject() {
       container$.subscribe(() => done());
     });
 
-    describe("getProperties", function() {
+    describe("GetProperties", function() {
       const objProps$ = obj$.pipe(
-        switchMap(h => getProperties(h)),
+        switchMap(h => h.ask(GetProperties)),
         shareReplay(1)
       );
 
@@ -99,15 +99,15 @@ function testGenericObject() {
       });
     });
 
-    describe("setProperties", function() {
+    describe("SetProperties", function() {
       const objProps$ = obj$.pipe(
-        switchMap(h => getProperties(h)),
+        switchMap(h => h.ask(GetProperties)),
         shareReplay(1)
       );
 
       const updatedObjProps$ = obj$.pipe(
         switchMap(h =>
-          setProperties(h, {
+          h.ask(SetProperties, {
             qInfo: {
               qType: "test-e2e"
             },
@@ -128,8 +128,11 @@ function testGenericObject() {
       });
     });
 
-    describe("getLayout", function() {
-      const layout$ = obj$.pipe(switchMap(h => getLayout(h)), shareReplay(1));
+    describe("GetLayout", function() {
+      const layout$ = obj$.pipe(
+        switchMap(h => h.ask(GetLayout)),
+        shareReplay(1)
+      );
 
       it("should return an object", function(done) {
         layout$.subscribe(layout => {
@@ -146,10 +149,10 @@ function testGenericObject() {
       });
     });
 
-    describe("applyPatches", function() {
+    describe("ApplyPatches", function() {
       const patches$ = obj$.pipe(
         switchMap(h =>
-          applyPatches(h, [
+          h.ask(ApplyPatches, [
             {
               qOp: "add",
               qPath: "/patch",
@@ -161,9 +164,14 @@ function testGenericObject() {
       );
 
       it("should cause an invalidation", function(done) {
-        obj$.pipe(switchMap(h => h.invalidated$), take(1)).subscribe(i => {
-          done();
-        });
+        obj$
+          .pipe(
+            switchMap(h => h.invalidated$),
+            take(1)
+          )
+          .subscribe(i => {
+            done();
+          });
 
         patches$.connect();
       });
@@ -172,7 +180,7 @@ function testGenericObject() {
         obj$
           .pipe(
             switchMap(h => h.invalidated$),
-            switchMap(h => getLayout(h)),
+            switchMap(h => h.ask(GetLayout)),
             take(1)
           )
           .subscribe(layout => {

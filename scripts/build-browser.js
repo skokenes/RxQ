@@ -36,6 +36,7 @@ webpack(
             replacements: [
               {
                 pattern: /import {([^;]*?)} from ([^;]*?)('|")rxjs([^;]*?)('|");/g,
+                //pattern: /from ([^;]*?)('|")rxjs([^;]*?)('|");/g,
                 replacement: function(
                   match,
                   p1,
@@ -46,6 +47,15 @@ webpack(
                   offset,
                   string
                 ) {
+                  return match
+                    .replace("import", "const")
+                    .replace(/from ('|")rxjs('|")/g, "= rxjs")
+                    .replace(
+                      /from ('|")rxjs\/operators('|")/g,
+                      "= rxjs.operators"
+                    )
+                    .replace(/ as /g, ": ");
+
                   // Check if loading an operator or not
                   var operatorsFlag = p4.split("/").indexOf("operators") > 0;
 
@@ -95,6 +105,7 @@ webpack(
             presets: ["es2015"],
             plugins: [
               // "transform-runtime",
+              "transform-object-rest-spread",
               "babel-plugin-add-module-exports"
             ]
           }

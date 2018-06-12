@@ -15,12 +15,12 @@ var {
 } = require("rxjs/operators");
 var { Subject } = require("rxjs");
 
-var { openDoc } = require("../../dist/global");
+var { OpenDoc } = require("../../dist/global");
 var { connectSession } = require("../../dist");
 var Handle = require("../../dist/_cjs/handle");
 var { suspendUntilComplete } = require("../../dist/_cjs/operators");
 
-var { getAppProperties, setAppProperties } = require("../../dist/doc");
+var { GetAppProperties, SetAppProperties } = require("../../dist/doc");
 
 var { port, image } = require("./config.json");
 
@@ -40,7 +40,7 @@ var eng$ = container$.pipe(
 );
 
 const app$ = eng$.pipe(
-  switchMap(handle => openDoc(handle, "iris.qvf")),
+  switchMap(handle => handle.ask(OpenDoc, "iris.qvf")),
   publishReplay(1),
   refCount()
 );
@@ -61,12 +61,12 @@ function testSuspend() {
           engH.session.suspended$.next(true);
           return appH;
         }),
-        switchMap(handle => getAppProperties(handle)),
+        switchMap(handle => handle.ask(GetAppProperties)),
         take(1),
         withLatestFrom(app$),
         switchMap(([props, handle]) => {
           const newProps = Object.assign({ test: "invalid" }, props);
-          return setAppProperties(handle, newProps);
+          return handle.ask(SetAppProperties, newProps);
         }),
         publish()
       );

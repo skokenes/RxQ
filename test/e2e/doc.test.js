@@ -12,16 +12,16 @@ var {
   withLatestFrom
 } = require("rxjs/operators");
 
-var { openDoc } = require("../../dist/global");
+var { OpenDoc } = require("../../dist/global");
 var { connectSession } = require("../../dist");
 var Handle = require("../../dist/_cjs/handle");
 
 var {
-  createObject,
-  createSessionObject,
-  getAppProperties,
-  getObject,
-  setAppProperties
+  CreateObject,
+  CreateSessionObject,
+  GetAppProperties,
+  GetObject,
+  SetAppProperties
 } = require("../../dist/doc");
 
 var { port, image } = require("./config.json");
@@ -42,7 +42,7 @@ var eng$ = container$.pipe(
 );
 
 const app$ = eng$.pipe(
-  switchMap(handle => openDoc(handle, "iris.qvf")),
+  switchMap(handle => handle.ask(OpenDoc, "iris.qvf")),
   publishReplay(1),
   refCount()
 );
@@ -54,9 +54,9 @@ function testDoc() {
       container$.subscribe(() => done());
     });
 
-    describe("getAppProperties", function() {
+    describe("GetAppProperties", function() {
       const appProps$ = app$.pipe(
-        switchMap(handle => getAppProperties(handle)),
+        switchMap(handle => handle.ask(GetAppProperties)),
         publishReplay(1),
         refCount()
       );
@@ -78,7 +78,7 @@ function testDoc() {
 
     describe("setAppProperties", function() {
       const appProps$ = app$.pipe(
-        switchMap(handle => getAppProperties(handle)),
+        switchMap(handle => handle.ask(GetAppProperties)),
         publishReplay(1),
         refCount()
       );
@@ -88,11 +88,11 @@ function testDoc() {
         withLatestFrom(app$),
         switchMap(([props, handle]) => {
           const newProps = Object.assign({ foo: "bar" }, props);
-          return setAppProperties(handle, newProps);
+          return handle.ask(SetAppProperties, newProps);
         }),
         switchMap(() =>
           app$.pipe(
-            switchMap(handle => getAppProperties(handle)),
+            switchMap(handle => handle.ask(GetAppProperties)),
             publishReplay(1),
             refCount()
           )
@@ -109,7 +109,7 @@ function testDoc() {
 
     describe("getObject", function() {
       const obj$ = app$.pipe(
-        switchMap(h => getObject(h, "fpZbty")),
+        switchMap(h => h.ask(GetObject, "fpZbty")),
         shareReplay(1)
       );
 
@@ -125,7 +125,7 @@ function testDoc() {
     describe("createSessionObject", function() {
       const obj$ = app$.pipe(
         switchMap(h =>
-          createSessionObject(h, {
+          h.ask(CreateSessionObject, {
             qInfo: {
               qType: "e2e-test"
             }
@@ -146,7 +146,7 @@ function testDoc() {
     describe("createObject", function() {
       const obj$ = app$.pipe(
         switchMap(h =>
-          createObject(h, {
+          h.ask(CreateObject, {
             qInfo: {
               qType: "e2e-test"
             }
@@ -175,7 +175,7 @@ function testDoc() {
 
         // Trigger invalidation event by changing app events
         const appProps$ = app$.pipe(
-          switchMap(handle => getAppProperties(handle)),
+          switchMap(handle => handle.ask(GetAppProperties)),
           publishReplay(1),
           refCount()
         );
@@ -186,7 +186,7 @@ function testDoc() {
             withLatestFrom(app$),
             switchMap(([props, handle]) => {
               const newProps = Object.assign({ test: "invalid" }, props);
-              return setAppProperties(handle, newProps);
+              return handle.ask(SetAppProperties, newProps);
             })
           )
           .subscribe();

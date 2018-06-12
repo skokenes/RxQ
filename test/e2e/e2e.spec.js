@@ -10,6 +10,7 @@ const testField = require("./field.test.js");
 const testGenericBookmark = require("./genericBookmark.test.js");
 const testSuspend = require("./suspend.test.js");
 const testNotification = require("./notification.test.js");
+const testDelta = require("./delta.test.js");
 
 describe("Engine E2E test", function() {
   testConnect();
@@ -20,4 +21,5 @@ describe("Engine E2E test", function() {
   testGenericBookmark();
   testSuspend();
   testNotification();
+  testDelta();
 });

@@ -5,7 +5,7 @@ const expect = chai.expect;
 var createContainer = require("../util/create-container");
 var { publishReplay, refCount, switchMap } = require("rxjs/operators");
 
-var { engineVersion, openDoc } = require("../../dist/global");
+var { EngineVersion, OpenDoc } = require("../../dist/global");
 var { connectSession } = require("../../dist");
 var Handle = require("../../dist/_cjs/handle");
 
@@ -35,7 +35,7 @@ function testGlobal() {
 
     describe("engineVersion", function() {
       const ev$ = eng$.pipe(
-        switchMap(handle => engineVersion(handle)),
+        switchMap(handle => handle.ask(EngineVersion)),
         publishReplay(1),
         refCount()
       );
@@ -59,7 +59,7 @@ function testGlobal() {
 
     describe("openDoc", function() {
       const app$ = eng$.pipe(
-        switchMap(handle => openDoc(handle, "iris.qvf")),
+        switchMap(handle => handle.ask(OpenDoc, "iris.qvf")),
         publishReplay(1),
         refCount()
       );

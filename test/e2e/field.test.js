@@ -14,12 +14,12 @@ var {
   withLatestFrom
 } = require("rxjs/operators");
 
-var { openDoc } = require("../../dist/global");
+var { OpenDoc } = require("../../dist/global");
 var { connectSession } = require("../../dist");
 var Handle = require("../../dist/_cjs/handle");
 
-var { getField } = require("../../dist/doc");
-var { getCardinal, getNxProperties } = require("../../dist/field");
+var { GetField } = require("../../dist/doc");
+var { GetCardinal, GetNxProperties } = require("../../dist/field");
 
 var { port, image } = require("./config.json");
 
@@ -39,13 +39,13 @@ var eng$ = container$.pipe(
 );
 
 const app$ = eng$.pipe(
-  switchMap(handle => openDoc(handle, "iris.qvf")),
+  switchMap(handle => handle.ask(OpenDoc, "iris.qvf")),
   publishReplay(1),
   refCount()
 );
 
 const field$ = app$.pipe(
-  switchMap(handle => getField(handle, "species")),
+  switchMap(handle => handle.ask(GetField, "species")),
   shareReplay(1)
 );
 
@@ -56,9 +56,9 @@ function testField() {
       container$.subscribe(() => done());
     });
 
-    describe("getNxProperties", function() {
+    describe("GetNxProperties", function() {
       const fldProps$ = field$.pipe(
-        switchMap(h => getNxProperties(h)),
+        switchMap(h => h.ask(GetNxProperties)),
         shareReplay(1)
       );
 
@@ -70,9 +70,9 @@ function testField() {
       });
     });
 
-    describe("getCardinal", function() {
+    describe("GetCardinal", function() {
       const fldCard$ = field$.pipe(
-        switchMap(h => getCardinal(h)),
+        switchMap(h => h.ask(GetCardinal)),
         shareReplay(1)
       );
 

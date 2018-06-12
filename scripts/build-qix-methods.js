@@ -10,8 +10,6 @@ const http = require("http");
 // qix version
 var version = pack["qix-version"];
 
-// var srcSchema = require(`../node_modules/enigma.js/schemas/${version}.json`);
-
 const image = `qlikcore/engine:${version}`;
 const port = "9079";
 
@@ -45,6 +43,35 @@ const schema$ = container$.pipe(
 );
 
 schema$.subscribe(schema => {
+  const schemaOutput = Object.keys(schema.services).reduce((acc, qClass) => {
+    const classMethods = schema.services[qClass].methods;
+    return {
+      ...acc,
+      [qClass]: Object.keys(classMethods).reduce((methodList, method) => {
+        const methodResponses = classMethods[method].responses;
+        return {
+          ...methodList,
+          [method]:
+            typeof methodResponses === "undefined"
+              ? []
+              : methodResponses.map(response => response.name)
+        };
+      }, {})
+    };
+  }, {});
+
+  // write schema to src folder
+  const schemaFolder = path.join(__dirname, "../src/schema");
+  fs.emptydirSync(schemaFolder);
+  fs.writeFile(
+    path.join(schemaFolder, "schema.js"),
+    `export default ${JSON.stringify(schemaOutput, null, 2)}`
+  );
+  fs.writeFile(
+    path.join(schemaFolder, "schema.json"),
+    JSON.stringify(schema, null, 2)
+  );
+
   var qClasses = Object.keys(schema.services);
 
   var classImports = [];
@@ -57,46 +84,21 @@ schema$.subscribe(schema => {
     var absClassDir = path.join(__dirname, classDir);
     fs.emptydirSync(absClassDir);
 
-    var importCode = [];
-    var exportCode = [];
+    const eNumScript = Object.keys(methods)
+      .reduce((acc, methodname) => {
+        return [
+          `const ${methodname} = "${methodname}"`,
+          ...acc,
+          `export { ${methodname} };`
+        ];
+      }, [])
+      .join("\n");
 
-    Object.keys(methods).forEach(method => {
-      var methodFileName = method
-        .slice(0, 1)
-        .toLowerCase()
-        .concat(method.slice(1));
-
-      var output = methods[method].responses || [];
-      var script = generateScript(method, output);
-
-      fs.writeFile(path.join(absClassDir, `${methodFileName}.js`), script);
-
-      importCode.push(
-        `import ${methodFileName} from "./${methodFileName}.js";`
-      );
-      exportCode.push(`export { ${methodFileName} };`);
-    });
-
-    var indexCode = importCode
-      .join("\n")
-      .concat("\n")
-      .concat(exportCode.join("\n"));
-    fs.writeFile(path.join(absClassDir, `index.js`), indexCode);
+    fs.writeFile(path.join(absClassDir, `index.js`), eNumScript);
 
     classImports.push(`import * as ${qClass} from "./${qClass}";`);
     classExports.push(`export { ${qClass} }`);
   });
-
-  function generateScript(methodName, output) {
-    const returnParam = output.length === 1 ? `"${output[0].name}"` : "";
-    return `import mapQixReturn from "../util/map-qix-return.js";
-
-  export default function(handle, ...args) {
-      return handle.ask("${methodName}", ...args).pipe(
-          mapQixReturn(handle, ${returnParam})
-      );
-  }`;
-  }
 });
 
 function createContainer(image, port) {
@@ -136,7 +138,10 @@ function createContainer(image, port) {
         });
       }
     );
-  }).pipe(publishReplay(1), refCount());
+  }).pipe(
+    publishReplay(1),
+    refCount()
+  );
 
   return container$;
 }

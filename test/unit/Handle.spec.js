@@ -3,7 +3,7 @@ chai.use(require("chai-generator"));
 const expect = chai.expect;
 
 var { Observable, Subject } = require("rxjs");
-var { pluck, take } = require("rxjs/operators");
+var { pluck, take, shareReplay } = require("rxjs/operators");
 const mockEngine = require("../util/mock-qix-engine.js");
 
 // RxQ
@@ -17,6 +17,7 @@ describe("Handle", function() {
   var config = {
     ws
   };
+
   var eng$ = connectSession(config);
 
   it("should have a handle number property", function(done) {
@@ -66,7 +67,7 @@ describe("Handle", function() {
   describe("ask method", function() {
     it("should return an Observable", function(done) {
       eng$.subscribe(h => {
-        var req = h.ask({});
+        var req = h.ask("t");
         expect(req).to.be.instanceof(Observable);
         done();
       });
@@ -100,7 +101,9 @@ describe("Handle", function() {
           done();
         });
 
-        var req = handle.ask("", ...methodParams).subscribe();
+        var req = handle
+          .ask("methodParamsTest - " + sesh.sessionId, ...methodParams)
+          .subscribe();
       });
     });
 
@@ -114,7 +117,7 @@ describe("Handle", function() {
           done();
         });
 
-        var req = handle.ask({}).subscribe();
+        var req = handle.ask("numericId - " + sesh.sessionId).subscribe();
       });
     });
 
@@ -129,7 +132,7 @@ describe("Handle", function() {
           done();
         });
 
-        var req = handle.ask("").subscribe();
+        var req = handle.ask("handleNumber - " + sesh.sessionId).subscribe();
       });
     });
   });

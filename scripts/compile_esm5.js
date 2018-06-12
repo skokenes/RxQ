@@ -26,7 +26,7 @@ function compileFromDir(srcFolder, tgtFolder) {
             path.join(srcFolder, file),
             {
               presets: [["es2015", { modules: false }]],
-              plugins: []
+              plugins: ["transform-object-rest-spread"]
             },
             function(err, result) {
               //if(err) return console.log(err);

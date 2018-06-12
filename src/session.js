@@ -6,10 +6,13 @@ import {
   from as $from,
   throwError as $throw,
   merge,
-  concat
+  concat,
+  combineLatest
 } from "rxjs";
 
 import {
+  groupBy,
+  partition,
   publishLast,
   refCount,
   map,
@@ -28,14 +31,19 @@ import {
   skip,
   switchMap,
   takeUntil,
-  ignoreElements
+  ignoreElements,
+  tap,
+  shareReplay,
+  scan,
+  mergeAll
 } from "rxjs/operators";
 
 import Handle from "./handle";
 import connectWS from "./util/connectWS";
+import { applyPatch } from "fast-json-patch";
 
 export default class Session {
-  constructor(config) {
+  constructor(config, opts) {
     const session = this;
 
     // delta mode
@@ -78,18 +86,34 @@ export default class Session {
     );
 
     // Requests
-    var requests$ = new Subject();
+    const requests$ = new Subject();
+
+    // try removing this after request-response mapping refactor
+    const requestsShared$ = requests$.pipe(shareReplay());
 
     // Hook in request pipeline
-    requests$
-      .pipe(
-        map(req => JSON.stringify(req)),
-        withLatestFrom(ws$)
-      )
-      .subscribe(([req, ws]) => ws.send(req));
+    requestsShared$.pipe(withLatestFrom(ws$)).subscribe(([req, ws]) => {
+      const request = {
+        id: req.id,
+        handle: req.handle,
+        method: req.method,
+        params: req.params
+      };
+
+      if (typeof config.delta === "object") {
+        const overrides = config.delta[req.qClass] || [];
+        if (overrides.indexOf(req.method) > -1) {
+          request.delta = true;
+        }
+      } else if (config.delta === true) {
+        request.delta = true;
+      }
+
+      ws.send(JSON.stringify(request));
+    });
 
     // Responses
-    var responses$ = ws$.pipe(
+    const responses$ = ws$.pipe(
       concatMap(ws =>
         Observable.create(observer => {
           ws.addEventListener("message", evt => {
@@ -109,6 +133,115 @@ export default class Session {
       publish(),
       refCount()
     );
+
+    const responsesWithRequest$ = requestsShared$.pipe(
+      // this prevents errors from going through the delta processing chain. is that appropriate?
+      filter(response => !response.hasOwnProperty("error")),
+      mergeMap(req =>
+        responses$.pipe(
+          filter(response => req.id === response.id),
+          take(1),
+          map(response => ({
+            request: req,
+            response: response
+          }))
+        )
+      )
+    );
+
+    const errorResponses$ = responses$.pipe(
+      filter(resp => resp.hasOwnProperty("error"))
+    );
+
+    const [directResponse$, deltaResponses$] = responsesWithRequest$.pipe(
+      filter(reqResp => !reqResp.response.hasOwnProperty("error")),
+      partition(reqResp => !reqResp.response.delta)
+    );
+
+    // delta response logic goes here
+    // groupBy handle + method, inner scan where delta logic is applied, merge all
+    const deltaResponsesCalculated$ = deltaResponses$.pipe(
+      groupBy(
+        reqResp => `${reqResp.request.handle} - ${reqResp.request.method}`
+      ),
+      mergeMap(grouped$ =>
+        grouped$.pipe(
+          scan(
+            (acc, reqResp) => {
+              const { response } = reqResp;
+              //console.log("delta mode", response.result);
+              //console.log("delta acc", acc.response.result);
+              const resultKeys = Object.keys(response.result);
+              return {
+                ...reqResp,
+                response: {
+                  ...reqResp.response,
+                  result: resultKeys.reduce((patchedResult, key) => {
+                    const currentPatches = response.result[key];
+                    // fix for enigma.js root path which is out of compliance with JSON-Pointer spec used by JSON-Patch spec
+                    // https://tools.ietf.org/html/rfc6902#page-3
+                    // https://tools.ietf.org/html/rfc6901#section-5
+                    const transformedPatches = currentPatches.map(
+                      patch =>
+                        patch.path === "/" ? { ...patch, path: "" } : patch
+                    );
+                    return {
+                      ...patchedResult,
+                      [key]: applyPatch(patchedResult[key], transformedPatches)
+                        .newDocument
+                    };
+                  }, acc.response.result)
+                }
+              };
+            },
+            {
+              response: {
+                result: {}
+              }
+            }
+          )
+        )
+      )
+    );
+
+    // merge in transformed responses here
+    const mappedResponses$ = merge(
+      directResponse$.pipe(map(reqResp => reqResp.response)),
+      deltaResponsesCalculated$.pipe(map(reqResp => reqResp.response))
+    ).pipe(
+      map(response => {
+        const result = response.result;
+        const resultKeys = Object.keys(result);
+        if (
+          result.hasOwnProperty("qReturn") &&
+          result.qReturn.hasOwnProperty("qHandle")
+        ) {
+          return {
+            id: response.id,
+            result: new Handle(
+              this,
+              result.qReturn.qHandle,
+              result.qReturn.qType
+            )
+          };
+        } else if (resultKeys.length === 1) {
+          return {
+            id: response.id,
+            result: result[resultKeys[0]]
+          };
+        } else {
+          return response;
+        }
+      })
+    );
+
+    // Publish response stream
+    const finalResponse$ = merge(mappedResponses$, errorResponses$).pipe(
+      publish()
+    );
+
+    // connect it
+    finalResponse$.connect();
 
     // Changes
     const changesIn$ = responses$.pipe(
@@ -182,25 +315,30 @@ export default class Session {
       ws$,
       requests$,
       responses$,
+      finalResponse$,
       changes$,
       suspended$,
-      notification$
+      notification$,
+      delta
     });
   }
 
   ask(action) {
     const requestId = this.seqGen.next().value;
 
-    const baseRequest = {
+    const request = {
       id: requestId,
-      jsonrpc: "2.0"
+      jsonrpc: "2.0",
+      handle: action.handle,
+      method: action.method,
+      params: action.params,
+      qClass: action.qClass
     };
-
-    const request = Object.assign(baseRequest, action);
 
     this.requests$.next(request);
 
-    return this.responses$.pipe(
+    //return this.responses$.pipe(
+    return this.finalResponse$.pipe(
       filter(r => r.id === requestId),
       mergeMap(m => {
         if (m.hasOwnProperty("error")) {
@@ -225,7 +363,8 @@ export default class Session {
         this.ask({
           handle: -1,
           method: "GetUniqueID",
-          params: []
+          params: [],
+          qClass: "Global"
         })
       ),
       mapTo(globalHandle),

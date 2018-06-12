@@ -21,18 +21,20 @@ function compileFromDir(srcFolder, tgtFolder) {
   fs.readdir(srcFolder, function(err, files) {
     files.forEach(function(file) {
       fs.lstat(path.join(srcFolder, file), function(err, stats) {
-        if (stats.isFile() && file.slice(-3) === ".js") {
+        if (stats.isFile() && file.match(/.js$/g) !== null) {
           babel.transformFile(
             path.join(srcFolder, file),
             {
               presets: ["es2015"],
               plugins: [
+                "transform-object-rest-spread",
                 "add-module-exports",
                 "transform-es2015-modules-commonjs",
                 "transform-runtime"
               ]
             },
             function(err, result) {
+              if (err) return console.log(err);
               fs.writeFile(path.join(tgtFolder, file), result.code, function(
                 err
               ) {
