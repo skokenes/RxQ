@@ -29,7 +29,7 @@ var eng$ = container$.pipe(
       port: port,
       isSecure: false,
       delta: true
-    });
+    }).global$;
   }),
   shareReplay(1)
 );
@@ -43,7 +43,7 @@ const sessionSelectiveDelta$ = container$.pipe(
       delta: {
         Global: ["IsDesktopMode"]
       }
-    });
+    }).global$;
   }),
   shareReplay(1)
 );
@@ -58,8 +58,8 @@ function testDelta() {
     describe("Global Delta", function() {
       const ev$ = eng$.pipe(switchMap(handle => handle.ask(EngineVersion)));
 
-      const notification$ = eng$.pipe(
-        switchMap(handle => handle.notification$)
+      const notifications$ = eng$.pipe(
+        switchMap(handle => handle.notifications$)
       );
 
       describe("Engine Version", function() {
@@ -71,7 +71,7 @@ function testDelta() {
         });
 
         it("should return the object when called a second time after receiving an empty patch from the engine", done => {
-          const receivedPatch$ = notification$.pipe(
+          const receivedPatch$ = notifications$.pipe(
             filter(notification => notification.type === "traffic:received"),
             map(notification => notification.data.result.qVersion),
             take(1)
@@ -143,7 +143,7 @@ function testDelta() {
 
     describe("Selective Delta", function() {
       const selectiveNotifications$ = sessionSelectiveDelta$.pipe(
-        switchMap(handle => handle.notification$),
+        switchMap(handle => handle.notifications$),
         filter(f => f.type === "traffic:received")
       );
 

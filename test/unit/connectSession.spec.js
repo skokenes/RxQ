@@ -18,21 +18,43 @@ describe("connectSession", function() {
   var config = {
     ws
   };
-  var eng$ = connectSession(config);
+
+  const session = connectSession(config);
+  var eng$ = session.global$;
 
   it("should be a function", function() {
     expect(connectSession).to.be.a("function");
-  });
-
-  it("should return an Observable", function() {
-    expect(eng$).to.be.instanceof(Observable);
   });
 
   it("should be accessible from the legacy entry point", () => {
     expect(connectSession).to.equal(connectSessionLegacy);
   });
 
-  describe("connectSession response", function() {
+  it("should return an object", function() {
+    expect(session).to.be.an("object");
+  });
+
+  describe("notifications$", function() {
+    const notifications$ = session.notifications$;
+
+    it("should be an Observable", function() {
+      expect(notifications$).to.be.instanceof(Observable);
+    });
+  });
+
+  describe("close", function() {
+    const close = session.close;
+
+    it("should be a function", function() {
+      expect(close).to.be.a("function");
+    });
+  });
+
+  describe("global$", function() {
+    it("should be an Observable", function() {
+      expect(eng$).to.be.instanceof(Observable);
+    });
+
     it("should return a Handle", function(done) {
       eng$.subscribe(h => {
         expect(h).to.be.instanceof(Handle);

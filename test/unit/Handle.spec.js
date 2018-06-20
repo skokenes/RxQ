@@ -18,7 +18,9 @@ describe("Handle", function() {
     ws
   };
 
-  var eng$ = connectSession(config);
+  const session = connectSession(config);
+  const notifications$ = session.notifications$;
+  var eng$ = session.global$;
 
   it("should have a handle number property", function(done) {
     eng$.subscribe(h => {
@@ -52,15 +54,6 @@ describe("Handle", function() {
     eng$.subscribe(h => {
       expect(h.ask).to.be.a("function");
       done();
-    });
-  });
-
-  describe("Global Handle", function() {
-    it("should have a notification$ Observable", function(done) {
-      eng$.subscribe(h => {
-        expect(h.notification$).to.be.instanceof(Observable);
-        done();
-      });
     });
   });
 

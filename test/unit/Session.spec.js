@@ -17,7 +17,9 @@ describe("Session", function() {
   var config = {
     ws
   };
-  var eng$ = connectSession(config);
+
+  const session = connectSession(config);
+  var eng$ = session.global$;
 
   var sesh$ = eng$.pipe(pluck("session"));
 

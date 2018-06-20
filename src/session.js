@@ -272,7 +272,7 @@ export default class Session {
     const changes$ = changesIn$.pipe(bufferInvalids(suspended$));
 
     // Session Notifications
-    const notification$ = merge(
+    const notifications$ = merge(
       requests$.pipe(
         map(req => ({
           type: "traffic:sent",
@@ -318,7 +318,7 @@ export default class Session {
       finalResponse$,
       changes$,
       suspended$,
-      notification$,
+      notifications$,
       delta
     });
   }
@@ -355,7 +355,7 @@ export default class Session {
 
   global() {
     const globalHandle = new Handle(this, -1, "Global");
-    globalHandle.notification$ = this.notification$;
+    globalHandle.notifications$ = this.notifications$;
 
     // ask for a sample call to test that we are authenticated properly, then either pass global or pass the error
     return this.ws$.pipe(
@@ -405,7 +405,7 @@ function bufferInvalids(status$) {
 
 /*
 
-session.notification$
+session.notifications$
 - socket
   - open
   - close

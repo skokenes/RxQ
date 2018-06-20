@@ -35,7 +35,7 @@ var eng$ = container$.pipe(
       host: "localhost",
       port: port,
       isSecure: false
-    });
+    }).global$;
   }),
   publishReplay(1),
   refCount()
@@ -47,8 +47,8 @@ const app$ = eng$.pipe(
   refCount()
 );
 
-const notification$ = eng$.pipe(
-  switchMap(h => h.notification$),
+const notifications$ = eng$.pipe(
+  switchMap(h => h.notifications$),
   publishReplay(1),
   refCount()
 );
@@ -68,7 +68,7 @@ function testNotification() {
             host: "localhost",
             port: port,
             isSecure: false
-          });
+          }).global$;
         }),
         publishReplay(1),
         refCount()
@@ -77,7 +77,7 @@ function testNotification() {
       // after app opened, start listening on notifications
       eng$
         .pipe(
-          switchMap(h => h.notification$),
+          switchMap(h => h.notifications$),
           filter(f => f.type === "traffic:sent"),
           take(1)
         )
@@ -103,14 +103,14 @@ function testNotification() {
             host: "localhost",
             port: port,
             isSecure: false
-          });
+          }).global$;
         }),
         publishReplay(1),
         refCount()
       );
 
       const msgId$ = eng$.pipe(
-        switchMap(h => h.notification$),
+        switchMap(h => h.notifications$),
         filter(
           f => (f.type === "traffic:sent") & (f.data.method === "EngineVersion")
         ),
@@ -119,7 +119,7 @@ function testNotification() {
 
       eng$
         .pipe(
-          switchMap(h => h.notification$),
+          switchMap(h => h.notifications$),
           filter(f => f.type === "traffic:received"),
           withLatestFrom(msgId$),
           take(1)
@@ -139,7 +139,7 @@ function testNotification() {
     });
 
     it("should emit the suspended status", function(done) {
-      notification$
+      notifications$
         .pipe(
           filter(f => f.type === "traffic:suspend-status"),
           map(f => f.data),
@@ -173,7 +173,7 @@ function testNotification() {
 
       const appHandle$ = app$.pipe(map(h => h.handle));
 
-      notification$
+      notifications$
         .pipe(
           filter(f => f.type === "traffic:change"),
           withLatestFrom(appHandle$)
@@ -194,7 +194,7 @@ function testNotification() {
             host: "localhost",
             port: port,
             isSecure: false
-          });
+          }).global$;
         }),
         publishReplay(1),
         refCount()
@@ -204,7 +204,7 @@ function testNotification() {
 
       eng$
         .pipe(
-          switchMap(h => h.notification$),
+          switchMap(h => h.notifications$),
           filter(f => f.type === "socket:close"),
           map(m => m.data),
           take(1)

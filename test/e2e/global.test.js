@@ -20,7 +20,7 @@ var eng$ = container$.pipe(
       host: "localhost",
       port: port,
       isSecure: false
-    });
+    }).global$;
   }),
   publishReplay(1),
   refCount()
