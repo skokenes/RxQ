@@ -60,18 +60,6 @@ schema$.subscribe(schema => {
     };
   }, {});
 
-  // write schema to src folder
-  const schemaFolder = path.join(__dirname, "../src/schema");
-  fs.emptydirSync(schemaFolder);
-  fs.writeFile(
-    path.join(schemaFolder, "schema.js"),
-    `export default ${JSON.stringify(schemaOutput, null, 2)}`
-  );
-  fs.writeFile(
-    path.join(schemaFolder, "schema.json"),
-    JSON.stringify(schema, null, 2)
-  );
-
   var qClasses = Object.keys(schema.services);
 
   var classImports = [];
