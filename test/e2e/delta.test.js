@@ -22,20 +22,22 @@ var { port, image } = require("./config.json");
 // launch a new container
 var container$ = createContainer(image, port);
 
-var eng$ = container$.pipe(
-  switchMap(() => {
+const session$ = container$.pipe(
+  map(() => {
     return connectSession({
       host: "localhost",
       port: port,
       isSecure: false,
       delta: true
-    }).global$;
+    });
   }),
   shareReplay(1)
 );
 
+const eng$ = session$.pipe(switchMap(session => session.global$));
+
 const sessionSelectiveDelta$ = container$.pipe(
-  switchMap(() => {
+  map(() => {
     return connectSession({
       host: "localhost",
       port: port,
@@ -43,9 +45,13 @@ const sessionSelectiveDelta$ = container$.pipe(
       delta: {
         Global: ["IsDesktopMode"]
       }
-    }).global$;
+    });
   }),
   shareReplay(1)
+);
+
+const engSelectiveDelta$ = sessionSelectiveDelta$.pipe(
+  switchMap(session => session.global$)
 );
 
 function testDelta() {
@@ -58,8 +64,8 @@ function testDelta() {
     describe("Global Delta", function() {
       const ev$ = eng$.pipe(switchMap(handle => handle.ask(EngineVersion)));
 
-      const notifications$ = eng$.pipe(
-        switchMap(handle => handle.notifications$)
+      const notifications$ = session$.pipe(
+        switchMap(session => session.notifications$)
       );
 
       describe("Engine Version", function() {
@@ -143,12 +149,12 @@ function testDelta() {
 
     describe("Selective Delta", function() {
       const selectiveNotifications$ = sessionSelectiveDelta$.pipe(
-        switchMap(handle => handle.notifications$),
+        switchMap(session => session.notifications$),
         filter(f => f.type === "traffic:received")
       );
 
       it("should not use delta for EngineVersion", done => {
-        const ev$ = sessionSelectiveDelta$.pipe(
+        const ev$ = engSelectiveDelta$.pipe(
           switchMap(handle => handle.ask(EngineVersion))
         );
 
@@ -164,7 +170,7 @@ function testDelta() {
       });
 
       it("should use delta for IsDesktopMode", done => {
-        const isDesktop$ = sessionSelectiveDelta$.pipe(
+        const isDesktop$ = engSelectiveDelta$.pipe(
           switchMap(handle => handle.ask(IsDesktopMode))
         );
 

@@ -15,7 +15,8 @@ var {
   takeUntil,
   withLatestFrom,
   filter,
-  reduce
+  reduce,
+  skip
 } = require("rxjs/operators");
 var { Subject } = require("rxjs");
 
@@ -29,17 +30,19 @@ var { port, image } = require("./config.json");
 // launch a new container
 var container$ = createContainer(image, port);
 
-var eng$ = container$.pipe(
-  switchMap(() => {
-    return connectSession({
+var session$ = container$.pipe(
+  map(() =>
+    connectSession({
       host: "localhost",
       port: port,
       isSecure: false
-    }).global$;
-  }),
+    })
+  ),
   publishReplay(1),
   refCount()
 );
+
+const eng$ = session$.pipe(switchMap(session => session.global$));
 
 const app$ = eng$.pipe(
   switchMap(handle => handle.ask(OpenDoc, "iris.qvf")),
@@ -47,10 +50,8 @@ const app$ = eng$.pipe(
   refCount()
 );
 
-const notifications$ = eng$.pipe(
-  switchMap(h => h.notifications$),
-  publishReplay(1),
-  refCount()
+const notifications$ = session$.pipe(
+  switchMap(session => session.notifications$)
 );
 
 function testNotification() {
@@ -62,23 +63,26 @@ function testNotification() {
 
     it("should emit any traffic sent", function(done) {
       this.timeout(10000);
-      const eng$ = container$.pipe(
-        switchMap(() => {
+      const session$ = container$.pipe(
+        map(() => {
           return connectSession({
             host: "localhost",
             port: port,
             isSecure: false
-          }).global$;
+          });
         }),
         publishReplay(1),
         refCount()
       );
 
+      const eng$ = session$.pipe(switchMap(session => session.global$));
+
       // after app opened, start listening on notifications
-      eng$
+      session$
         .pipe(
-          switchMap(h => h.notifications$),
+          switchMap(session => session.notifications$),
           filter(f => f.type === "traffic:sent"),
+          skip(1), // skip the opening message
           take(1)
         )
         .subscribe(req => {
@@ -97,29 +101,32 @@ function testNotification() {
 
     it("should emit any traffic received", function(done) {
       this.timeout(10000);
-      const eng$ = container$.pipe(
-        switchMap(() => {
+      const session$ = container$.pipe(
+        map(() => {
           return connectSession({
             host: "localhost",
             port: port,
             isSecure: false
-          }).global$;
+          });
         }),
         publishReplay(1),
         refCount()
       );
 
-      const msgId$ = eng$.pipe(
-        switchMap(h => h.notifications$),
+      const eng$ = session$.pipe(switchMap(session => session.global$));
+      const notifications$ = session$.pipe(
+        switchMap(session => session.notifications$)
+      );
+
+      const msgId$ = notifications$.pipe(
         filter(
           f => (f.type === "traffic:sent") & (f.data.method === "EngineVersion")
         ),
         map(req => req.data.id)
       );
 
-      eng$
+      notifications$
         .pipe(
-          switchMap(h => h.notifications$),
           filter(f => f.type === "traffic:received"),
           withLatestFrom(msgId$),
           take(1)
@@ -188,23 +195,27 @@ function testNotification() {
     });
 
     it("should emit a close event when the session socket closes", function(done) {
-      const eng$ = container$.pipe(
-        switchMap(() => {
+      const session$ = container$.pipe(
+        map(() => {
           return connectSession({
             host: "localhost",
             port: port,
             isSecure: false
-          }).global$;
+          });
         }),
         publishReplay(1),
         refCount()
       );
 
+      const eng$ = session$.pipe(switchMap(session => session.global$));
+      const notifications$ = session$.pipe(
+        switchMap(session => session.notifications$)
+      );
+
       const ws$ = eng$.pipe(switchMap(h => h.session.ws$));
 
-      eng$
+      notifications$
         .pipe(
-          switchMap(h => h.notifications$),
           filter(f => f.type === "socket:close"),
           map(m => m.data),
           take(1)
