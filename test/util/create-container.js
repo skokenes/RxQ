@@ -43,7 +43,10 @@ function createContainer(image, port) {
         });
       }
     );
-  }).pipe(publishReplay(1), refCount());
+  }).pipe(
+    publishReplay(1),
+    refCount()
+  );
 
   return container$;
 }

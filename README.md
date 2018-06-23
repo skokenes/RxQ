@@ -16,7 +16,7 @@ Documentation for RxQ is hosted on [http://opensrc.axisgroup.com/rxq/docs](http:
 Want to play with it immediately? [Try forking this sandbox.](https://codesandbox.io/embed/o155xl98y)
 
 ## Qlik Support
-As of v1.0.0, the following APIs are supported:
+As of v1.0.2, the following APIs are supported:
 - Engine API for QS 12.34.11
 
 Custom builds for other versions of the QS Engine can be generated using the included build scripts. See the build section.
