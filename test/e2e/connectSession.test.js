@@ -3,7 +3,7 @@ chai.use(require("chai-generator"));
 const expect = chai.expect;
 
 var createContainer = require("../util/create-container");
-var { publishReplay, refCount, switchMap } = require("rxjs/operators");
+var { publishReplay, refCount, switchMap, map } = require("rxjs/operators");
 var { connectSession } = require("../../dist");
 var Handle = require("../../dist/_cjs/handle");
 
@@ -12,16 +12,21 @@ var { port, image } = require("./config.json");
 // launch a new container
 var container$ = createContainer(image, port);
 
-var eng$ = container$.pipe(
-  switchMap(() => {
+var session$ = container$.pipe(
+  map(() => {
     return connectSession({
       host: "localhost",
       port: port,
       isSecure: false
-    }).global$;
+    });
   }),
   publishReplay(1),
   refCount()
+);
+
+const eng$ = session$.pipe(switchMap(session => session.global$));
+const notifications$ = session$.pipe(
+  switchMap(session => session.notifications$)
 );
 
 function testConnect() {

@@ -7,6 +7,6 @@ export default function connectSession(config, opts) {
   return {
     global$: session.global(),
     notifications$: session.notifications$,
-    close: () => {}
+    close: () => session.close()
   };
 }

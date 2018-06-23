@@ -43,8 +43,11 @@ import connectWS from "./util/connectWS";
 import { applyPatch } from "fast-json-patch";
 
 export default class Session {
-  constructor(config, opts) {
+  constructor(config) {
     const session = this;
+
+    // closed signal
+    this.closed$ = new Subject();
 
     // delta mode
     const delta = config.delta || false;
@@ -73,6 +76,13 @@ export default class Session {
       refCount()
     );
 
+    this.closed$
+      .pipe(
+        withLatestFrom(ws$),
+        take(1)
+      )
+      .subscribe(([close, ws]) => ws.close());
+
     // WebSocket close
     const wsClose$ = ws$.pipe(
       switchMap(ws =>
@@ -82,14 +92,21 @@ export default class Session {
             observer.complete();
           });
         })
-      )
+      ),
+      tap(() => {
+        // disconnect the requests stream
+        requests$.complete();
+      })
     );
 
     // Requests
     const requests$ = new Subject();
 
     // try removing this after request-response mapping refactor
-    const requestsShared$ = requests$.pipe(shareReplay());
+    const requestsShared$ = requests$.pipe(
+      takeUntil(wsClose$),
+      shareReplay()
+    );
 
     // Hook in request pipeline
     requestsShared$.pipe(withLatestFrom(ws$)).subscribe(([req, ws]) => {
@@ -241,7 +258,7 @@ export default class Session {
     );
 
     // connect it
-    finalResponse$.connect();
+    const finalResponseSub = finalResponse$.connect();
 
     // Changes
     const changesIn$ = responses$.pipe(
@@ -371,6 +388,10 @@ export default class Session {
       publishLast(),
       refCount()
     );
+  }
+
+  close() {
+    this.closed$.next(null);
   }
 }
 

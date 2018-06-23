@@ -11,15 +11,17 @@ const testGenericBookmark = require("./genericBookmark.test.js");
 const testSuspend = require("./suspend.test.js");
 const testNotification = require("./notification.test.js");
 const testDelta = require("./delta.test.js");
+const testClose = require("./closeSession.test.js");
 
 describe("Engine E2E test", function() {
-  testConnect();
-  testGlobal();
-  testDoc();
-  testGenericObject();
-  testField();
-  testGenericBookmark();
-  testSuspend();
-  testNotification();
-  testDelta();
+  // testConnect();
+  // testGlobal();
+  // testDoc();
+  // testGenericObject();
+  // testField();
+  // testGenericBookmark();
+  // testSuspend();
+  // testNotification();
+  // testDelta();
+  testClose();
 });
