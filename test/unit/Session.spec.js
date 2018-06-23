@@ -57,7 +57,7 @@ describe("Session", function() {
 
   it("should have a response Observable", function(done) {
     sesh$.subscribe(sesh => {
-      expect(sesh.responses$).to.be.instanceof(Observable);
+      expect(sesh.finalResponse$).to.be.instanceof(Observable);
       done();
     });
   });

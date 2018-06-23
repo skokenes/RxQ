@@ -3,11 +3,9 @@ import {
   Subject,
   BehaviorSubject,
   of as $of,
-  from as $from,
   throwError as $throw,
   merge,
-  concat,
-  combineLatest
+  concat
 } from "rxjs";
 
 import {
@@ -18,7 +16,6 @@ import {
   map,
   withLatestFrom,
   publish,
-  publishReplay,
   filter,
   mergeMap,
   concatMap,
@@ -27,15 +24,13 @@ import {
   distinctUntilChanged,
   bufferToggle,
   pluck,
-  startWith,
   skip,
   switchMap,
   takeUntil,
   ignoreElements,
   tap,
   shareReplay,
-  scan,
-  mergeAll
+  scan
 } from "rxjs/operators";
 
 import Handle from "./handle";
@@ -76,6 +71,7 @@ export default class Session {
       refCount()
     );
 
+    // On close signal, execute side effect to close the websocket
     this.closed$
       .pipe(
         withLatestFrom(ws$),
@@ -83,7 +79,7 @@ export default class Session {
       )
       .subscribe(([close, ws]) => ws.close());
 
-    // WebSocket close
+    // WebSocket close events
     const wsClose$ = ws$.pipe(
       switchMap(ws =>
         Observable.create(observer => {
@@ -93,41 +89,44 @@ export default class Session {
           });
         })
       ),
+      // Side effects when websocket gets closed
       tap(() => {
-        // disconnect the requests stream
+        // complete the requests stream
         requests$.complete();
+        // complete the suspended stream
+        suspended$.complete();
       })
     );
 
     // Requests
     const requests$ = new Subject();
 
-    // try removing this after request-response mapping refactor
-    const requestsShared$ = requests$.pipe(
-      takeUntil(wsClose$),
-      shareReplay()
-    );
-
     // Hook in request pipeline
-    requestsShared$.pipe(withLatestFrom(ws$)).subscribe(([req, ws]) => {
-      const request = {
-        id: req.id,
-        handle: req.handle,
-        method: req.method,
-        params: req.params
-      };
+    requests$
+      .pipe(
+        withLatestFrom(ws$),
+        takeUntil(wsClose$)
+      )
+      .subscribe(([req, ws]) => {
+        const request = {
+          id: req.id,
+          handle: req.handle,
+          method: req.method,
+          params: req.params
+        };
 
-      if (typeof config.delta === "object") {
-        const overrides = config.delta[req.qClass] || [];
-        if (overrides.indexOf(req.method) > -1) {
+        // Set delta if necessary
+        if (typeof config.delta === "object") {
+          const overrides = config.delta[req.qClass] || [];
+          if (overrides.indexOf(req.method) > -1) {
+            request.delta = true;
+          }
+        } else if (config.delta === true) {
           request.delta = true;
         }
-      } else if (config.delta === true) {
-        request.delta = true;
-      }
 
-      ws.send(JSON.stringify(request));
-    });
+        ws.send(JSON.stringify(request));
+      });
 
     // Responses
     const responses$ = ws$.pipe(
@@ -151,7 +150,8 @@ export default class Session {
       refCount()
     );
 
-    const responsesWithRequest$ = requestsShared$.pipe(
+    // Link responses with requests
+    const responsesWithRequest$ = requests$.pipe(
       // this prevents errors from going through the delta processing chain. is that appropriate?
       filter(response => !response.hasOwnProperty("error")),
       mergeMap(req =>
@@ -166,17 +166,18 @@ export default class Session {
       )
     );
 
+    // Responses with errors
     const errorResponses$ = responses$.pipe(
       filter(resp => resp.hasOwnProperty("error"))
     );
 
+    // Split direct responses from delta responses
     const [directResponse$, deltaResponses$] = responsesWithRequest$.pipe(
       filter(reqResp => !reqResp.response.hasOwnProperty("error")),
       partition(reqResp => !reqResp.response.delta)
     );
 
-    // delta response logic goes here
-    // groupBy handle + method, inner scan where delta logic is applied, merge all
+    // Apply JSON Patching to delta responses
     const deltaResponsesCalculated$ = deltaResponses$.pipe(
       groupBy(
         reqResp => `${reqResp.request.handle} - ${reqResp.request.method}`
@@ -186,8 +187,6 @@ export default class Session {
           scan(
             (acc, reqResp) => {
               const { response } = reqResp;
-              //console.log("delta mode", response.result);
-              //console.log("delta acc", acc.response.result);
               const resultKeys = Object.keys(response.result);
               return {
                 ...reqResp,
@@ -221,7 +220,7 @@ export default class Session {
       )
     );
 
-    // merge in transformed responses here
+    // Merge the direct and delta responses back together and parse them
     const mappedResponses$ = merge(
       directResponse$.pipe(map(reqResp => reqResp.response)),
       deltaResponsesCalculated$.pipe(map(reqResp => reqResp.response))
@@ -257,7 +256,7 @@ export default class Session {
       publish()
     );
 
-    // connect it
+    // Connect the response stream
     const finalResponseSub = finalResponse$.connect();
 
     // Changes
@@ -266,26 +265,7 @@ export default class Session {
       pluck("change")
     );
 
-    const bufferOpen$ = suspended$.pipe(
-      distinctUntilChanged(),
-      filter(f => f)
-    );
-
-    const bufferClose$ = suspended$.pipe(
-      distinctUntilChanged(),
-      filter(f => !f),
-      skip(1)
-    );
-
-    const bufferedChanges$ = changesIn$.pipe(
-      bufferToggle(bufferOpen$, () => bufferClose$),
-      map(arr =>
-        arr.reduce((prev, cur) => {
-          return prev.concat(cur);
-        }, [])
-      )
-    );
-
+    // Buffer changes during suspends
     const changes$ = changesIn$.pipe(bufferInvalids(suspended$));
 
     // Session Notifications
@@ -331,7 +311,6 @@ export default class Session {
     Object.assign(this, {
       ws$,
       requests$,
-      responses$,
       finalResponse$,
       changes$,
       suspended$,
@@ -354,7 +333,6 @@ export default class Session {
 
     this.requests$.next(request);
 
-    //return this.responses$.pipe(
     return this.finalResponse$.pipe(
       filter(r => r.id === requestId),
       mergeMap(m => {
@@ -366,13 +344,11 @@ export default class Session {
       }),
       map(m => m.result),
       take(1)
-      // this may need publish replay? currently passing tests...
     );
   }
 
   global() {
     const globalHandle = new Handle(this, -1, "Global");
-    globalHandle.notifications$ = this.notifications$;
 
     // ask for a sample call to test that we are authenticated properly, then either pass global or pass the error
     return this.ws$.pipe(
@@ -423,20 +399,3 @@ function bufferInvalids(status$) {
     return merge(directStream$, bufferStream$);
   };
 }
-
-/*
-
-session.notifications$
-- socket
-  - open
-  - close
-- suspended (why would this be on socket? should be session level)
-- traffic
-  - sent
-  - received
-  - errors
-  - changes
-  - suspend status
-
-
-*/
