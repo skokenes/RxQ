@@ -1,14 +1,16 @@
 # Making API Calls
-As discussed in [Core Concepts](../introduction/core-concepts.md), RxQ provides functions that ingest a Qlik Handle and necessary parameters, and then return an Observable for the response.
+As discussed in [Core Concepts](../introduction/core-concepts.md), RxQ provides Handle instances that have an `ask` method for executing an API call and then return an Observable for the response.
 
-These functions are organized in RxQ based on Qlik class. Let's use the `EngineVersion` method from Qlik's Global class as an example. We can import this from RxQ like so:
+Any API method name can be entered via a string. However, the Qlik Engine API is vast so RxQ provides exports of method name enums for each Qlik class.
+
+Let's use the `EngineVersion` method from Qlik's Global class as an example. We can import the `EngineVersion` enum from RxQ like so:
 ```javascript
-import { engineVersion } from "rxq/Global";
+import { EngineVersion } from "rxq/Global";
 ```
 
-To use it, we just call it against a Global Handle for a session. Then, we can subscribe to get the engine version back:
+To use it, we call a Global Handle's ask method with it. Then, we can subscribe to get the engine version back:
 ```javascript
-const version$ = engineVersion(globalHandle);
+const version$ = globalHandle.ask(EngineVersion);
 
 version$.subscribe((version) => {
     console.log(version);
@@ -32,18 +34,20 @@ RxJS makes handling these higher order observables easy using operators like [me
 When using `connectSession`, the resulting Observable provides the Global Handle for the established session. By combining this Observable with the `switchMap` operator, we can get our engine version like so:
 
 ```javascript
-import { connectSession } from "rxq/connect";
-import { engineVersion } from "rxq/Global";
+import { connectSession } from "rxq";
+import { EngineVersion } from "rxq/Global";
 import { switchMap } from "rxjs/operators";
 
-const sesh$ = connectSession({
+const session = connectSession({
     host: "localhost",
     port: 4848,
     isSecure: false
 });
 
-const version$ = sesh$.pipe(
-    switchMap(h => engineVersion(h))
+const global$ = session.global$;
+
+const version$ = global$.pipe(
+    switchMap(handle => handle.ask(EngineVersion))
 );
 
 version$.subscribe(version => {

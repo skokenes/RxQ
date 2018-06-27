@@ -4,9 +4,9 @@
 $ npm install rxq
 ```
 
-*Note that **RxJS ^5.5.0** is a peer dependency of **RxQ**; It will not be automatically installed when you install RxQ. If you do not already have **RxJS ^5.5.0** installed to your project, be sure to include it by running:*
+*Note that **RxJS ^6.2.0** is a peer dependency of **RxQ**; It will not be automatically installed when you install RxQ. If you do not already have **RxJS ^6.2.0** installed to your project, be sure to include it by running:*
 ```
-$ npm install rxjs@^5.5.0
+$ npm install rxjs
 ```
 
 ## Usage and Documentation
@@ -16,14 +16,14 @@ Documentation for RxQ is hosted on [http://opensrc.axisgroup.com/rxq/docs](http:
 Want to play with it immediately? [Try forking this sandbox.](https://codesandbox.io/embed/o155xl98y)
 
 ## Qlik Support
-As of v1.0.2, the following APIs are supported:
-- Engine API for QS 12.34.11
+As of v2.0.0, the following APIs are supported:
+- Engine 12.181.0
 
-Custom builds for other versions of the QS Engine can be generated using the included build scripts. See the build section.
+Custom builds for other versions of the Qlik Associative Engine can be generated using the included build scripts. See the build section.
 
 
 ## Building RxQ
-RxQ has several auto-generated components that build the source code and compile it into the distributed package for NPM. The steps are:
+RxQ has several auto-generated components that build the source code and compile it into the distributed package for NPM. It leverages Qlik Engine v12.181.0 to generate method names. The steps are:
 1) Getting the correct QIX Engine schemas and generating operators for all API methods for the desired engine version
 2) Converting all source code into distribution modules and move them to the distribution folder
 3) Creating the package.json files for the distribution folder
@@ -31,10 +31,14 @@ RxQ has several auto-generated components that build the source code and compile
 Each of these steps can be triggered using npm scripts in the repository:
 
 ### Step 1: Getting Engine schemas and generating operators
-`npm run build-qix-methods` will pull the QIX schema from the `enigma.js` node module and generate the appropriate operators for each class. The engine schema version to use is specified in `package.json` as the property `qix-version`.
+`npm run build-qix-methods` uses Qlik Core to spin up an Engine and pull the API schema that will be used to generate enums for all of the API methods.
 
 ### Step 2: Converting all source code into distribution modules
 `npm run compile-cjs` compiles the CommonJS modules.
+
+`npm run compile-esm5` compiles the ESM5 modules.
+
+`npm run compile-esm` compiles the ESM modules.
 
 `npm run build` compiles the browser bundle.
 

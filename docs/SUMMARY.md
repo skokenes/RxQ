@@ -1,5 +1,5 @@
 # Table of Contents
-* [RxQ](README.md)
+* [RxQ v2.0.0](README.md)
 * [Introduction]()
   * [Why Rx?](/introduction/why-rx.md)
   * [RxQ vs. Enigma](introduction/rxq-vs-enigma.md)
@@ -10,6 +10,10 @@
   * [Reusing Handles](basics/reusing-handles.md)
   * [Handle Invalidations](basics/handle-invalidations.md)
   * [Suspending Invalidations](basics/suspending-invalidations.md)
+  * [Closing a Session](basics/closing-a-session.md)
+  * [Notifications](basics/notifications.md)
+  * [Delta Mode](basics/delta.md)
+  * [Shortcut Operators](basics/shortcut-operators.md)
 * [Recipes]()
   * [01. Connect to an Engine](/recipes/connect.md)
   * [02. Get the Engine Version](/recipes/engine-version.md)

@@ -14,13 +14,13 @@ When making an API call to the Engine, the call must tell the Engine what method
 For a more guided and in-depth review of these concepts, try this [Engine Tutorial](http://playground.qlik.com/learn/engine-tutorial/101.%20What%20is%20QIX%20and%20Why%20Should%20You%20Care.html).
 
 ## Using RxQ to Make API Calls
-Most RxQ functions create Observables for API calls by taking in a Handle to make the call against, and then any parameters that are needed for the call. [Let's use the "EngineVersion" method Qlik's "Global" class as an example.](http://help.qlik.com/en-US/sense-developer/November2017/Subsystems/EngineAPI/Content/Classes/GlobalClass/Global-class-EngineVersion-method.htm)
+In RxQ, Handles are provided with an `ask` method that will accept a method name and parameters and execute an API call to the Engine. An Observable is returned that will provide the response and complete. Method names are provided as strings; for convenience, the list of possible methods in the Engine API schema are provided as enums. [Let's use the "EngineVersion" method of Qlik's "Global" class as an example.](http://help.qlik.com/en-US/sense-developer/November2017/Subsystems/EngineAPI/Content/Classes/GlobalClass/Global-class-EngineVersion-method.htm)
 
-To make this call in RxQ, we can import the `engineVersion` function from RxQ and call it with a Global Handle. This function takes no parameters, so we don't need any other inputs for it. This call will return an Observable that can make the API call and return the response. We can subscribe to this Observable to execute it and get the response.
+To make this call in RxQ, we can import the `EngineVersion` enum from RxQ and use it with a Global Handle's `ask` method. The `EngineVersion` method takes no parameters, so we don't need any other inputs. This call will return an Observable that can make the API call and return the response. We can subscribe to this Observable to execute it and get the response.
 ```javascript
-import { engineVersion } from "rxq/Global";
+import { EngineVersion } from "rxq/Global";
 
-const version$ = engineVersion(myGlobalHandle);
+const version$ = myGlobalHandle.ask(EngineVersion);
 
 version$.subscribe((version) => {
     console.log(`The version of the Engine is ${version}`);
@@ -29,7 +29,7 @@ version$.subscribe((version) => {
 
 If a method takes parameters, we just add them as arguments to our function call. For example, to open a document called "Sales.qvf", we would write:
 ```javascript
-const app$ = openDoc(myGlobalHandle, "Sales.qvf");
+const app$ = myGlobalHandle.ask(OpenDoc, "Sales.qvf");
 ```
 
 **This is essentially the core of RxQ: run a function that creates an Observable for a Qlik Engine API call response.**

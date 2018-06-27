@@ -6,14 +6,14 @@ QAE categorizes Handles into two states: valid and invalid. A valid Handle is on
 Whenever an operation occurs that causes a Handle to go from valid to invalid, the Engine notifies us via the WebSocket connection so that we can respond if needed. A really common use case for this is getting data from a GenericObject. Let's say we have the following stream that gives us data from QAE:
 
 ```javascript
-import { createSessionObject } from "rxq/Doc";
-import { getLayout } from "rxq/GenericObject";
+import { CreateSessionObject } from "rxq/Doc";
+import { GetLayout } from "rxq/GenericObject";
 import { shareReplay, switchMap } from "rxjs/operators";
 
 const app$; // assume we have a Doc Handle that we've opened
 
 const obj$ = app$.pipe(
-    switchMap(h => createSessionObject(h, {
+    switchMap(h => h.ask(CreateSessionObject, {
         qInfo: {
             qType: "session"
         },
@@ -25,7 +25,7 @@ const obj$ = app$.pipe(
 );
 
 const layout$ = obj$.pipe(
-    switchMap(h => getLayout(h))
+    switchMap(h => h.ask(GetLayout))
 );
 
 layout$.subscribe(console.log);
@@ -37,12 +37,12 @@ To resolve this situation, we need to call `getLayout` again. This will get us t
 
 In RxQ, each Handle comes with an `invalidation$` stream on it. This stream will fire with the Handle any time that the Engine API tells us that the Handle has invalidated. Using this stream, we can rewrite our layout logic above to produce a stream of layouts that will be calculated on every invalidation. We will also add an initial layout call to the stream:
 ```javascript
-const layout$ = obj$.pipe(
+const layouts$ = obj$.pipe(
     switchMap(h => h.invalidated$.pipe(
         startWith(h)
     )),
-    switchMap(h => getLayout(h))
+    switchMap(h => h.ask(GetLayout))
 );
 ```
 
-Now our `layout$` stream will stay in sync with the server.
+Now our `layouts$` stream will stay in sync with the server.

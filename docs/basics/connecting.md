@@ -1,7 +1,12 @@
 # Connecting
 In order to work with QAE, we need to establish a session with the Engine. This session is created by connecting to an Engine over a WebSocket.
 
-RxQ provides a function called `connectSession` that will establish the session with the Engine. It returns an Observable that will return the Global Handle for the new session after it has been successfully established.
+RxQ provides a function called `connectSession` that will establish the session with the Engine. It returns a Session object that contains an Observable for the Global Handle, a `close` function for closing the session imperatively, and an Observable of notifications from the engine and RxQ (useful for debugging):
+
+Session Object Properties
+* **global$** - *(Observable)* An Observable for the Global Handle of the session
+* **close** - *(Function)* A function that closes the WebSocket, ending the session
+* **notifications$** - *(Observable) An Observable of notifications from the engine and RxQ
 
 ## Setup
 The `connectSession` function takes in a configuration object that determines the session that is created. It can read the following properties:
@@ -23,15 +28,15 @@ The `connectSession` function takes in a configuration object that determines th
 ## Usage
 The following example shows how to use RxQ to connect to an Engine behind Qlik Sense Desktop:
 ```javascript
-import { connectSession } from "rxq/connect";
+import { connectSession } from "rxq";
 
-const sesh$ = connectSession({
+const session = connectSession({
     host: "localhost",
     port: 4848,
     isSecure: false
 });
 
-sesh$.subscribe((globalHandle) => {
+session.global$.subscribe((globalHandle) => {
     // Do something with the Global Handle
 });
 ```
