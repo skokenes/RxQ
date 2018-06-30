@@ -45,6 +45,22 @@ describe("connectSession", function() {
     });
   });
 
+  describe("suspend", function() {
+    const suspend = session.suspend;
+
+    it("should be a function", function() {
+      expect(suspend).to.be.a("function");
+    });
+  });
+
+  describe("unsuspend", function() {
+    const unsuspend = session.unsuspend;
+
+    it("should be a function", function() {
+      expect(unsuspend).to.be.a("function");
+    });
+  });
+
   describe("global$", function() {
     it("should be an Observable", function() {
       expect(eng$).to.be.instanceof(Observable);

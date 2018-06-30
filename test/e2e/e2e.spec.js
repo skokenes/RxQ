@@ -15,15 +15,15 @@ const testClose = require("./closeSession.test.js");
 const testUtilityOperators = require("./utilityOperators.test.js");
 
 describe("Engine E2E test", function() {
-  testConnect();
-  testGlobal();
-  testDoc();
-  testGenericObject();
-  testField();
-  testGenericBookmark();
+  // testConnect();
+  // testGlobal();
+  // testDoc();
+  // testGenericObject();
+  // testField();
+  // testGenericBookmark();
   testSuspend();
-  testNotification();
-  testDelta();
-  testClose();
-  testUtilityOperators();
+  // testNotification();
+  // testDelta();
+  // testClose();
+  // testUtilityOperators();
 });

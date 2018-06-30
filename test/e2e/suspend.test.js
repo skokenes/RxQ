@@ -4,6 +4,7 @@ const expect = chai.expect;
 
 var createContainer = require("../util/create-container");
 var {
+  map,
   publish,
   publishReplay,
   refCount,
@@ -27,16 +28,20 @@ var { port, image } = require("./config.json");
 // launch a new container
 var container$ = createContainer(image, port);
 
-var eng$ = container$.pipe(
-  switchMap(() => {
+const session$ = container$.pipe(
+  map(() => {
     return connectSession({
       host: "localhost",
       port: port,
       isSecure: false
-    }).global$;
+    });
   }),
-  publishReplay(1),
-  refCount()
+  shareReplay(1)
+);
+
+var eng$ = session$.pipe(
+  switchMap(session => session.global$),
+  shareReplay(1)
 );
 
 const app$ = eng$.pipe(
@@ -57,8 +62,8 @@ function testSuspend() {
 
       // Trigger invalidation event by changing app events
       const setAppProps$ = app$.pipe(
-        withLatestFrom(eng$, (appH, engH) => {
-          engH.session.suspended$.next(true);
+        withLatestFrom(session$, (appH, session) => {
+          session.suspend();
           return appH;
         }),
         switchMap(handle => handle.ask(GetAppProperties)),
@@ -94,8 +99,8 @@ function testSuspend() {
         done();
       });
 
-      eng$.subscribe(h => {
-        h.session.suspended$.next(false);
+      session$.subscribe(session => {
+        session.unsuspend();
       });
     });
 
@@ -103,15 +108,20 @@ function testSuspend() {
       it("should buffer invalidations until the Observable completes", function(done) {
         this.timeout(10000);
 
-        var eng$ = container$.pipe(
-          switchMap(() => {
+        const session$ = container$.pipe(
+          map(() => {
             return connectSession({
               host: "localhost",
               port: port,
               isSecure: false,
               appname: "iris.qvf"
-            }).global$;
+            });
           }),
+          shareReplay(1)
+        );
+
+        var eng$ = session$.pipe(
+          switchMap(session => session.global$),
           publishReplay(1),
           refCount()
         );
@@ -124,14 +134,16 @@ function testSuspend() {
 
         // Trigger invalidation event by changing app events
         const setAppProps$ = app$.pipe(
-          switchMap(handle => handle.ask(GetAppProperties)),
-          take(1),
-          withLatestFrom(app$),
-          switchMap(([props, handle]) => {
-            const newProps = Object.assign({ test: "invalid" }, props);
-            return handle.ask(SetAppProperties, newProps);
-          }),
-          suspendUntilCompleted(eng$),
+          withLatestFrom(session$),
+          switchMap(([appHandle, session]) =>
+            appHandle.ask(GetAppProperties).pipe(
+              switchMap(props => {
+                const newProps = Object.assign({ test: "invalid" }, props);
+                return appHandle.ask(SetAppProperties, newProps);
+              }),
+              suspendUntilCompleted(session)
+            )
+          ),
           publish()
         );
 
