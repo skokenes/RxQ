@@ -50,6 +50,7 @@
     "babel-register": "^6.26.0",
     "chai": "^4.1.2",
     "chai-generator": "^2.1.0",
+    "chai-spies": "^1.0.0",
     "dockerode": "^2.5.3",
     "fs-extra": "^4.0.2",
     "gitbook-cli": "^2.3.2",

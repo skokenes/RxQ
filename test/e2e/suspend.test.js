@@ -11,14 +11,14 @@ var {
   switchMap,
   take,
   takeUntil,
-  withLatestFrom
+  withLatestFrom,
+  tap
 } = require("rxjs/operators");
 var { Subject } = require("rxjs");
 
 var { OpenDoc } = require("../../dist/global");
-var { connectSession } = require("../../dist");
+var { connectSession, suspendUntilCompleted } = require("../../dist");
 var Handle = require("../../dist/_cjs/handle");
-var { suspendUntilComplete } = require("../../dist/_cjs/operators");
 
 var { GetAppProperties, SetAppProperties } = require("../../dist/doc");
 
@@ -96,6 +96,52 @@ function testSuspend() {
 
       eng$.subscribe(h => {
         h.session.suspended$.next(false);
+      });
+    });
+
+    describe("suspendUntilCompleted operator", function() {
+      it("should buffer invalidations until the Observable completes", function(done) {
+        this.timeout(10000);
+
+        var eng$ = container$.pipe(
+          switchMap(() => {
+            return connectSession({
+              host: "localhost",
+              port: port,
+              isSecure: false,
+              appname: "iris.qvf"
+            }).global$;
+          }),
+          publishReplay(1),
+          refCount()
+        );
+
+        const app$ = eng$.pipe(
+          switchMap(handle => handle.ask(OpenDoc, "iris.qvf")),
+          publishReplay(1),
+          refCount()
+        );
+
+        // Trigger invalidation event by changing app events
+        const setAppProps$ = app$.pipe(
+          switchMap(handle => handle.ask(GetAppProperties)),
+          take(1),
+          withLatestFrom(app$),
+          switchMap(([props, handle]) => {
+            const newProps = Object.assign({ test: "invalid" }, props);
+            return handle.ask(SetAppProperties, newProps);
+          }),
+          suspendUntilCompleted(eng$),
+          publish()
+        );
+
+        const invalid$ = app$.pipe(switchMap(h => h.invalidated$));
+
+        invalid$.subscribe(h => {
+          done();
+        });
+
+        setAppProps$.connect();
       });
     });
 

@@ -8,7 +8,6 @@ const mockEngine = require("../util/mock-qix-engine.js");
 
 // RxQ
 var { connectSession } = require("../../dist");
-var { connectSession: connectSessionLegacy } = require("../../dist/connect");
 var Handle = require("../../dist/_cjs/handle");
 var Session = require("../../dist/_cjs/session");
 
@@ -24,10 +23,6 @@ describe("connectSession", function() {
 
   it("should be a function", function() {
     expect(connectSession).to.be.a("function");
-  });
-
-  it("should be accessible from the legacy entry point", () => {
-    expect(connectSession).to.equal(connectSessionLegacy);
   });
 
   it("should return an object", function() {

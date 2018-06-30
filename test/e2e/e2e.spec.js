@@ -12,6 +12,7 @@ const testSuspend = require("./suspend.test.js");
 const testNotification = require("./notification.test.js");
 const testDelta = require("./delta.test.js");
 const testClose = require("./closeSession.test.js");
+const testUtilityOperators = require("./utilityOperators.test.js");
 
 describe("Engine E2E test", function() {
   testConnect();
@@ -24,4 +25,5 @@ describe("Engine E2E test", function() {
   testNotification();
   testDelta();
   testClose();
+  testUtilityOperators();
 });

@@ -43,21 +43,6 @@ classes.forEach(qClass => {
   });
 });
 
-// Legacy connect entry point
-mkDir(path.join(__dirname, "../dist/connect"));
-fs.writeFile(
-  path.join(__dirname, "../dist/connect/package.json"),
-  JSON.stringify({
-    main: "../_cjs/connect",
-    module: "../_esm5/connect",
-    es2015: "../_esm2015/connect",
-    sideEffects: false
-  }),
-  err => {
-    if (err) console.log(err);
-  }
-);
-
 function createPackage(filename, folderPath, outputFolder, depth) {
   var trail = "../".repeat(depth);
 
