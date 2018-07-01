@@ -71,8 +71,8 @@ const doc$$ = global$.pipe(
 );
 ```
 
-### qInvalidations
-`qInvalidations` is an alias for `switchMap(handle => handle.invalidated$)`. For example, the following patterns are equivalent:
+### invalidations
+`invalidations` is an alias for `switchMap(handle => handle.invalidated$)`. For example, the following patterns are equivalent:
 
 *App Handle invalidations using original pattern*
 ```javascript
@@ -81,12 +81,12 @@ const docInvalidations$ = doc$.pipe(
 );
 ```
 
-*App Handle invalidations using qInvalidations*
+*App Handle invalidations using `invalidations`*
 ```javascript
-import { qInvalidations } from "rxq";
+import { invalidations } from "rxq";
 
 const docInvalidations$ = doc$.pipe(
-  qInvalidations()
+  invalidations()
 );
 ```
 
@@ -94,10 +94,10 @@ In many cases, it's useful to assume an initial invalidation for a Qlik Handle w
 
 *App Handle invalidations with initial handle emit*
 ```javascript
-import { qInvalidations } from "rxq";
+import { invalidations } from "rxq";
 
 const docInvalidations$ = doc$.pipe(
-  qInvalidations(true)
+  invalidations(true)
 );
 ```
 
@@ -117,7 +117,7 @@ const layouts$ = object$.pipe(
 *GenericObject layouts using shortcut operators*
 ```javascript
 const layouts$ = object$.pipe(
-  qInvalidations(true),
+  invalidations(true),
   qAsk(GetLayout)
 );
 ```
