@@ -1,5 +1,5 @@
 # Get HyperCube Pages in Sequence
-[Code Sandbox](https://codesandbox.io/embed/0ylj0ok6xw)
+[Code Sandbox](https://codesandbox.io/embed/0yzo8ykl2n)
 ```javascript
 import { connectSession } from "rxq";
 import { OpenDoc } from "rxq/Global";

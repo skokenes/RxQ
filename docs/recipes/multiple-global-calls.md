@@ -1,5 +1,5 @@
 # Multiple Global Calls
-[Code Sandbox](https://codesandbox.io/embed/25joqo38p)
+[Code Sandbox](https://codesandbox.io/embed/lpzn20399q)
 ```javascript
 import { connectSession } from "rxq";
 import { EngineVersion, GetDocList } from "rxq/Global";

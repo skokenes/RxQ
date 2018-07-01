@@ -1,5 +1,5 @@
 # Open an App
-[Code Sandbox](https://codesandbox.io/embed/o155xl98y)
+[Code Sandbox](https://codesandbox.io/embed/54mj0myvlx)
 ```javascript
 import { connectSession } from "rxq";
 import { OpenDoc } from "rxq/Global";

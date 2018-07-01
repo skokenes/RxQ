@@ -1,5 +1,5 @@
 # Get HyperCube Data Pages in Parallel
-[Code Sandbox](https://codesandbox.io/embed/6z2948po4n)
+[Code Sandbox](https://codesandbox.io/embed/1r55yyy9nq)
 ```javascript
 import { connectSession } from "rxq";
 import { OpenDoc } from "rxq/Global";

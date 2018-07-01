@@ -1,5 +1,5 @@
 # Read app properties
-[Code Sandbox](https://codesandbox.io/embed/ppm3x3r2qj)
+[Code Sandbox](https://codesandbox.io/embed/o4jjp82zwy)
 ```javascript
 import { connectSession } from "rxq";
 import { OpenDoc } from "rxq/Global";

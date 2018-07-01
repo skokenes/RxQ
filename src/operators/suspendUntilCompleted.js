@@ -1,10 +1,11 @@
 import { Observable } from "rxjs";
 import { tap } from "rxjs/operators";
 
-export default session => src$ =>
-  Observable.create(observer => {
-    src$.pipe(tap(session => session.suspend())).subscribe({
-      next: ([n, h]) => observer.next(n),
+export default session => src$ => {
+  return Observable.create(observer => {
+    session.suspend();
+    src$.subscribe({
+      next: n => observer.next(n),
       error: err => observer.error(err),
       complete: () => {
         session.unsuspend();
@@ -12,3 +13,4 @@ export default session => src$ =>
       }
     });
   });
+};

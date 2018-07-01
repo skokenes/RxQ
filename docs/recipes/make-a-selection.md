@@ -1,5 +1,5 @@
 # Make a Selection
-[Code Sandbox](https://codesandbox.io/embed/wkwqv77y4l)
+[Code Sandbox](https://codesandbox.io/embed/6xq8m44lnr)
 ```javascript
 import { connectSession } from "rxq";
 import { OpenDoc } from "rxq/Global";

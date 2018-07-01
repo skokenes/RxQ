@@ -1,5 +1,5 @@
 # Calculate a value with a Generic Object
-[Code Sandbox](https://codesandbox.io/embed/zx08zownrl)
+[Code Sandbox](https://codesandbox.io/embed/qz3y4jvm4j)
 ```javascript
 import { connectSession } from "rxq";
 import { OpenDoc } from "rxq/Global";

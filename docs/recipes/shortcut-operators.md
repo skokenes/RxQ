@@ -1,9 +1,11 @@
 # Using the Shortcut Operators for Layout Streams
-[Code Sandbox]()
+[Code Sandbox](https://codesandbox.io/embed/71oj6rj10x)
 ```javascript
-import { connectSession, qAsk, qAskReplay, qInvalidations } from "rxq";
-import { OpenDoc, CreateSessionObject } from "rxq/Doc";
-import { GetLayout } from "rxq/GenericObject"
+import { connectSession, qAsk, qAskReplay, invalidations } from "rxq";
+import { OpenDoc } from "rxq/Global";
+import { CreateSessionObject } from "rxq/Doc";
+import { GetLayout } from "rxq/GenericObject";
+
 
 const config = {
   host: "sense.axisgroup.com",
@@ -14,9 +16,7 @@ const config = {
 const session = connectSession(config);
 const global$ = session.global$;
 
-const app$ = global$.pipe(
-  qAskReplay(OpenDoc, config.appname)
-);
+const app$ = global$.pipe(qAskReplay(OpenDoc, config.appname));
 
 const object$ = app$.pipe(
   qAskReplay(CreateSessionObject, {
@@ -27,10 +27,7 @@ const object$ = app$.pipe(
   })
 );
 
-const layouts$ = object$.pipe(
-  qInvalidations(true),
-  qAsk(GetLayout)
-);
+const layouts$ = object$.pipe(invalidations(true), qAsk(GetLayout));
 
 layouts$.subscribe(console.log);
 

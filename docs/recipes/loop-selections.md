@@ -1,5 +1,5 @@
 # Loop Through Selections in a Field
-[Code Sandbox](https://codesandbox.io/embed/pjr254pnj7)
+[Code Sandbox](https://codesandbox.io/embed/nwwrm598r0)
 ```javascript
 import { connectSession } from "rxq";
 import { OpenDoc } from "rxq/Global";

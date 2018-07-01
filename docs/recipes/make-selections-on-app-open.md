@@ -1,5 +1,5 @@
 # Make Selections on App Open
-[Code Sandbox](https://codesandbox.io/embed/n9rzl7zo0l)
+[Code Sandbox](https://codesandbox.io/embed/18nnwv6xol)
 ```javascript
 import { connectSession } from "rxq";
 import { OpenDoc } from "rxq/Global";
@@ -22,7 +22,7 @@ const session = connectSession(config);
 const global$ = session.global$;
 
 // Open an app, get the handle, make a few selections, and then multicast it
-const app$ = sesh$.pipe(
+const app$ = global$.pipe(
   switchMap(h => h.ask(OpenDoc, appname)),
   switchMap(h => {
     const defaultSelection1$ = h.ask(GetField, "species").pipe(

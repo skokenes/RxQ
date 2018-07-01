@@ -1,13 +1,13 @@
 # Batch Invalidations
-[Code Sandbox](https://codesandbox.io/embed/rmzlkvv1op)
+[Code Sandbox](https://codesandbox.io/embed/7z64r623r6)
 ```javascript
 import { connectSession, suspendUntilCompleted } from "rxq";
 import { OpenDoc } from "rxq/Global";
-import { ClearAll, CreateSessionObject, GetField, GetTablesAndKeys } from "rxq/Doc";
+import { ClearAll, CreateSessionObject, GetField } from "rxq/Doc";
 import { GetLayout } from "rxq/GenericObject";
 import { LowLevelSelect } from "rxq/Field";
-import { fromEvent } from "rxjs";
-import { concat, publish, shareReplay, startWith, switchMap, take } from "rxjs/operators";
+import { fromEvent, concat } from "rxjs";
+import { publish, shareReplay, startWith, switchMap, take } from "rxjs/operators";
 
 const appname = "aae16724-dfd9-478b-b401-0d8038793adf"
 
@@ -62,8 +62,7 @@ const filterFld$ = app$.pipe(
 );
 
 // Create batched operations sequence with suspension
-const batchedOps$ = clearAll$.pipe(
-  concat(filterFld$),
+const batchedOps$ = concat(clearAll$, filterFld$).pipe(
   suspendUntilCompleted(session)
 );
 

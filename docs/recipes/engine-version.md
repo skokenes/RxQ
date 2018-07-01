@@ -1,5 +1,5 @@
 # Get the Engine Version
-[Code Sandbox](https://codesandbox.io/embed/24vyyow0jn)
+[Code Sandbox](https://codesandbox.io/embed/6j47717pz3)
 ```javascript
 // Import the connectSession function, engineVersion function, and switchMap operator
 import { connectSession } from "rxq";

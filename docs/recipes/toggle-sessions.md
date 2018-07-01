@@ -1,5 +1,5 @@
 # Toggle Sessions
-[Code Sandbox](https://codesandbox.io/embed/6121o1l23)
+[Code Sandbox](https://codesandbox.io/embed/nnr22k0nx4)
 ```javascript
 import { connectSession } from "rxq";
 import { GetActiveDoc, OpenDoc } from "rxq/Global";
@@ -36,8 +36,8 @@ const sessions$ = forkJoin(
 );
 
 // The current session
-const sesh$ = sessions$.pipe(
-  combineLatest(sessionNo$, (engines, no) => engines[no]),
+const sesh$ = combineLatest(sessions$, sessionNo$).pipe(
+  map(([engines, no]) => engines[no]),
   shareReplay(1)
 );
 

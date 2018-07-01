@@ -1,5 +1,5 @@
 # Apply Patches to an Object
-[Code Sandbox](https://codesandbox.io/embed/617y8y6q5k)
+[Code Sandbox](https://codesandbox.io/embed/2x833lz3on)
 ```javascript
 import { connectSession } from "rxq";
 import { OpenDoc } from "rxq/Global";
@@ -22,7 +22,7 @@ const session = connectSession(config);
 const global$ = session.global$
 
 // Open an app and share the app handle
-const app$ = sesh$.pipe(
+const app$ = global$.pipe(
   switchMap(h => h.ask(OpenDoc, appname)),
   shareReplay(1)
 );
@@ -43,8 +43,8 @@ const obj$ = app$.pipe(
 // Get the latest selections whenever the model changes
 const metricLayouts$ = obj$.pipe(
   switchMap(h => h.invalidated$.pipe(startWith(h))),
-  switchMap(h => h.ask(GetLayout)
-);
+  switchMap(h => h.ask(GetLayout))
+  );
 
 // Print the selections to the DOM
 metricLayouts$.subscribe(layout => {
@@ -77,8 +77,8 @@ const lb$ = app$.pipe(
 // Get a stream of list object layouts
 const lbLayouts$ = lb$.pipe(
   switchMap(h => h.invalidated$.pipe(startWith(h))),
-  switchMap(h => h.ask(GetLayout)
-);
+  switchMap(h => h.ask(GetLayout))
+  );
 
 // Render the list object to the page in an unordered list
 lbLayouts$.subscribe(layout => {

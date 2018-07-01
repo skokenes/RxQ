@@ -1,5 +1,5 @@
 # Get a page of data from a HyperCube on invalidation
-[Code Sandbox](https://codesandbox.io/embed/8ykpro59x8)
+[Code Sandbox](https://codesandbox.io/embed/j796z127n3)
 ```javascript
 import { connectSession } from "rxq";
 import { OpenDoc } from "rxq/Global";

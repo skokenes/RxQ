@@ -1,5 +1,5 @@
 # Offline
-[Code Sandbox](https://codesandbox.io/embed/0p32m17z4w)
+[Code Sandbox](https://codesandbox.io/embed/o5kwmv77w9)
 ```javascript
 import { connectSession } from "rxq";
 import { GetActiveDoc, OpenDoc } from "rxq/Global";

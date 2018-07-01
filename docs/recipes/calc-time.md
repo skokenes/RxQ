@@ -1,9 +1,9 @@
 # Calculate the response time of the API
-[Code Sandbox](https://codesandbox.io/s/7z1r64r510)
+[Code Sandbox](https://codesandbox.io/embed/3kvj773np5)
 ```javascript
-import { ConnectSession } from "rxq";
+import { connectSession } from "rxq";
 import { OpenDoc } from "rxq/Global";
-import { map, shareReplay, switchMap } from "rxjs/operators";
+import { map, switchMap } from "rxjs/operators";
 
 const appname = "aae16724-dfd9-478b-b401-0d8038793adf"
 

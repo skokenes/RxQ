@@ -1,5 +1,5 @@
 # Set App Properties and Listen for Changes
-[Code Sandbox](https://codesandbox.io/embed/54pv30m2vx)
+[Code Sandbox](https://codesandbox.io/embed/n4v0p3m4n4)
 ```javascript
 import { connectSession } from "rxq";
 import { OpenDoc } from "rxq/Global";
