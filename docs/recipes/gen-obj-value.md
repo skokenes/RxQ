@@ -1,10 +1,10 @@
 # Calculate a value with a Generic Object
 [Code Sandbox](https://codesandbox.io/embed/zx08zownrl)
 ```javascript
-import { connectSession } from "rxq/connect";
-import { openDoc } from "rxq/Global";
-import { createSessionObject } from "rxq/Doc";
-import { getLayout } from "rxq/GenericObject";
+import { connectSession } from "rxq";
+import { OpenDoc } from "rxq/Global";
+import { CreateSessionObject } from "rxq/Doc";
+import { GetLayout } from "rxq/GenericObject";
 import { shareReplay, switchMap } from "rxjs/operators";
 
 const appname = "aae16724-dfd9-478b-b401-0d8038793adf"
@@ -17,19 +17,18 @@ const config = {
 };
 
 // Connect the session and share the Global handle
-const sesh$ = connectSession(config).pipe(
-  shareReplay(1)
-);
+const session = connectSession(config);
+const global$ = session.global$;
 
 // Open an app and share the app handle
-const app$ = sesh$.pipe(
-  switchMap(h => openDoc(h, appname)),
+const app$ = global$.pipe(
+  switchMap(h => h.ask(OpenDoc, appname)),
   shareReplay(1)
 );
 
 // Create a Generic Object with a formula
 const obj$ = app$.pipe(
-  switchMap(h => createSessionObject(h, {
+  switchMap(h => h.ask(CreateSessionObject, {
     "qInfo": {
       "qType": "my-object"
     },
@@ -42,7 +41,7 @@ const obj$ = app$.pipe(
 
 // Get the layout of the Generic Object to calculate the value
 const value$ = obj$.pipe(
-  switchMap(h => getLayout(h))
+  switchMap(h => h.ask(GetLayout))
 );
 
 // Write the value to the DOM

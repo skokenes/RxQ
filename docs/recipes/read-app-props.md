@@ -1,9 +1,9 @@
 # Read app properties
 [Code Sandbox](https://codesandbox.io/embed/ppm3x3r2qj)
 ```javascript
-import { connectSession } from "rxq/connect";
-import { openDoc } from "rxq/Global";
-import { getAppProperties } from "rxq/Doc";
+import { connectSession } from "rxq";
+import { OpenDoc } from "rxq/Global";
+import { GetAppProperties } from "rxq/Doc";
 import { shareReplay, switchMap } from "rxjs/operators";
 
 // Define the configuration for your session
@@ -13,19 +13,18 @@ const config = {
 };
 
 // Connect the session and share the Global handle
-const sesh$ = connectSession(config).pipe(
-  shareReplay(1)
-);
+const session = connectSession(config);
+const global$ = session.global$;
 
 // Open an app and share the app handle
-const app$ = sesh$.pipe(
-  switchMap(h => openDoc(h, "aae16724-dfd9-478b-b401-0d8038793adf")),
+const app$ = global$.pipe(
+  switchMap(h => h.ask(OpenDoc, "aae16724-dfd9-478b-b401-0d8038793adf")),
   shareReplay(1)
 );
 
 // Get the app properties
 const appProps$ = app$.pipe(
-  switchMap(h => getAppProperties(h))
+  switchMap(h => h.ask(GetAppProperties))
 );
 
 // Write the app title and modified date to the DOM

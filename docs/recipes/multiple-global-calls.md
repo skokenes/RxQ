@@ -1,8 +1,8 @@
 # Multiple Global Calls
 [Code Sandbox](https://codesandbox.io/embed/25joqo38p)
 ```javascript
-import { connectSession } from "rxq/connect";
-import { engineVersion, getDocList } from "rxq/Global";
+import { connectSession } from "rxq";
+import { EngineVersion, GetDocList } from "rxq/Global";
 import { shareReplay, switchMap } from "rxjs/operators";
 
 // Define the configuration for your session
@@ -12,18 +12,17 @@ const config = {
 };
 
 // Connect the session and share the Global handle
-const sesh$ = connectSession(config).pipe(
-  shareReplay(1)
-);
+const session = connectSession(config);
+const global$ = session.global$;
 
 // Get the engineVersion
-const engVer$ = sesh$.pipe(
-  switchMap(h => engineVersion(h))
+const engVer$ = global$.pipe(
+  switchMap(h => h.ask(EngineVersion))
 );
 
 // Get the Doc List
-const doclist$ = sesh$.pipe(
-  switchMap(h => getDocList(h))
+const doclist$ = global$.pipe(
+  switchMap(h => h.ask(GetDocList))
 );
 
 // Write the engine version to the DOM

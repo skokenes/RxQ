@@ -1,12 +1,11 @@
 # Toggle Sessions
 [Code Sandbox](https://codesandbox.io/embed/6121o1l23)
 ```javascript
-import { connectSession } from "rxq/connect";
-import { getActiveDoc, openDoc } from "rxq/Global";
-import { getAppProperties, getTablesAndKeys } from "rxq/Doc";
-import { fromEvent } from "rxjs/observable/fromEvent";
-import { forkJoin } from "rxjs/observable/forkJoin";
-import { combineLatest, map, pluck, shareReplay, startWith, switchMap, withLatestFrom } from "rxjs/operators";
+import { connectSession } from "rxq";
+import { GetActiveDoc, OpenDoc } from "rxq/Global";
+import { GetAppProperties, GetTablesAndKeys } from "rxq/Doc";
+import { fromEvent, forkJoin, combineLatest } from "rxjs";
+import { map, pluck, shareReplay, startWith, switchMap, withLatestFrom } from "rxjs/operators";
 
 // Define the configuration for your session
 const configs = [
@@ -31,7 +30,7 @@ const sessionNo$ = fromEvent(document.querySelector("select"), "change").pipe(
 // Create an array of sessions
 const sessions$ = forkJoin(
   configs
-    .map(config => connectSession(config)
+    .map(config => connectSession(config).global$
       .pipe(shareReplay(1))
     )
 );
@@ -45,13 +44,13 @@ const sesh$ = sessions$.pipe(
 // When switching sessions, get the doc
 const app$ = sesh$.pipe(
   withLatestFrom(sessionNo$),
-  switchMap(([h, no]) => openDoc(h, configs[no].appname)),
+  switchMap(([h, no]) => h.ask(OpenDoc, configs[no].appname)),
   shareReplay(1)
 );
 
 // Get the current app title
 const appTitle$ = app$.pipe(
-  switchMap(h => getAppProperties(h)),
+  switchMap(h => h.ask(GetAppProperties)),
   pluck("qTitle")
 );
 
@@ -62,7 +61,7 @@ appTitle$.subscribe(title => {
 
 // Get the fields in the current app
 const fieldList$ = app$.pipe(
-  switchMap(h => getTablesAndKeys(h, { "qcx": 1000, "qcy": 1000 }, { "qcx": 0, "qcy": 0 }, 30, true, false))
+  switchMap(h => h.ask(GetTablesAndKeys, { "qcx": 1000, "qcy": 1000 }, { "qcx": 0, "qcy": 0 }, 30, true, false))
 );
 
 // List the fields in the DOM

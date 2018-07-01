@@ -36,3 +36,4 @@
   * [19. Batch Invalidations with Suspend](/recipes/batch-invalidations.md)
   * [20. Toggle Calculations Between Multiple Apps](/recipes/toggle-sessions.md)
   * [21. Auto-reconnect Generic Objects after a network drop](/recipes/offline.md)
+  * [22. Using shortcut operators to get a layout stream](/recipes/shortcut-operators.md)

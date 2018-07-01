@@ -1,13 +1,13 @@
 # Make a Selection
 [Code Sandbox](https://codesandbox.io/embed/wkwqv77y4l)
 ```javascript
-import { connectSession } from "rxq/connect";
-import { openDoc } from "rxq/Global";
-import { createSessionObject, getField } from "rxq/Doc";
-import { getLayout } from "rxq/GenericObject";
-import { getCardinal, select } from "rxq/Field";
-import { mapTo, merge, publish, shareReplay, startWith, switchMap, withLatestFrom } from "rxjs/operators";
-import { fromEvent } from "rxjs/observable/fromEvent";
+import { connectSession } from "rxq";
+import { OpenDoc } from "rxq/Global";
+import { CreateSessionObject, GetField } from "rxq/Doc";
+import { GetLayout } from "rxq/GenericObject";
+import { GetCardinal, Select } from "rxq/Field";
+import { mapTo, publish, shareReplay, startWith, switchMap, withLatestFrom } from "rxjs/operators";
+import { fromEvent, merge } from "rxjs";
 
 const appname = "aae16724-dfd9-478b-b401-0d8038793adf"
 
@@ -19,19 +19,18 @@ const config = {
 };
 
 // Connect the session and share the Global handle
-const sesh$ = connectSession(config).pipe(
-  shareReplay(1)
-);
+const session = connectSession(config);
+const global$ = session.global$;
 
 // Open an app and share the app handle
-const app$ = sesh$.pipe(
-  switchMap(h => openDoc(h, appname)),
+const app$ = global$.pipe(
+  switchMap(h => h.ask(OpenDoc, appname)),
   shareReplay(1)
 );
 
 // Create a Generic Object with the current selections
 const obj$ = app$.pipe(
-  switchMap(h => createSessionObject(h, {
+  switchMap(h => h.ask(CreateSessionObject, {
     "qInfo": {
       "qType": "my-object"
     },
@@ -43,7 +42,7 @@ const obj$ = app$.pipe(
 // Get the latest selections whenever the model changes
 const selections$ = obj$.pipe(
   switchMap(h => h.invalidated$.pipe(startWith(h))),
-  switchMap(h => getLayout(h))
+  switchMap(h => h.ask(GetLayout))
 );
 
 // Print the selections to the DOM
@@ -53,7 +52,7 @@ selections$.subscribe(layout => {
 
 // Get a field
 const fld$ = app$.pipe(
-  switchMap(h => getField(h, "species")),
+  switchMap(h => h.ask(GetField, "species")),
   shareReplay(1)
 );
 
@@ -68,10 +67,9 @@ const clearSelect$ = fromEvent(document.querySelector("#unfilter"), "click").pip
 );
 
 // Create a stream of select actions to the field from the button clicks
-const selectValue$ = selectSetosa$.pipe(
-  merge(clearSelect$),
+const selectValue$ = merge(selectSetosa$, clearSelect$).pipe(
   withLatestFrom(fld$),
-  switchMap(([sel, h]) => select(h, sel)),
+  switchMap(([sel, h]) => h.ask(Select, sel)),
   publish()
 );
 

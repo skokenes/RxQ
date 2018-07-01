@@ -1,12 +1,12 @@
 # Apply Patches to an Object
 [Code Sandbox](https://codesandbox.io/embed/617y8y6q5k)
 ```javascript
-import { connectSession } from "rxq/connect";
-import { openDoc } from "rxq/Global";
-import { createSessionObject } from "rxq/Doc";
-import { applyPatches, getLayout, selectListObjectValues } from "rxq/GenericObject";
+import { connectSession } from "rxq";
+import { OpenDoc } from "rxq/Global";
+import { CreateSessionObject } from "rxq/Doc";
+import { ApplyPatches, GetLayout, SelectListObjectValues } from "rxq/GenericObject";
 import { filter, map, publish, repeat, shareReplay, startWith, switchMap, withLatestFrom } from "rxjs/operators";
-import { fromEvent } from "rxjs/observable/fromEvent";
+import { fromEvent } from "rxjs";
 
 const appname = "aae16724-dfd9-478b-b401-0d8038793adf"
 
@@ -17,20 +17,19 @@ const config = {
   appname
 };
 
-// Connect the session and share the Global handle
-const sesh$ = connectSession(config).pipe(
-  shareReplay(1)
-);
+// Connect the session and get the global handle
+const session = connectSession(config);
+const global$ = session.global$
 
 // Open an app and share the app handle
 const app$ = sesh$.pipe(
-  switchMap(h => openDoc(h, appname)),
+  switchMap(h => h.ask(OpenDoc, appname)),
   shareReplay(1)
 );
 
 // Create a Generic Object with a metric
 const obj$ = app$.pipe(
-  switchMap(h => createSessionObject(h, {
+  switchMap(h => h.ask(CreateSessionObject, {
     "qInfo": {
       "qType": "my-object"
     },
@@ -44,7 +43,7 @@ const obj$ = app$.pipe(
 // Get the latest selections whenever the model changes
 const metricLayouts$ = obj$.pipe(
   switchMap(h => h.invalidated$.pipe(startWith(h))),
-  switchMap(h => getLayout(h))
+  switchMap(h => h.ask(GetLayout)
 );
 
 // Print the selections to the DOM
@@ -54,7 +53,7 @@ metricLayouts$.subscribe(layout => {
 
 // Create a Generic Object with a list object for the field "species"
 const lb$ = app$.pipe(
-  switchMap(h => createSessionObject(h, {
+  switchMap(h => h.ask(CreateSessionObject, {
     "qInfo": {
       "qType": "my-listbox"
     },
@@ -78,7 +77,7 @@ const lb$ = app$.pipe(
 // Get a stream of list object layouts
 const lbLayouts$ = lb$.pipe(
   switchMap(h => h.invalidated$.pipe(startWith(h))),
-  switchMap(h => getLayout(h))
+  switchMap(h => h.ask(GetLayout)
 );
 
 // Render the list object to the page in an unordered list
@@ -94,7 +93,7 @@ const select$ = fromEvent(document.querySelector("body"), "click").pipe(
   filter(evt => evt.target.hasAttribute("data-qno")),
   map(evt => parseInt(evt.target.getAttribute("data-qno"))),
   withLatestFrom(lb$),
-  switchMap(([qno, h]) => selectListObjectValues(h, "/qListObjectDef", [qno], true)),
+  switchMap(([qno, h]) => h.ask(SelectListObjectValues, "/qListObjectDef", [qno], true)),
   publish()
 );
 
@@ -104,7 +103,7 @@ select$.connect();
 const patch$ = fromEvent(document.querySelector("select"), "change").pipe(
   map(evt => evt.target.value),
   withLatestFrom(lb$),
-  switchMap(([dim, h]) => applyPatches(h, [
+  switchMap(([dim, h]) => h.ask(ApplyPatches, [
     {
       qPath: "/qListObjectDef/qDef/qFieldDefs/0",
       qOp: "replace",

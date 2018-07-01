@@ -1,12 +1,12 @@
 # Get HyperCube Pages in Sequence
 [Code Sandbox](https://codesandbox.io/embed/0ylj0ok6xw)
 ```javascript
-import { connectSession } from "rxq/connect";
-import { openDoc } from "rxq/Global";
-import { createSessionObject } from "rxq/Doc";
-import { getLayout, getHyperCubeData } from "rxq/GenericObject";
+import { connectSession } from "rxq";
+import { OpenDoc } from "rxq/Global";
+import { CreateSessionObject } from "rxq/Doc";
+import { GetLayout, GetHyperCubeData } from "rxq/GenericObject";
 import { reduce, shareReplay, startWith, switchMap } from "rxjs/operators";
-import { concat } from "rxjs/observable/concat";
+import { concat } from "rxjs";
 
 const appname = "aae16724-dfd9-478b-b401-0d8038793adf"
 
@@ -18,19 +18,18 @@ const config = {
 };
 
 // Connect the session and share the Global handle
-const sesh$ = connectSession(config).pipe(
-  shareReplay(1)
-);
+const session = connectSession(config);
+const global$ = session.global$;
 
 // Open an app and share the app handle
-const app$ = sesh$.pipe(
-  switchMap(h => openDoc(h, appname)),
+const app$ = global$.pipe(
+  switchMap(h => h.ask(OpenDoc, appname)),
   shareReplay(1)
 );
 
 // Create a Generic Object with a hypercube
 const obj$ = app$.pipe(
-  switchMap(h => createSessionObject(h, {
+  switchMap(h => h.ask(CreateSessionObject, {
     "qInfo": {
       "qType": "my-object"
     },
@@ -57,7 +56,7 @@ const obj$ = app$.pipe(
 // On invalidation, get layout to validate, then request multiple pages in sequence
 const data$ = obj$.pipe(
   switchMap(h => h.invalidated$.pipe(startWith(h))),
-  switchMap(h => getLayout(h), (h, layout) => [h, layout]),
+  switchMap(h => h.ask(GetLayout), (h, layout) => [h, layout]),
   switchMap(([h, layout]) => {
     const totalRows = layout.qHyperCube.qSize.qcy;
     const rowsPerPage = 10;
@@ -65,7 +64,7 @@ const data$ = obj$.pipe(
 
     const pageRequests = new Array(pageCt)
       .fill(undefined)
-      .map((m, i) => getHyperCubeData(h, "/qHyperCubeDef", [
+      .map((m, i) => h.ask(GetHyperCubeData, "/qHyperCubeDef", [
         {
           qTop: i * rowsPerPage,
           qLeft: 0,

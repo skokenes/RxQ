@@ -1,9 +1,9 @@
 # Connect to an Engine
-[Code Sandbox](https://codesandbox.io/embed/3v1883n5v1)
+[Code Sandbox](https://codesandbox.io/embed/k2wz9px11v)
 
 ```javascript
 // Import the connectSession function
-import { connectSession } from "rxq/connect";
+import { connectSession } from "rxq";
 
 // Define the configuration for your session
 const config = {
@@ -11,10 +11,9 @@ const config = {
   isSecure: true
 };
 
-// Call connectSession with the config to produce an Observable that
-// will establish the session and return the Global handle
-const sesh$ = connectSession(config);
+// Call connectSession with the config to produce a Session object
+const session = connectSession(config);
 
-// Console out the Global handle
-sesh$.subscribe(console.log);
+// Subscribe to the Global Handle Observable of the Session
+session.global$.subscribe(console.log);
 ```

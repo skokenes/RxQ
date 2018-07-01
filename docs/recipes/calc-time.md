@@ -1,8 +1,8 @@
 # Calculate the response time of the API
 [Code Sandbox](https://codesandbox.io/s/7z1r64r510)
 ```javascript
-import { connectSession } from "rxq/connect";
-import { openDoc } from "rxq/Global";
+import { ConnectSession } from "rxq";
+import { OpenDoc } from "rxq/Global";
 import { map, shareReplay, switchMap } from "rxjs/operators";
 
 const appname = "aae16724-dfd9-478b-b401-0d8038793adf"
@@ -15,15 +15,14 @@ const config = {
 };
 
 // Connect the session and share the Global handle
-const sesh$ = connectSession(config).pipe(
-  shareReplay(1)
-);
+const session = connectSession(config);
+const global$ = session.global$;
 
 // Calculate the time it takes to open an app
-const appOpenTime$ = sesh$.pipe(
+const appOpenTime$ = global$.pipe(
   switchMap(h => {
     const start = Date.now();
-    return openDoc(h, appname).pipe(
+    return h.ask(OpenDoc, appname).pipe(
       map(() => Date.now() - start)
     );
   })
