@@ -25,8 +25,8 @@ function compileFromDir(srcFolder, tgtFolder) {
           babel.transformFile(
             path.join(srcFolder, file),
             {
-              presets: [["es2015", { modules: false }]],
-              plugins: ["transform-object-rest-spread"]
+              presets: [["env", { modules: false }]],
+              plugins: ["transform-object-rest-spread", "transform-runtime"]
             },
             function(err, result) {
               //if(err) return console.log(err);

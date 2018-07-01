@@ -26,7 +26,7 @@ function compileFromDir(srcFolder, tgtFolder) {
             path.join(srcFolder, file),
             {
               presets: [],
-              plugins: ["transform-object-rest-spread"]
+              plugins: ["transform-object-rest-spread", "transform-runtime"]
             },
             function(err, result) {
               //if(err) return console.log(err);
