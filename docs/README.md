@@ -4,4 +4,4 @@
 $ npm install rxq
 ```
 
-These docs are for RxQ v2.0.0. For v1 docs, [go here.]()
+These docs are for RxQ v2.0.0. For v1 docs, [go here.](https://opensrc.axisgroup.com/rxq/docs-v1)
