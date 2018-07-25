@@ -54,6 +54,6 @@ It is common to edit source code of RxQ and then execute steps 2 and 3 to rebuil
 The final package for distribution is stored in a sub-directory called `dist`. The NPM package should be published from this directory, NOT from the parent level repository which contains the source code.
 
 ## Testing RxQ
-`npm run test-unit` will run all the unit tests
+`npm run test-unit` will run the unit tests.
 
-`npm run test-e2e` will run the end to end tests. However, this will need qlik core, with teh image of whatever engine version is in the package.json. So you may need to do: `docker pull qlikcore/engine:12.181.0`
+`npm run test-e2e` will run the end to end tests. These tests require Docker and the Qlik Core image associated with the engine version in package.json. For example, for version 12.181.0 of the Engine, the tests need the `qlikcore/engine:12.181.0` image. This image can be pulled from Docker like so: `docker pull qlikcore/engine:12.181.0`.
