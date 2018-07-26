@@ -1,8 +1,8 @@
 import Session from "../session";
 import { defer } from "rxjs";
 
-export default function connectSession(config, opts) {
-  const session = new Session(config, opts);
+export default function connectSession(config) {
+  const session = new Session(config);
 
   return {
     global$: session.global(),

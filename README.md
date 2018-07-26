@@ -17,7 +17,7 @@ Want to play with it immediately? [Try forking this sandbox.](https://codesandbo
 
 ## Qlik Support
 As of v2.0.0, the following APIs are supported:
-- Engine 12.181.0
+- Engine 12.207.0
 
 Custom builds for other versions of the Qlik Associative Engine can be generated using the included build scripts. See the build section.
 
@@ -52,3 +52,8 @@ It is common to edit source code of RxQ and then execute steps 2 and 3 to rebuil
 `npm run build-dist`.
 
 The final package for distribution is stored in a sub-directory called `dist`. The NPM package should be published from this directory, NOT from the parent level repository which contains the source code.
+
+## Testing RxQ
+`npm run test-unit` will run the unit tests.
+
+`npm run test-e2e` will run the end to end tests. These tests require Docker and the Qlik Core image associated with the engine version in package.json. For example, for version 12.207.0 of the Engine, the tests need the `qlikcore/engine:12.207.0` image. This image can be pulled from Docker like so: `docker pull qlikcore/engine:12.207.0`.
