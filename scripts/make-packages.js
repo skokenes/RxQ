@@ -5,7 +5,7 @@ var path = require("path");
 // Copy package to dist folder
 const modPkg = {
   ...pkg,
-  main: "_cjs/index.js",
+  main: "./index.js",
   module: "./_esm5/index.js",
   es2015: "./_esm2015/index.js",
   sideEffects: false
@@ -47,7 +47,7 @@ function createPackage(filename, folderPath, outputFolder, depth) {
   var trail = "../".repeat(depth);
 
   var pkg = {
-    main: `${trail}_cjs/${folderPath}/${filename}`,
+    main: `./${filename}`,
     module: `${trail}_esm5/${folderPath}/${filename}`,
     es2015: `${trail}_esm2015/${folderPath}/${filename}`,
     sideEffects: false
