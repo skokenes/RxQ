@@ -1,5 +1,5 @@
 # Table of Contents
-* [RxQ v2.0.0](README.md)
+* [RxQ v2.0.1](README.md)
 * [Introduction]()
   * [Why Rx?](/introduction/why-rx.md)
   * [RxQ vs. Enigma](introduction/rxq-vs-enigma.md)
