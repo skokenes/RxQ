@@ -6,9 +6,14 @@ var babel = require("babel-core");
 // Set up dist
 mkDir("dist");
 
+// Remove _cjs if it exists
+rimraf.sync("dist/_cjs", {}, function() {});
+// Set up _cjs
+mkDir("dist/_cjs");
+
 // Iterate through source code and copy over
 var srcFolder = "src";
-var tgtFolder = "dist";
+var tgtFolder = "dist/_cjs";
 
 compileFromDir(srcFolder, tgtFolder);
 

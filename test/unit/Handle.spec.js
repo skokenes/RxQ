@@ -5,11 +5,12 @@ const expect = chai.expect;
 var { Observable, Subject } = require("rxjs");
 var { pluck, take, shareReplay } = require("rxjs/operators");
 const mockEngine = require("../util/mock-qix-engine.js");
+const isObservable = require("../util/isObservable");
 
 // RxQ
 var { connectSession } = require("../../dist");
-var Handle = require("../../dist/handle");
-var Session = require("../../dist/session");
+var Handle = require("../../dist/_cjs/handle");
+var Session = require("../../dist/_cjs/session");
 
 describe("Handle", function() {
   // Mock Engine for Testing
@@ -31,7 +32,7 @@ describe("Handle", function() {
 
   it("should have an invalidated Observable stream", function(done) {
     eng$.subscribe(h => {
-      expect(h.invalidated$).to.be.instanceof(Observable);
+      expect(isObservable(h.invalidated$)).to.equal(true);
       done();
     });
   });
@@ -61,7 +62,7 @@ describe("Handle", function() {
     it("should return an Observable", function(done) {
       eng$.subscribe(h => {
         var req = h.ask("t");
-        expect(req).to.be.instanceof(Observable);
+        expect(isObservable(req)).to.equal(true);
         done();
       });
     });

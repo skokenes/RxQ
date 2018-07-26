@@ -4,12 +4,13 @@ const expect = chai.expect;
 
 var { Observable, Subject } = require("rxjs");
 var { pluck, take } = require("rxjs/operators");
+const isObservable = require("../util/isObservable");
 const mockEngine = require("../util/mock-qix-engine.js");
 
 // RxQ
 var { connectSession } = require("../../dist");
-var Handle = require("../../dist/handle");
-var Session = require("../../dist/session");
+var Handle = require("../../dist/_cjs/handle");
+var Session = require("../../dist/_cjs/session");
 
 describe("Session", function() {
   // Mock Engine for Testing
@@ -43,28 +44,22 @@ describe("Session", function() {
 
   it("should have a WebSocket Observable", function(done) {
     sesh$.subscribe(sesh => {
-      expect(sesh.ws$).to.be.instanceof(Observable);
-      done();
-    });
-  });
-
-  it("should have a request Subject", function(done) {
-    sesh$.subscribe(sesh => {
-      expect(sesh.requests$).to.be.instanceof(Subject);
+      expect(isObservable(sesh.ws$)).to.equal(true);
+      // expect(sesh.ws$).to.be.instanceof(Observable);
       done();
     });
   });
 
   it("should have a response Observable", function(done) {
     sesh$.subscribe(sesh => {
-      expect(sesh.finalResponse$).to.be.instanceof(Observable);
+      expect(isObservable(sesh.finalResponse$)).to.equal(true);
       done();
     });
   });
 
   it("should have a changes Observable", function(done) {
     sesh$.subscribe(sesh => {
-      expect(sesh.changes$).to.be.instanceof(Observable);
+      expect(isObservable(sesh.changes$)).to.equal(true);
       done();
     });
   });
@@ -80,7 +75,7 @@ describe("Session", function() {
     it("should return an Observable", function(done) {
       sesh$.subscribe(sesh => {
         var req = sesh.ask({});
-        expect(req).to.be.instanceof(Observable);
+        expect(isObservable(req)).to.equal(true);
         done();
       });
     });
@@ -130,7 +125,7 @@ describe("Session", function() {
     it("should return an Observable", function(done) {
       sesh$.subscribe(sesh => {
         var global$ = sesh.global();
-        expect(global$).to.be.instanceof(Observable);
+        expect(isObservable(global$)).to.equal(true);
         done();
       });
     });

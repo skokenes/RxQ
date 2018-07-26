@@ -4,7 +4,7 @@
   "sideEffects": false,
   "description": "A reactive wrapper for the Qlik Analytics Platform APIs",
   "main": "index.js",
-  "qix-version": "12.193.0",
+  "qix-version": "12.207.0",
   "scripts": {
     "build-qix-methods": "node scripts/build-qix-methods.js",
     "compile-cjs": "node scripts/compile_cjs.js",

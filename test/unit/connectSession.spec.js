@@ -5,11 +5,12 @@ const expect = chai.expect;
 var { Observable, Subject } = require("rxjs");
 var { pluck, take } = require("rxjs/operators");
 const mockEngine = require("../util/mock-qix-engine.js");
+const isObservable = require("../util/isObservable");
 
 // RxQ
 var { connectSession } = require("../../dist");
-var Handle = require("../../dist/handle");
-var Session = require("../../dist/session");
+var Handle = require("../../dist/_cjs/handle");
+var Session = require("../../dist/_cjs/session");
 
 describe("connectSession", function() {
   // Mock Engine for Testing
@@ -33,7 +34,7 @@ describe("connectSession", function() {
     const notifications$ = session.notifications$;
 
     it("should be an Observable", function() {
-      expect(notifications$).to.be.instanceof(Observable);
+      expect(isObservable(notifications$)).to.equal(true);
     });
   });
 
@@ -63,7 +64,7 @@ describe("connectSession", function() {
 
   describe("global$", function() {
     it("should be an Observable", function() {
-      expect(eng$).to.be.instanceof(Observable);
+      expect(isObservable(eng$)).to.equal(true);
     });
 
     it("should return a Handle", function(done) {
