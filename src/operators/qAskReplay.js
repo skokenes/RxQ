@@ -1,10 +1,11 @@
 import qAsk from "./qAsk";
-import { shareReplay } from "rxjs/operators";
+import { publishReplay, refCount } from "rxjs/operators";
 
 const qAskReplay = (methodname, ...params) => handle$ =>
   handle$.pipe(
     qAsk(methodname, ...params),
-    shareReplay(1)
+    publishReplay(1),
+    refCount()
   );
 
 export default qAskReplay;

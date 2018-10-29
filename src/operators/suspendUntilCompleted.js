@@ -1,5 +1,4 @@
 import { Observable } from "rxjs";
-import { tap } from "rxjs/operators";
 
 export default session => src$ => {
   return Observable.create(observer => {

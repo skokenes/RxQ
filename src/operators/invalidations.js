@@ -1,5 +1,4 @@
 import { switchMap, startWith } from "rxjs/operators";
-import { throwError } from "rxjs";
 
 const invalidations = (startWithInvalidation = false) => handle$ =>
   handle$.pipe(

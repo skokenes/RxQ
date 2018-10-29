@@ -22,14 +22,11 @@ import {
   take,
   mapTo,
   distinctUntilChanged,
-  bufferToggle,
   pluck,
-  skip,
   switchMap,
   takeUntil,
   ignoreElements,
   tap,
-  shareReplay,
   scan
 } from "rxjs/operators";
 
