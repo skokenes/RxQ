@@ -3,7 +3,13 @@ chai.use(require("chai-generator"));
 const expect = chai.expect;
 
 var createContainer = require("../util/create-container");
-var { publishReplay, refCount, switchMap, map } = require("rxjs/operators");
+var {
+  publishReplay,
+  refCount,
+  switchMap,
+  map,
+  take
+} = require("rxjs/operators");
 var { connectSession } = require("../../dist");
 var Handle = require("../../dist/_cjs/handle");
 
@@ -53,6 +59,23 @@ function testConnect() {
         expect(h).to.be.instanceof(Handle);
         done();
       });
+    });
+
+    it("should return a Handle when given a URL to connect with", function(done) {
+      container$
+        .pipe(
+          map(() => {
+            return connectSession({
+              url: `ws://localhost:${port}/app`
+            });
+          }),
+          switchMap(session => session.global$),
+          take(1)
+        )
+        .subscribe(h => {
+          expect(h).to.be.instanceof(Handle);
+          done();
+        });
     });
 
     describe("Returned Handle", function() {

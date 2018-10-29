@@ -18,7 +18,7 @@ export default function connectWS(config) {
     } catch (e) {}
   }
 
-  const url = connectUrl(config);
+  const url = typeof config.url === "string" ? config.url : connectUrl(config);
   const options = connectOptions(config);
 
   if (typeof _WebSocket === "function") {
