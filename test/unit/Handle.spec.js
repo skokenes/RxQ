@@ -101,6 +101,25 @@ describe("Handle", function() {
       });
     });
 
+    it("should filter out undefined parameters", function(done) {
+      eng$.subscribe(handle => {
+        var sesh = handle.session;
+
+        var methodParams = ["hello", 42, undefined];
+        var expectedParams = ["hello", 42];
+
+        sesh.requests$.pipe(take(1)).subscribe(r => {
+          var params = r.params;
+          expect(params).to.deep.equal(expectedParams);
+          done();
+        });
+
+        var req = handle
+          .ask("methodParamsTest - " + sesh.sessionId, ...methodParams)
+          .subscribe();
+      });
+    });
+
     it("should give requests a numeric id", function(done) {
       eng$.subscribe(handle => {
         var sesh = handle.session;

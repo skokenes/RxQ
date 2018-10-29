@@ -20,7 +20,7 @@ export default class Handle {
       this.session.ask({
         method: method,
         handle: this.handle,
-        params: args,
+        params: args.filter(arg => typeof arg !== "undefined"),
         qClass: this.qClass
       })
     );
