@@ -6,6 +6,7 @@
 
 ### Features
 * Added `url` parameter for config file that allows users to specify the WebSocket url to connect to. Closes [#56](https://github.com/axisgroup/RxQ/issues/56)
+* Updated generated qix methods to Engine API 12.260.0
 
 ## 2.0.1 (2018-07-26)
 
