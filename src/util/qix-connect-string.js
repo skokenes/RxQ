@@ -41,8 +41,8 @@ function ConnectionString(config) {
         prefix = prefix + '/';
     };
 
-    var suffix = config.appname ? 'app/' + config.appname : 'app';
-    var identity = (config && config.identity) ? '/identity/' + config.identity : '';
+    var suffix = config.appname ? 'app/' + config.appname  + '/' : 'app/';
+    var identity = (config && config.identity) ? 'identity/' + config.identity : '';
     var ticket = config.ticket ? '?qlikTicket=' + config.ticket : '';
 
     var url = isSecure + host + port + prefix + suffix + identity + ticket;

@@ -1,3 +1,8 @@
+## 2.0.3 (2019-01-29)
+
+### Bug Fixes
+* Fix for issue where engine could not be connectly directed to if an appname wasn't supplied Fixes [#61](https://github.com/axisgroup/RxQ/issues/61)
+
 ## 2.0.2 (2018-10-29)
 
 ### Bug Fixes

@@ -1,4 +1,4 @@
 {
   "port": "9079",
-  "image": "qlikcore/engine:12.260.0"
+  "image": "qlikcore/engine:12.300.0"
 }
