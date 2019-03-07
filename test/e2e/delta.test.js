@@ -8,6 +8,7 @@ var {
   switchMap,
   filter,
   map,
+  pairwise,
   take,
   withLatestFrom
 } = require("rxjs/operators");
@@ -15,7 +16,7 @@ var { combineLatest } = require("rxjs");
 
 var { EngineVersion, OpenDoc, IsDesktopMode } = require("../../dist/global");
 var { GetAppProperties, SetAppProperties } = require("../../dist/Doc");
-var { connectSession } = require("../../dist");
+var { connectSession, qAsk, qAskReplay, invalidations } = require("../../dist");
 
 var { port, image } = require("./config.json");
 
@@ -143,6 +144,49 @@ function testDelta() {
               expect(props.foo).to.equal("bar");
               done();
             });
+        });
+      });
+      describe("Patch Immutability", function() {
+        it("should not mutate target paths and keep non-patched paths", done => {
+          const testObj = doc$.pipe(
+            qAskReplay("CreateSessionObject", {
+              qInfo: { qType: "test" },
+              foo: {
+                a: 1
+              },
+              bar: {
+                b: 2
+              }
+            })
+          );
+
+          const layouts = testObj.pipe(
+            invalidations(true),
+            qAsk("GetLayout"),
+            pairwise(),
+            take(2)
+          );
+
+          layouts.subscribe(([prevLayout, currLayout]) => {
+            expect(prevLayout.foo).to.equal(currLayout.foo);
+            expect(prevLayout.bar).to.not.equal(currLayout.bar);
+            done();
+          });
+
+          testObj
+            .pipe(
+              qAsk("SetProperties", {
+                qInfo: { qType: "test" },
+                foo: {
+                  a: 1
+                },
+                bar: {
+                  b: 3
+                }
+              }),
+              take(1)
+            )
+            .subscribe();
         });
       });
     });

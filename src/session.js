@@ -32,7 +32,7 @@ import {
 
 import Handle from "./handle";
 import connectWS from "./util/connectWS";
-import { applyPatch } from "fast-json-patch";
+import { applyPatches } from "immer";
 
 export default class Session {
   constructor(config) {
@@ -185,25 +185,26 @@ export default class Session {
             (acc, reqResp) => {
               const { response } = reqResp;
               const resultKeys = Object.keys(response.result);
+              const patches = resultKeys.reduce((acc, key) => {
+                const keyPatches = response.result[key];
+                const transformedPatches = keyPatches.map(patch => {
+                  // Keep in mind that engine patch root path is out of compliance with JSON-Pointer spec used by JSON-Patch spec for "/"
+                  // https://tools.ietf.org/html/rfc6902#page-3
+                  // https://tools.ietf.org/html/rfc6901#section-5
+                  const arrayPath = patch.path.split("/").filter(s => s !== "");
+                  return {
+                    ...patch,
+                    path: [key, ...arrayPath]
+                  };
+                });
+
+                return [...acc, ...transformedPatches];
+              }, []);
               return {
                 ...reqResp,
                 response: {
                   ...reqResp.response,
-                  result: resultKeys.reduce((patchedResult, key) => {
-                    const currentPatches = response.result[key];
-                    // fix for enigma.js root path which is out of compliance with JSON-Pointer spec used by JSON-Patch spec
-                    // https://tools.ietf.org/html/rfc6902#page-3
-                    // https://tools.ietf.org/html/rfc6901#section-5
-                    const transformedPatches = currentPatches.map(
-                      patch =>
-                        patch.path === "/" ? { ...patch, path: "" } : patch
-                    );
-                    return {
-                      ...patchedResult,
-                      [key]: applyPatch(patchedResult[key], transformedPatches)
-                        .newDocument
-                    };
-                  }, acc.response.result)
+                  result: applyPatches(acc.response.result, patches)
                 }
               };
             },
