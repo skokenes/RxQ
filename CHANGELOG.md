@@ -1,3 +1,8 @@
+## 2.0.4 (2019-03-07)
+
+### Bug Fixes
+* Fix for issue where delta mode would mutate data when applying patches Fixes [#51](https://github.com/axisgroup/RxQ/issues/51)
+
 ## 2.0.3 (2019-01-29)
 
 ### Bug Fixes
