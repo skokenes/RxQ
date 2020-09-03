@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+      /* Basic Options */
+      "target": "es6",
+      /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', or 'ESNEXT'. */
+      "module": "commonjs",
+      "declaration": true,
+      /* Generates corresponding '.d.ts' file. */
+      "sourceMap": true,
+      /* Generates corresponding '.map' file. */
+      // "outFile": "./",                       /* Concatenate and emit output to single file. */
+      "outDir": "./dist",
+      /* Redirect output structure to the directory. */
+      
+      /* Strict Type-Checking Options */
+      "strict": true /* Enable all strict type-checking options. */
+    },
+    "include": [
+      "src/*"
+    ],
+    "exclude": [
+      "tests/*"
+    ]
+  }
